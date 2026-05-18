@@ -7,6 +7,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#000000">
 <title>Finanzas</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%230a84ff'/><stop offset='1' stop-color='%2330d158'/></linearGradient></defs><rect width='32' height='32' rx='7' fill='url(%23g)'/><text x='16' y='23' font-family='system-ui,sans-serif' font-size='20' font-weight='700' fill='white' text-anchor='middle'>$</text></svg>">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
 :root {
@@ -855,8 +856,11 @@ const ACCOUNT_LOGOS={
 };
 function assetIco(concept,ico,col){
   const d=ACCOUNT_LOGOS[concept];
-  if(d) return `<div class="row-ico logo-ico"><img src="https://logo.clearbit.com/${d}" alt="${concept}" onerror="this.parentNode.className='row-ico';this.parentNode.style.background='${col}1a';this.parentNode.style.color='${col}';this.parentNode.innerHTML='${ico.replace(/'/g,"&#39;")}'" /></div>`;
-  // private investment: monogram
+  if(d){
+    const url=`https://www.google.com/s2/favicons?domain=${d}&sz=64`;
+    const fb=concept.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+    return `<div class="row-ico logo-ico"><img src="${url}" alt="${concept}" onerror="this.parentNode.innerHTML='<span style=font-size:11px;font-weight:700;color:${col}>${fb}</span>';this.parentNode.style.background='${col}1a'" /></div>`;
+  }
   const init=concept.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
   return `<div class="row-ico" style="background:${col}1a;color:${col};font-size:12px;font-weight:700;letter-spacing:-.3px">${init}</div>`;
 }
@@ -878,7 +882,7 @@ function initPatrimonio(){
   D.assets.forEach((a,i)=>{
     const ico=ASSET_ICONS[a.concept]||ASSET_ICONS["Incode Stocks"], col=AC[i%AC.length];
     const typeLabel={Inversión:'Inv.',Crypto:'Crypto',Liquid:'Liquid',Net:'Net',Equity:'Privado'}[a.type]||a.type;
-    al.innerHTML+=`<li class="row">${assetIco(a.concept,ico,col)}<div class="row-info"><div class="row-name">${a.concept}</div><div class="row-sub">${typeLabel} · ${tA?(a.value/tA*100).toFixed(0):0}%</div></div><div class="row-right"><div class="row-val" style="color:${col}">${fmt(a.value)}</div>${a.interest?`<div class="row-yield">+${fmt(a.interest)}/mes</div>`:`<div style="font-size:12px;color:var(--label);margin-top:2px">${a.yield?a.yield+'% anual':'—'}</div>`}</div></li>`;
+    al.innerHTML+=`<li class="row">${assetIco(a.concept,ico,col)}<div class="row-info"><div class="row-name">${a.concept}</div><div class="row-sub">${typeLabel} · ${tA?(a.value/tA*100).toFixed(0):0}%</div></div><div class="row-right"><div class="row-val">${fmt(a.value)}</div>${a.interest?`<div class="row-yield">+${fmt(a.interest)}/mes</div>`:`<div style="font-size:12px;color:var(--label);margin-top:2px">${a.yield?a.yield+'% anual':'—'}</div>`}</div></li>`;
   });
 
   document.getElementById('debtList').innerHTML=D.debts.map(d=>`<li class="row"><div class="row-ico" style="background:rgba(255,69,58,.12);color:var(--red)">${d.type==='card'?DEBT_ICON_CARD:DEBT_ICON_PERSON}</div><div class="row-info"><div class="row-name">${d.concept}</div></div><div class="row-right"><div class="row-val red">${fmt(d.value)}</div></div></li>`).join('');
@@ -909,6 +913,20 @@ async function loadData(){
   if(ok) fetchData();
 }
 loadData();
+
+// Generate apple-touch-icon dynamically (iOS home screen)
+(function(){
+  try{
+    const c=document.createElement('canvas');c.width=c.height=180;
+    const ctx=c.getContext('2d');
+    const r=38,s=180;
+    ctx.beginPath();ctx.moveTo(r,0);ctx.lineTo(s-r,0);ctx.arcTo(s,0,s,r,r);ctx.lineTo(s,s-r);ctx.arcTo(s,s,s-r,s,r);ctx.lineTo(r,s);ctx.arcTo(0,s,0,s-r,r);ctx.lineTo(0,r);ctx.arcTo(0,0,r,0,r);ctx.closePath();
+    const g=ctx.createLinearGradient(0,0,180,180);g.addColorStop(0,'#0a84ff');g.addColorStop(1,'#30d158');
+    ctx.fillStyle=g;ctx.fill();
+    ctx.fillStyle='#fff';ctx.font='bold 96px -apple-system,system-ui,sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('$',90,96);
+    const lnk=document.createElement('link');lnk.rel='apple-touch-icon';lnk.href=c.toDataURL();document.head.appendChild(lnk);
+  }catch(e){}
+})();
 </script>
 </body>
 </html>
