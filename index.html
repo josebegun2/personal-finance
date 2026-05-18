@@ -74,7 +74,7 @@ body{font-family:var(--font);background:var(--bg);color:#fff;min-height:100vh;ov
 .tile{background:var(--bg1);border-radius:14px;padding:14px 12px;}
 .tile:active{opacity:.7;}
 .tile-label{font-size:11px;font-weight:500;color:var(--label);margin-bottom:5px;}
-.tile-val{font-size:20px;font-weight:700;letter-spacing:-1px;}
+.tile-val{font-size:18px;font-weight:700;letter-spacing:-.6px;}
 .tile-val.red{color:var(--red);}.tile-val.green{color:var(--green);}
 .tile-sub{font-size:12px;color:var(--label);margin-top:3px;}
 .badge{display:inline-block;font-size:11px;font-weight:700;padding:3px 8px;border-radius:7px;margin-top:5px;letter-spacing:-.1px;}
@@ -211,7 +211,7 @@ canvas{max-width:100%!important;}
   <div class="tiles" style="margin-top:18px">
     <div class="tile"><div class="tile-label" id="tileCurLabel">—</div><div class="tile-val" id="tileCurVal">…</div><div class="tile-sub">gastos mes</div><div id="tileBadge" class="badge dn">—</div></div>
     <div class="tile"><div class="tile-label" id="tilePrevLabel">—</div><div class="tile-val" id="tilePrevVal">…</div><div class="tile-sub">mes anterior</div></div>
-    <div class="tile"><div class="tile-label">Promedio</div><div class="tile-val">$56k</div><div class="tile-sub">últ. 12 meses</div></div>
+    <div class="tile"><div class="tile-label">Promedio</div><div class="tile-val" id="tileAvg">—</div><div class="tile-sub">últ. 12 meses</div></div>
   </div>
   <div class="sec"><span class="sec-title">Gastos mensuales</span></div>
   <div class="card"><div class="card-inner"><canvas id="chartMonths" height="175"></canvas></div></div>
@@ -568,9 +568,12 @@ function renderResumen(){
     const gastosCur  = Object.values(PNL.gastos?.[mCur]||{}).reduce((a,b)=>a+b,0);
     const gastosPrev = Object.values(PNL.gastos?.[mPrev1]||{}).reduce((a,b)=>a+b,0);
     const pct = gastosPrev>0?Math.round((gastosCur-gastosPrev)/gastosPrev*100):0;
-    document.getElementById('tileCurVal').textContent  = fmtK(gastosCur);
+    document.getElementById('tileCurVal').textContent  = fmt(gastosCur);
     document.getElementById('tileCurLabel').textContent= mLab(mCur);
-    document.getElementById('tilePrevVal').textContent = fmtK(gastosPrev);
+    document.getElementById('tilePrevVal').textContent = fmt(gastosPrev);
+    const allMonths=Object.values(PNL.gastos).map(m=>Object.values(m).reduce((a,b)=>a+b,0));
+    const avg=allMonths.length?Math.round(allMonths.reduce((a,b)=>a+b,0)/allMonths.length):0;
+    document.getElementById('tileAvg').textContent=fmt(avg);
     document.getElementById('tilePrevLabel').textContent= mPrev1?mLab(mPrev1):'—';
     document.getElementById('tileBadge').textContent   = (pct>=0?'↑':'↓')+' '+Math.abs(pct)+'%';
     document.getElementById('tileBadge').className     = 'badge '+(pct>=0?'dn':'up');
