@@ -27,12 +27,8 @@ body{font-family:var(--font);background:var(--bg);color:#fff;min-height:100vh;ov
 @keyframes skpulse{0%,100%{opacity:.2}50%{opacity:.5}}
 .sk{animation:skpulse 1.4s ease-in-out infinite;}
 
-/* Top bar */
-.topbar{position:sticky;top:0;z-index:100;background:rgba(0,0,0,.88);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:.5px solid var(--sep);display:flex;align-items:center;padding:0 20px;padding-top:env(safe-area-inset-top);height:calc(48px + env(safe-area-inset-top));}
-.topbar-title{font-size:17px;font-weight:600;letter-spacing:-.3px;}
-
 /* Large title — Stocks style */
-.large-title{padding:20px 20px 0;}
+.large-title{padding:calc(env(safe-area-inset-top) + 20px) 20px 0;}
 .large-title-main{font-size:34px;font-weight:700;letter-spacing:-.8px;line-height:1.05;}
 .large-title-sub{font-size:17px;font-weight:400;color:var(--label);margin-top:3px;letter-spacing:-.2px;}
 
@@ -175,11 +171,11 @@ body{font-family:var(--font);background:var(--bg);color:#fff;min-height:100vh;ov
 .asistente-icon svg{width:36px;height:36px;}
 
 /* TAB BAR — Liquid Glass floating pill */
-.tab-bar{position:fixed;bottom:max(16px,calc(env(safe-area-inset-bottom) + 8px));left:50%;transform:translateX(-50%);width:calc(100% - 32px);max-width:480px;z-index:200;display:flex;align-items:center;justify-content:space-around;padding:6px 8px;background:rgba(28,28,30,.48);backdrop-filter:blur(60px) saturate(200%);-webkit-backdrop-filter:blur(60px) saturate(200%);border-radius:26px;border:.5px solid rgba(255,255,255,.18);box-shadow:0 8px 32px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.12),inset 0 -0.5px 0 rgba(0,0,0,.15);}
-.tab-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:8px 4px;border:none;background:transparent;cursor:pointer;color:var(--label);font-family:var(--font);font-size:10px;font-weight:500;border-radius:18px;transition:color .2s,background .2s;-webkit-tap-highlight-color:transparent;}
-.tab-btn svg{width:22px;height:22px;transition:transform .2s;}
-.tab-btn.active{color:#fff;background:rgba(255,255,255,.11);}
-.tab-btn.active svg{transform:scale(1.06);}
+.tab-bar{position:fixed;bottom:max(16px,calc(env(safe-area-inset-bottom) + 8px));left:50%;transform:translateX(-50%);width:calc(100% - 32px);max-width:480px;z-index:200;display:flex;align-items:center;justify-content:space-around;padding:5px 6px;background:rgba(18,18,20,.44);backdrop-filter:blur(60px) saturate(200%);-webkit-backdrop-filter:blur(60px) saturate(200%);border-radius:30px;border:.5px solid rgba(255,255,255,.16);box-shadow:0 8px 32px rgba(0,0,0,.28),inset 0 1px 0 rgba(255,255,255,.1),inset 0 -0.5px 0 rgba(0,0,0,.1);}
+.tab-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:7px 2px;border:none;background:transparent;cursor:pointer;color:rgba(235,235,245,.38);font-family:var(--font);font-size:10px;font-weight:500;border-radius:22px;transition:color .2s,background .2s;-webkit-tap-highlight-color:transparent;}
+.tab-btn svg{width:21px;height:21px;transition:transform .2s;}
+.tab-btn.active{color:#fff;background:rgba(255,255,255,.15);}
+.tab-btn.active svg{transform:scale(1.05);}
 .tab-btn:active svg{transform:scale(.86);}
 
 @media(max-width:600px){
@@ -207,10 +203,6 @@ canvas{max-width:100%!important;}
   </button>
   <div id="pinError" style="display:none;color:#ff453a;font-size:14px;">PIN incorrecto</div>
 </div>
-
-<header class="topbar">
-  <span class="topbar-title">Finanzas</span>
-</header>
 
 <!-- ═══ INICIO ═══ -->
 <div id="inicio" class="page active">
@@ -251,7 +243,7 @@ canvas{max-width:100%!important;}
 <!-- ═══ GASTOS ═══ -->
 <div id="gastos" class="page">
   <!-- Search — always at top per Fintonic/Copilot pattern -->
-  <div class="search-wrap" style="margin-top:14px">
+  <div class="search-wrap" style="margin-top:calc(env(safe-area-inset-top) + 14px)">
     <svg class="search-ic" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
     <input class="search-input" id="txSearch" placeholder="Buscar transacciones…" oninput="onTxSearch()">
   </div>
@@ -286,7 +278,7 @@ canvas{max-width:100%!important;}
     <div class="hero-num"><span class="sign">$</span><span id="pnlAvg">—</span></div>
     <div class="hero-row">
       <div class="hero-stat"><div class="hero-stat-label">Ingresos</div><div class="hero-stat-val" style="color:var(--green)" id="pnlInc">—</div></div>
-      <div class="hero-stat"><div class="hero-stat-label">Gastos</div><div class="hero-stat-val" id="pnlExp">—</div></div>
+      <div class="hero-stat"><div class="hero-stat-label">Egresos</div><div class="hero-stat-val" id="pnlExp">—</div></div>
       <div class="hero-stat"><div class="hero-stat-label">Tasa ahorro</div><div class="hero-stat-val" style="color:var(--green)" id="pnlRate">—</div></div>
     </div>
   </div>
@@ -300,11 +292,11 @@ canvas{max-width:100%!important;}
 <div id="patrimonio" class="page">
   <div class="large-title"><div class="large-title-main">Patrimonio</div></div>
   <div class="hero">
-    <div class="hero-label">Activos Totales</div>
+    <div class="hero-label">Total Activos Brutos</div>
     <div class="hero-num"><span class="sign">$</span><span id="portTotal">—</span></div>
     <div class="hero-row">
-      <div class="hero-stat"><div class="hero-stat-label">Liquid / Inversiones</div><div class="hero-stat-val" id="portInvest">—</div></div>
-      <div class="hero-stat"><div class="hero-stat-label">Equity</div><div class="hero-stat-val" id="portEquity">—</div></div>
+      <div class="hero-stat"><div class="hero-stat-label">Líquido e Inv.</div><div class="hero-stat-val" id="portInvest">—</div></div>
+      <div class="hero-stat"><div class="hero-stat-label">Acciones</div><div class="hero-stat-val" id="portEquity">—</div></div>
       <div class="hero-stat"><div class="hero-stat-label">Rend./mes</div><div class="hero-stat-val" style="color:var(--green)" id="portRend">—</div></div>
     </div>
   </div>
@@ -778,8 +770,8 @@ function initPatrimonio(){
   const invest=D.assets.filter(a=>a.type!=='Equity').reduce((s,a)=>s+a.value,0);
   const rend=D.totalRendimientos||D.assets.reduce((s,a)=>s+(a.interest||0),0);
   document.getElementById('portTotal').textContent=tA.toLocaleString('es-MX',{maximumFractionDigits:0});
-  document.getElementById('portInvest').textContent=fmtK(invest);
-  document.getElementById('portEquity').textContent=fmtK(equity);
+  document.getElementById('portInvest').textContent=fmt(invest);
+  document.getElementById('portEquity').textContent=fmt(equity);
   document.getElementById('portRend').textContent='+'+(rend?fmt(rend):fmt(PNL.rendimientos))+'/mes';
   const al=document.getElementById('assetList');
   al.innerHTML='';
