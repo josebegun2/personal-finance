@@ -461,6 +461,9 @@ const ASSET_ICONS = {
 };
 const DEBT_ICON_PERSON=`<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="7" r="4"/><path d="M3 18c0-3.9 3.1-7 7-7s7 3.1 7 7"/></svg>`;
 const DEBT_ICON_CARD=`<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="16" height="11" rx="2"/><path d="M2 9h16"/><line x1="6" y1="13" x2="8" y2="13" stroke-width="2.2"/></svg>`;
+/* SF Symbols–inspired filled icons */
+const DEBT_ICON_COUPLE=`<svg viewBox="0 0 20 20" fill="currentColor"><circle cx="13.5" cy="6" r="2.4" opacity=".55"/><path d="M9.8 18c.1-2.6 1.8-4.2 3.7-4.2 1.9 0 3.6 1.6 3.6 4.2H9.8z" opacity=".55"/><circle cx="7" cy="6.5" r="2.8"/><path d="M1.5 18c0-3 2.3-5 5.5-5s5.5 2 5.5 5H1.5z"/></svg>`;
+const DEBT_ICON_FAMILY=`<svg viewBox="0 0 20 20" fill="currentColor"><circle cx="3.8" cy="5" r="2.2"/><path d="M.2 18c0-2.8 1.6-4.4 3.6-4.4s3.6 1.6 3.6 4.4H.2z"/><circle cx="10" cy="7.5" r="1.8"/><path d="M7 18c0-2.2 1.3-3.6 3-3.6s3 1.4 3 3.6H7z"/><circle cx="16.2" cy="5" r="2.2"/><path d="M12.6 18c0-2.8 1.6-4.4 3.6-4.4s3.6 1.6 3.6 4.4h-7.2z"/></svg>`;
 
 // ── ENDPOINT ──
 const API_URL   = "https://script.google.com/macros/s/AKfycbw9nCVlBJFlSs2XHRKAxAtt8rE7FvojYL79QRtKHlz4GS0Xk1Sb_vADo8NcP1JaU3eY/exec";
@@ -502,7 +505,7 @@ function transformData(json){
   const debts=[];
   lastSnap.filter(r=>r.type==='Debt').forEach(r=>{
     if(Math.abs(r.value)===0) return;
-    debts.push({concept:debtNames[r.account]||r.account,value:Math.abs(r.value),type:r.account==='AMEX'?'card':'person'});
+    debts.push({concept:debtNames[r.account]||r.account,value:Math.abs(r.value),type:r.account==='AMEX'?'card':'person',account:r.account});
   });
 
   const totalAssets = assets.reduce((s,a)=>s+a.value,0);
@@ -885,7 +888,19 @@ function initPatrimonio(){
     al.innerHTML+=`<li class="row">${assetIco(a.concept,ico,col)}<div class="row-info"><div class="row-name">${a.concept}</div><div class="row-sub">${typeLabel} · ${tA?(a.value/tA*100).toFixed(0):0}%</div></div><div class="row-right"><div class="row-val">${fmt(a.value)}</div>${a.interest?`<div class="row-yield">+${fmt(a.interest)}/mes</div>`:`<div style="font-size:12px;color:var(--label);margin-top:2px">${a.yield?a.yield+'% anual':'—'}</div>`}</div></li>`;
   });
 
-  document.getElementById('debtList').innerHTML=D.debts.map(d=>`<li class="row"><div class="row-ico" style="background:rgba(255,69,58,.12);color:var(--red)">${d.type==='card'?DEBT_ICON_CARD:DEBT_ICON_PERSON}</div><div class="row-info"><div class="row-name">${d.concept}</div></div><div class="row-right"><div class="row-val red">${fmt(d.value)}</div></div></li>`).join('');
+  document.getElementById('debtList').innerHTML=D.debts.map(d=>{
+    let ico;
+    if(d.account==='AMEX'){
+      ico=`<div class="row-ico logo-ico"><img src="https://www.google.com/s2/favicons?domain=americanexpress.com&sz=64" alt="AMEX" onerror="this.parentNode.className='row-ico';this.parentNode.style.background='rgba(255,69,58,.12)';this.parentNode.style.color='var(--red)';this.parentNode.innerHTML='${DEBT_ICON_CARD}'"></div>`;
+    } else if(d.account==='JM'){
+      ico=`<div class="row-ico" style="background:rgba(255,69,58,.12);color:var(--red)">${DEBT_ICON_COUPLE}</div>`;
+    } else if(d.account==='Family'){
+      ico=`<div class="row-ico" style="background:rgba(255,69,58,.12);color:var(--red)">${DEBT_ICON_FAMILY}</div>`;
+    } else {
+      ico=`<div class="row-ico" style="background:rgba(255,69,58,.12);color:var(--red)">${DEBT_ICON_PERSON}</div>`;
+    }
+    return`<li class="row">${ico}<div class="row-info"><div class="row-name">${d.concept}</div></div><div class="row-right"><div class="row-val red">${fmt(d.value)}</div></div></li>`;
+  }).join('');
   document.getElementById('totalDebtsLabel').textContent='−'+fmt(D.totalDebts).slice(1);
 
   // Allocation view — clean horizontal bar + 3 tiles (replaces giant donut)
