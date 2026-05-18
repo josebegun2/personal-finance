@@ -502,9 +502,8 @@ async function fetchData(){
   bar.style.opacity='1'; bar.style.width='0%';
   requestAnimationFrame(()=>{ bar.style.width='72%'; });
 
-  // Shimmer on placeholders
-  document.querySelector('.hero-num').innerHTML='<span class="sign sk">$</span><span id="heroNetWorth" class="sk">888,888</span>';
-  ['heroAssets','heroDebts'].forEach(id=>{ const el=document.getElementById(id); if(el){el.classList.add('sk');} });
+  // Reset placeholders — empty, sin número arbitrario
+  document.querySelector('.hero-num').innerHTML='<span class="sign">$</span><span id="heroNetWorth"></span>';
 
   try {
     const res  = await fetch(API_URL + '?token=' + API_TOKEN);
@@ -515,6 +514,8 @@ async function fetchData(){
     // Progress bar — done
     bar.style.width='100%';
     setTimeout(()=>{ bar.style.opacity='0'; setTimeout(()=>{ bar.style.width='0%'; },300); },400);
+    // Remove any leftover shimmer classes
+    document.querySelectorAll('.sk').forEach(el=>el.classList.remove('sk'));
     renderAll();
   } catch(e) {
     console.error('Error loading data:', e);
