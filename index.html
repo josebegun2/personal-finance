@@ -22,6 +22,11 @@ html{background:var(--bg);overscroll-behavior:none;}
 body{font-family:var(--font);background:var(--bg);color:#fff;min-height:100vh;overflow-x:hidden;padding-bottom:env(safe-area-inset-bottom);opacity:0;animation:fadeIn .45s ease forwards;}
 @keyframes fadeIn{to{opacity:1}}
 
+/* Loading */
+#loadBar{position:fixed;top:0;left:0;height:2.5px;background:var(--blue);z-index:9999;width:0%;opacity:0;border-radius:0 2px 2px 0;box-shadow:0 0 8px rgba(10,132,255,.6);transition:width .5s cubic-bezier(.2,.8,.2,1),opacity .3s ease;}
+@keyframes skpulse{0%,100%{opacity:.2}50%{opacity:.5}}
+.sk{animation:skpulse 1.4s ease-in-out infinite;}
+
 .topbar{position:sticky;top:0;z-index:100;background:rgba(0,0,0,.88);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:.5px solid var(--sep);display:flex;align-items:center;padding:0 20px;padding-top:env(safe-area-inset-top);height:calc(48px + env(safe-area-inset-top));}
 .topbar-title{font-size:17px;font-weight:600;letter-spacing:-.3px;}
 
@@ -168,6 +173,7 @@ body{font-family:var(--font);background:var(--bg);color:#fff;min-height:100vh;ov
 }
 canvas{max-width:100%!important;}
 </style>
+<div id="loadBar"></div>
 </head>
 <body>
 
@@ -491,17 +497,29 @@ let D={months:{},bmc:{},recent:[],assets:[],debts:[],netWorth:0,totalAssets:0,to
 let PNL={months:[],salario:102000,thanksben:1500,rendimientos:13343,gastos:{}};
 
 async function fetchData(){
-  document.querySelector('.hero-num').innerHTML='<span class="sign">$</span><span id="heroNetWorth">…</span>';
+  // Progress bar — start
+  const bar=document.getElementById('loadBar');
+  bar.style.opacity='1'; bar.style.width='0%';
+  requestAnimationFrame(()=>{ bar.style.width='72%'; });
+
+  // Shimmer on placeholders
+  document.querySelector('.hero-num').innerHTML='<span class="sign sk">$</span><span id="heroNetWorth" class="sk">888,888</span>';
+  ['heroAssets','heroDebts'].forEach(id=>{ const el=document.getElementById(id); if(el){el.classList.add('sk');} });
+
   try {
     const res  = await fetch(API_URL + '?token=' + API_TOKEN);
     const json = await res.json();
     const transformed = transformData(json);
     D   = transformed.D;
     PNL = transformed.PNL;
+    // Progress bar — done
+    bar.style.width='100%';
+    setTimeout(()=>{ bar.style.opacity='0'; setTimeout(()=>{ bar.style.width='0%'; },300); },400);
     renderAll();
   } catch(e) {
     console.error('Error loading data:', e);
-    document.getElementById('heroNetWorth').textContent='Error';
+    bar.style.opacity='0';
+    document.getElementById('heroNetWorth').textContent='Error al cargar';
   }
 }
 
