@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#000000">
 <title>Finanzas</title>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%230a84ff'/><stop offset='1' stop-color='%2330d158'/></linearGradient></defs><rect width='32' height='32' rx='7' fill='url(%23g)'/><text x='16' y='23' font-family='system-ui,sans-serif' font-size='20' font-weight='700' fill='white' text-anchor='middle'>$</text></svg>">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><defs><linearGradient id='wg' x1='0' y1='0' x2='0' y2='1'><stop offset='0' stop-color='%231e7a42'/><stop offset='1' stop-color='%230f4f28'/></linearGradient></defs><rect width='32' height='32' rx='7.5' fill='url(%23wg)'/><rect x='6.5' y='8' width='19' height='12' rx='2.5' fill='rgba(255,255,255,.22)' transform='rotate(-6,16,14)'/><rect x='6.5' y='10' width='19' height='12' rx='2.5' fill='rgba(255,255,255,.45)' transform='rotate(3,16,16)'/><rect x='5.5' y='13' width='21' height='11' rx='2.5' fill='white'/></svg>">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
 :root {
@@ -193,19 +193,20 @@ body{font-family:var(--font);background:var(--bg);color:#fff;min-height:100vh;ov
 .logo-ico{background:var(--bg2)!important;color:transparent!important;padding:3px;overflow:hidden;}
 .logo-ico img{width:100%;height:100%;object-fit:contain;border-radius:6px;}
 /* ALLOC BAR */
-.alloc-bar{height:8px;border-radius:4px;overflow:hidden;display:flex;gap:2px;margin-bottom:16px;}
-.alloc-seg{height:100%;border-radius:3px;transition:width .8s cubic-bezier(.2,.8,.2,1);}
+.alloc-bar{height:14px;border-radius:8px;overflow:hidden;display:flex;gap:1px;margin-bottom:16px;}
+.alloc-seg{height:100%;transition:width .8s cubic-bezier(.2,.8,.2,1);}
 .alloc-tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
 .alloc-tile{background:var(--bg2);border-radius:12px;padding:12px;}
 .alloc-tile-label{font-size:11px;font-weight:600;color:var(--label);margin-bottom:4px;}
 .alloc-tile-val{font-size:14px;font-weight:700;letter-spacing:-.3px;}
 .alloc-tile-pct{font-size:11px;color:var(--label);margin-top:2px;}
 
-/* TAB BAR — Liquid Glass floating pill (Apple HIG: translucent material, blur does the work) */
-.tab-bar{position:fixed;bottom:max(16px,calc(env(safe-area-inset-bottom) + 8px));left:50%;transform:translateX(-50%);width:calc(100% - 32px);max-width:480px;z-index:200;display:flex;align-items:center;justify-content:space-around;padding:5px 6px;background:rgba(20,20,22,.28);backdrop-filter:blur(80px) saturate(250%) brightness(0.88);-webkit-backdrop-filter:blur(80px) saturate(250%) brightness(0.88);border-radius:30px;border:.5px solid rgba(255,255,255,.11);box-shadow:0 4px 24px rgba(0,0,0,.22),inset 0 1px 0 rgba(255,255,255,.08);}
+/* TAB BAR — Liquid Glass (iOS 26 spec)
+   Key: light tint on dark bg (not dark tint), strong specular on top rim = "glass edge" */
+.tab-bar{position:fixed;bottom:max(16px,calc(env(safe-area-inset-bottom) + 8px));left:50%;transform:translateX(-50%);width:calc(100% - 32px);max-width:480px;z-index:200;display:flex;align-items:center;justify-content:space-around;padding:5px 6px;background:rgba(255,255,255,.07);backdrop-filter:blur(60px) saturate(180%);-webkit-backdrop-filter:blur(60px) saturate(180%);border-radius:30px;border:none;box-shadow:inset 0 1.5px 0 rgba(255,255,255,.32),inset 0 -1px 0 rgba(0,0,0,.18),0 0 0 .5px rgba(255,255,255,.1),0 8px 28px rgba(0,0,0,.32);}
 .tab-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:7px 2px;border:none;background:transparent;cursor:pointer;color:rgba(235,235,245,.38);font-family:var(--font);font-size:10px;font-weight:500;border-radius:22px;transition:color .2s,background .2s;-webkit-tap-highlight-color:transparent;}
 .tab-btn svg{width:21px;height:21px;transition:transform .2s;}
-.tab-btn.active{color:#fff;background:rgba(255,255,255,.15);}
+.tab-btn.active{color:#fff;background:rgba(255,255,255,.14);box-shadow:inset 0 1px 0 rgba(255,255,255,.22),inset 0 -0.5px 0 rgba(0,0,0,.12);}
 .tab-btn.active svg{transform:scale(1.05);}
 .tab-btn:active svg{transform:scale(.86);}
 
@@ -905,9 +906,9 @@ function initPatrimonio(){
 
   // Allocation view — clean horizontal bar + 3 tiles (replaces giant donut)
   const buckets=[
-    {label:'Liquid/Net',color:'#0a84ff',types:['Liquid','Net']},
-    {label:'Inversiones',color:'#30d158',types:['Inversión','Crypto']},
-    {label:'Inv. Privadas',color:'#bf5af2',types:['Equity']}
+    {label:'Liquid/Net',color:'#4a8ecf',types:['Liquid','Net']},
+    {label:'Inversiones',color:'#3a9e72',types:['Inversión','Crypto']},
+    {label:'Inv. Privadas',color:'#8b60c4',types:['Equity']}
   ];
   buckets.forEach(b=>{ b.val=D.assets.filter(a=>b.types.includes(a.type)).reduce((s,a)=>s+a.value,0); b.pct=tA?Math.round(b.val/tA*100):0; });
   const av=document.getElementById('allocView');
@@ -934,11 +935,18 @@ loadData();
   try{
     const c=document.createElement('canvas');c.width=c.height=180;
     const ctx=c.getContext('2d');
+    // Rounded rect clip
     const r=38,s=180;
-    ctx.beginPath();ctx.moveTo(r,0);ctx.lineTo(s-r,0);ctx.arcTo(s,0,s,r,r);ctx.lineTo(s,s-r);ctx.arcTo(s,s,s-r,s,r);ctx.lineTo(r,s);ctx.arcTo(0,s,0,s-r,r);ctx.lineTo(0,r);ctx.arcTo(0,0,r,0,r);ctx.closePath();
-    const g=ctx.createLinearGradient(0,0,180,180);g.addColorStop(0,'#0a84ff');g.addColorStop(1,'#30d158');
-    ctx.fillStyle=g;ctx.fill();
-    ctx.fillStyle='#fff';ctx.font='bold 96px -apple-system,system-ui,sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('$',90,96);
+    ctx.beginPath();ctx.moveTo(r,0);ctx.lineTo(s-r,0);ctx.arcTo(s,0,s,r,r);ctx.lineTo(s,s-r);ctx.arcTo(s,s,s-r,s,r);ctx.lineTo(r,s);ctx.arcTo(0,s,0,s-r,r);ctx.lineTo(0,r);ctx.arcTo(0,0,r,0,r);ctx.closePath();ctx.clip();
+    // Green gradient bg (Apple Wallet style)
+    const g=ctx.createLinearGradient(0,0,0,180);g.addColorStop(0,'#1e7a42');g.addColorStop(1,'#0f4f28');
+    ctx.fillStyle=g;ctx.fillRect(0,0,180,180);
+    // Card 1 (back, rotated)
+    ctx.save();ctx.translate(90,82);ctx.rotate(-0.1);ctx.fillStyle='rgba(255,255,255,.22)';ctx.beginPath();ctx.roundRect(-68,-38,136,76,10);ctx.fill();ctx.restore();
+    // Card 2 (middle)
+    ctx.save();ctx.translate(90,84);ctx.rotate(0.05);ctx.fillStyle='rgba(255,255,255,.46)';ctx.beginPath();ctx.roundRect(-68,-38,136,76,10);ctx.fill();ctx.restore();
+    // Card 3 (front, white)
+    ctx.fillStyle='white';ctx.beginPath();ctx.roundRect(16,96,148,62,10);ctx.fill();
     const lnk=document.createElement('link');lnk.rel='apple-touch-icon';lnk.href=c.toDataURL();document.head.appendChild(lnk);
   }catch(e){}
 })();
