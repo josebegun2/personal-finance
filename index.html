@@ -438,39 +438,48 @@ function transformData(json){
   };
 }
 
+// ── AUTH ──
+function u8ToB64(arr){ return btoa(String.fromCharCode(...arr)); }
+function b64ToU8(b64){ return new Uint8Array(atob(b64).split('').map(c=>c.charCodeAt(0))); }
+
+async function authenticate(){
+  if(window.PublicKeyCredential){
+    const storedId=localStorage.getItem('mfos_cred');
+    if(storedId){
+      try{
+        await navigator.credentials.get({publicKey:{
+          challenge:crypto.getRandomValues(new Uint8Array(32)),
+          allowCredentials:[{id:b64ToU8(storedId),type:'public-key'}],
+          userVerification:'required',timeout:60000
+        }});
+        return true;
+      }catch(e){ /* fall through to PIN */ }
+    } else {
+      try{
+        const cred=await navigator.credentials.create({publicKey:{
+          challenge:crypto.getRandomValues(new Uint8Array(32)),
+          rp:{name:'MF OS'},
+          user:{id:new Uint8Array([1,0,6,5]),name:'jose',displayName:'Jose'},
+          pubKeyCredParams:[{alg:-7,type:'public-key'},{alg:-257,type:'public-key'}],
+          authenticatorSelection:{authenticatorAttachment:'platform',userVerification:'required'},
+          timeout:60000
+        }});
+        localStorage.setItem('mfos_cred',u8ToB64(new Uint8Array(cred.rawId)));
+        return true;
+      }catch(e){ /* fall through to PIN */ }
+    }
+  }
+  // PIN screen fallback
+  if(localStorage.getItem('mfos_pin')==='8520') return true;
+  return new Promise(resolve=>{
+    window._pinResolve=resolve;
+    document.getElementById('pinScreen').style.display='flex';
+  });
+}
+
 // ── LOAD DATA ON START ──
 let D={months:{},bmc:{},recent:[],assets:[],debts:[],netWorth:0,totalAssets:0,totalDebts:0};
 let PNL={months:[],salario:102000,thanksben:1500,rendimientos:13343,gastos:{}};
-
-async function loadData(){
-  // PIN check
-  const stored = localStorage.getItem('mfos_pin');
-  if(stored === '8520'){
-    fetchData();
-  } else {
-    showPinScreen();
-  }
-}
-
-function showPinScreen(){
-  document.getElementById('pinScreen').style.display='flex';
-}
-
-function hidePinScreen(){
-  document.getElementById('pinScreen').style.display='none';
-}
-
-function submitPin(){
-  const val = document.getElementById('pinInput').value;
-  if(val === '8520'){
-    localStorage.setItem('mfos_pin', val);
-    hidePinScreen();
-    fetchData();
-  } else {
-    document.getElementById('pinError').style.display='block';
-    document.getElementById('pinInput').value='';
-  }
-}
 
 async function fetchData(){
   document.querySelector('.hero-num').innerHTML='<span class="sign">$</span><span id="heroNetWorth">…</span>';
@@ -486,6 +495,19 @@ async function fetchData(){
     document.getElementById('heroNetWorth').textContent='Error';
   }
 }
+
+function submitPin(){
+  const val = document.getElementById('pinInput').value;
+  if(val === '8520'){
+    localStorage.setItem('mfos_pin','8520');
+    document.getElementById('pinScreen').style.display='none';
+    if(window._pinResolve){ window._pinResolve(true); window._pinResolve=null; }
+  } else {
+    document.getElementById('pinError').style.display='block';
+    document.getElementById('pinInput').value='';
+  }
+}
+
 
 function renderAll(){
   renderResumen();
@@ -664,6 +686,10 @@ function initPortfolio(){
   new Chart(document.getElementById('chartPortfolio'),{type:'doughnut',data:{labels:D.assets.map(a=>a.concept),datasets:[{data:D.assets.map(a=>a.value),backgroundColor:AC,borderWidth:0,hoverOffset:7}]},options:{cutout:'58%',plugins:{legend:{position:'bottom',labels:{color:'rgba(235,235,245,.45)',font:{family:SF,size:11,weight:'600'},padding:10,boxWidth:7,boxHeight:7,usePointStyle:true}},tooltip:{...TIP,callbacks:{label:c=>c.label+': '+fmt(c.raw)}}}}});
 }
 // Start app
+async function loadData(){
+  const ok = await authenticate();
+  if(ok){ fetchData(); }
+}
 loadData();
 </script>
 </body>
