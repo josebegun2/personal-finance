@@ -36,13 +36,13 @@ body{font-family:var(--font);background:var(--bg);color:#fff;min-height:100vh;ov
 
 /* HERO */
 .hero{padding:36px 20px 28px;border-bottom:.5px solid var(--sep);}
-.hero-label{font-size:12px;font-weight:500;color:var(--label);text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px;}
+.hero-label{font-size:13px;font-weight:500;color:var(--label);margin-bottom:10px;}
 .hero-num{font-size:56px;font-weight:700;letter-spacing:-2.8px;line-height:1;}
 .hero-num .sign{font-size:36px;font-weight:700;vertical-align:top;margin-top:9px;display:inline-block;margin-right:1px;}
 .hero-row{display:flex;gap:0;margin-top:22px;border:.5px solid var(--sep);border-radius:14px;overflow:hidden;background:var(--bg1);}
 .hero-stat{flex:1;padding:13px 14px;}
 .hero-stat+.hero-stat{border-left:.5px solid var(--sep);}
-.hero-stat-label{font-size:11px;font-weight:500;color:var(--label);text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px;}
+.hero-stat-label{font-size:11px;font-weight:500;color:var(--label);margin-bottom:4px;}
 .hero-stat-val{font-size:16px;font-weight:700;letter-spacing:-.5px;}
 
 /* SECTION */
@@ -73,7 +73,7 @@ body{font-family:var(--font);background:var(--bg);color:#fff;min-height:100vh;ov
 .tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:0 16px;margin-bottom:4px;}
 .tile{background:var(--bg1);border-radius:14px;padding:14px 12px;}
 .tile:active{opacity:.7;}
-.tile-label{font-size:11px;font-weight:500;color:var(--label);text-transform:uppercase;letter-spacing:.4px;margin-bottom:5px;}
+.tile-label{font-size:11px;font-weight:500;color:var(--label);margin-bottom:5px;}
 .tile-val{font-size:20px;font-weight:700;letter-spacing:-1px;}
 .tile-val.red{color:var(--red);}.tile-val.green{color:var(--green);}
 .tile-sub{font-size:11px;color:var(--label);margin-top:3px;}
@@ -98,7 +98,7 @@ body{font-family:var(--font);background:var(--bg);color:#fff;min-height:100vh;ov
 .mpill.active{background:#fff;color:#000;border-color:#fff;font-weight:700;}
 .mpill:active{transform:scale(.94);}
 .gastos-hero{padding:24px 20px 18px;border-bottom:.5px solid var(--sep);}
-.gastos-label{font-size:12px;font-weight:500;color:var(--label);text-transform:uppercase;letter-spacing:.5px;margin-bottom:7px;}
+.gastos-label{font-size:13px;font-weight:500;color:var(--label);margin-bottom:7px;}
 .gastos-num{font-size:50px;font-weight:700;letter-spacing:-2.5px;}
 .gastos-num .sign{font-size:32px;font-weight:700;vertical-align:top;margin-top:7px;display:inline-block;margin-right:1px;}
 .gastos-body{display:grid;grid-template-columns:190px 1fr;gap:16px;padding:16px 16px 0;align-items:start;}
@@ -137,12 +137,12 @@ body{font-family:var(--font);background:var(--bg);color:#fff;min-height:100vh;ov
 /* P&L */
 .pnl-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;}
 .pnl-table{width:100%;border-collapse:collapse;font-size:13px;min-width:760px;}
-.pnl-table thead th{padding:9px 12px;text-align:right;font-size:10px;font-weight:600;color:var(--label);text-transform:uppercase;letter-spacing:.5px;border-bottom:.5px solid var(--sep);background:var(--bg1);position:sticky;top:0;white-space:nowrap;}
+.pnl-table thead th{padding:9px 12px;text-align:right;font-size:11px;font-weight:600;color:var(--label);border-bottom:.5px solid var(--sep);background:var(--bg1);position:sticky;top:0;white-space:nowrap;}
 .pnl-table thead th:first-child{text-align:left;min-width:130px;}
 .pnl-table tbody tr{border-bottom:.5px solid rgba(255,255,255,.03);}
 .pnl-table tbody td{padding:8px 12px;text-align:right;white-space:nowrap;}
 .pnl-table tbody td:first-child{text-align:left;}
-.pnl-sec td{padding:13px 12px 4px!important;font-size:10px;font-weight:700;color:var(--label2);text-transform:uppercase;letter-spacing:.8px;border-bottom:none!important;}
+.pnl-sec td{padding:13px 12px 4px!important;font-size:11px;font-weight:600;color:var(--label);border-bottom:none!important;}
 .pnl-cat td:first-child{padding-left:20px;color:rgba(235,235,245,.7);}
 .pnl-tot td{font-weight:700;font-size:13px;border-top:.5px solid rgba(255,255,255,.12)!important;padding:11px 12px!important;}
 .pnl-net td{font-weight:800;font-size:14px;padding:12px!important;background:rgba(255,255,255,.03);}
@@ -569,9 +569,9 @@ function renderResumen(){
     const gastosPrev = Object.values(PNL.gastos?.[mPrev1]||{}).reduce((a,b)=>a+b,0);
     const pct = gastosPrev>0?Math.round((gastosCur-gastosPrev)/gastosPrev*100):0;
     document.getElementById('tileCurVal').textContent  = fmtK(gastosCur);
-    document.getElementById('tileCurLabel').textContent= mCur;
+    document.getElementById('tileCurLabel').textContent= mLab(mCur);
     document.getElementById('tilePrevVal').textContent = fmtK(gastosPrev);
-    document.getElementById('tilePrevLabel').textContent= mPrev1||'—';
+    document.getElementById('tilePrevLabel').textContent= mPrev1?mLab(mPrev1):'—';
     document.getElementById('tileBadge').textContent   = (pct>=0?'↑':'↓')+' '+Math.abs(pct)+'%';
     document.getElementById('tileBadge').className     = 'badge '+(pct>=0?'dn':'up');
   }
@@ -663,8 +663,8 @@ function initPnl(){
   const dataR=(l,vals,cls,i)=>{const tr=document.createElement('tr');const t=vals.reduce((a,b)=>a+b,0);tr.innerHTML=`<td style="${i?'padding-left:20px;color:rgba(235,235,245,.7)':''}">${l}</td>`+vals.map(v=>`<td class="${v?cls:'dim'}">${v?fmt(v):'—'}</td>`).join('')+`<td class="${cls}" style="font-weight:700">${fmt(t)}</td>`;tb.appendChild(tr)};
   const catR=(l,vals,col)=>{const tr=document.createElement('tr');tr.className='pnl-cat';const t=vals.reduce((a,b)=>a+b,0);tr.innerHTML=`<td><span style="display:inline-block;width:5px;height:5px;border-radius:50%;background:${col};margin-right:7px;vertical-align:middle"></span>${l}</td>`+vals.map(v=>`<td class="${v?'neg':'dim'}">${v?fmt(v):'—'}</td>`).join('')+`<td class="neg" style="font-weight:700">${fmt(t)}</td>`;tb.appendChild(tr)};
   const totR=(l,vals,cls)=>{const tr=document.createElement('tr');tr.className='pnl-tot';const t=vals.reduce((a,b)=>a+b,0);tr.innerHTML=`<td>${l}</td>`+vals.map(v=>`<td class="${cls}">${fmt(v)}</td>`).join('')+`<td class="${cls}">${fmt(t)}</td>`;tb.appendChild(tr)};
-  secR('INGRESOS');dataR('Salario neto',months.map(()=>PNL.salario),'pos',true);dataR('ThanksBen',months.map(()=>PNL.thanksben),'pos',true);dataR('Rendimientos',months.map(()=>PNL.rendimientos),'pos',true);totR('Total ingresos',months.map(()=>income),'pos');
-  secR('GASTOS');usedCats.forEach(cat=>{const vals=rows.map(r=>r.cats[cat]||0);if(vals.every(v=>v===0))return;catR(CAT_LABEL[cat]||cat,vals,catC[cat]||'#555')});totR('Total gastos',rows.map(r=>r.tg),'neg');
+  secR('Ingresos');dataR('Salario neto',months.map(()=>PNL.salario),'pos',true);dataR('ThanksBen',months.map(()=>PNL.thanksben),'pos',true);dataR('Rendimientos',months.map(()=>PNL.rendimientos),'pos',true);totR('Total ingresos',months.map(()=>income),'pos');
+  secR('Gastos');usedCats.forEach(cat=>{const vals=rows.map(r=>r.cats[cat]||0);if(vals.every(v=>v===0))return;catR(CAT_LABEL[cat]||cat,vals,catC[cat]||'#555')});totR('Total gastos',rows.map(r=>r.tg),'neg');
   const ntr=document.createElement('tr');ntr.className='pnl-net';const ntot=rows.reduce((s,r)=>s+r.neto,0);ntr.innerHTML=`<td>Neto</td>`+rows.map(r=>`<td class="${r.neto>=0?'pos':'neg'}">${r.neto>=0?'+':''}${fmt(r.neto)}</td>`).join('')+`<td class="${ntot>=0?'pos':'neg'}" style="font-weight:800">${ntot>=0?'+':''}${fmt(ntot)}</td>`;tb.appendChild(ntr);
   const rtr=document.createElement('tr');rtr.className='pnl-rate';rtr.innerHTML=`<td>Tasa ahorro</td>`+rows.map(r=>{const rt=Math.round(r.neto/income*100);return`<td class="${r.neto>=0?'dim':'neg'}">${rt}%</td>`}).join('')+`<td class="dim">${rate}%</td>`;tb.appendChild(rtr);
   tbl.appendChild(tb);
