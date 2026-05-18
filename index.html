@@ -26,7 +26,7 @@ body{font-family:var(--font);background:var(--bg);color:#fff;min-height:100vh;ov
 .topbar-title{font-size:17px;font-weight:600;letter-spacing:-.3px;}
 .avatar{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#5e5ce6,#bf5af2);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;}
 
-.page{display:none;max-width:680px;margin:0 auto;padding:0 0 110px;}
+.page{display:none;max-width:680px;margin:0 auto;padding:0 0 120px;}
 .page.active{display:block;animation:slideUp .3s cubic-bezier(.2,.8,.2,1) forwards;}
 @keyframes slideUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 
@@ -34,7 +34,7 @@ body{font-family:var(--font);background:var(--bg);color:#fff;min-height:100vh;ov
 .hero{padding:36px 20px 28px;border-bottom:.5px solid var(--sep);}
 .hero-label{font-size:12px;font-weight:500;color:var(--label);text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px;}
 .hero-num{font-size:54px;font-weight:700;letter-spacing:-2.8px;line-height:1;}
-.hero-num .sign{font-size:28px;font-weight:300;opacity:.5;vertical-align:top;margin-top:12px;display:inline-block;margin-right:1px;}
+.hero-num .sign{font-size:30px;font-weight:200;vertical-align:top;margin-top:10px;display:inline-block;margin-right:2px;}
 .hero-row{display:flex;gap:0;margin-top:22px;border:.5px solid var(--sep);border-radius:14px;overflow:hidden;background:var(--bg1);}
 .hero-stat{flex:1;padding:13px 14px;}
 .hero-stat+.hero-stat{border-left:.5px solid var(--sep);}
@@ -96,7 +96,7 @@ body{font-family:var(--font);background:var(--bg);color:#fff;min-height:100vh;ov
 .gastos-hero{padding:24px 20px 18px;border-bottom:.5px solid var(--sep);}
 .gastos-label{font-size:12px;font-weight:500;color:var(--label);text-transform:uppercase;letter-spacing:.5px;margin-bottom:7px;}
 .gastos-num{font-size:50px;font-weight:700;letter-spacing:-2.5px;}
-.gastos-num .sign{font-size:26px;font-weight:300;opacity:.5;vertical-align:top;margin-top:10px;display:inline-block;margin-right:1px;}
+.gastos-num .sign{font-size:28px;font-weight:200;vertical-align:top;margin-top:8px;display:inline-block;margin-right:2px;}
 .gastos-body{display:grid;grid-template-columns:190px 1fr;gap:16px;padding:16px 16px 0;align-items:start;}
 
 /* CAT */
@@ -150,11 +150,11 @@ body{font-family:var(--font);background:var(--bg);color:#fff;min-height:100vh;ov
 .debt-foot span:first-child{font-size:15px;font-weight:600;}
 .debt-foot span:last-child{font-size:17px;font-weight:700;color:var(--red);}
 
-/* TAB BAR */
-.tab-bar{position:fixed;bottom:0;left:0;right:0;z-index:200;display:flex;align-items:center;justify-content:space-around;padding-bottom:env(safe-area-inset-bottom);background:rgba(0,0,0,.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:.5px solid var(--sep);height:calc(54px + env(safe-area-inset-bottom));}
-.tab-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:8px 0;border:none;background:transparent;cursor:pointer;color:var(--label);font-family:var(--font);font-size:10px;font-weight:500;transition:color .2s;-webkit-tap-highlight-color:transparent;}
-.tab-btn svg{width:24px;height:24px;transition:transform .2s;}
-.tab-btn.active{color:#fff;}
+/* TAB BAR — Liquid Glass floating pill */
+.tab-bar{position:fixed;bottom:max(16px,calc(env(safe-area-inset-bottom) + 8px));left:50%;transform:translateX(-50%);width:calc(100% - 32px);max-width:480px;z-index:200;display:flex;align-items:center;justify-content:space-around;padding:6px 8px;background:rgba(28,28,30,.72);backdrop-filter:blur(40px) saturate(180%);-webkit-backdrop-filter:blur(40px) saturate(180%);border-radius:26px;border:.5px solid rgba(255,255,255,.14);box-shadow:0 8px 32px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.1),inset 0 -0.5px 0 rgba(0,0,0,.2);}
+.tab-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:8px 4px;border:none;background:transparent;cursor:pointer;color:var(--label);font-family:var(--font);font-size:10px;font-weight:500;border-radius:18px;transition:color .2s,background .2s;-webkit-tap-highlight-color:transparent;}
+.tab-btn svg{width:22px;height:22px;transition:transform .2s;}
+.tab-btn.active{color:#fff;background:rgba(255,255,255,.11);}
 .tab-btn.active svg{transform:scale(1.06);}
 .tab-btn:active svg{transform:scale(.86);}
 
@@ -187,7 +187,6 @@ canvas{max-width:100%!important;}
 
 <header class="topbar">
   <span class="topbar-title">Finanzas</span>
-  <div class="avatar">J</div>
 </header>
 
 <!-- RESUMEN -->
@@ -202,7 +201,7 @@ canvas{max-width:100%!important;}
     </div>
   </div>
   <div class="tiles" style="margin-top:18px">
-    <div class="tile"><div class="tile-label" id="tileCurLabel">—</div><div class="tile-val red" id="tileCurVal">…</div><div class="tile-sub">gastos mes</div><div id="tileBadge" class="badge dn">—</div></div>
+    <div class="tile"><div class="tile-label" id="tileCurLabel">—</div><div class="tile-val" id="tileCurVal">…</div><div class="tile-sub">gastos mes</div><div id="tileBadge" class="badge dn">—</div></div>
     <div class="tile"><div class="tile-label" id="tilePrevLabel">—</div><div class="tile-val" id="tilePrevVal">…</div><div class="tile-sub">mes anterior</div></div>
     <div class="tile"><div class="tile-label">Promedio</div><div class="tile-val">$56k</div><div class="tile-sub">últ. 12 meses</div></div>
   </div>
@@ -567,7 +566,7 @@ function renderResumen(){
   // Bar chart — monthly spending
   const mL=Object.keys(D.months).sort(), mV=mL.map(k=>D.months[k]);
   if(chartMonthsInst){ chartMonthsInst.destroy(); chartMonthsInst=null; }
-  chartMonthsInst=new Chart(document.getElementById('chartMonths'),{type:'bar',data:{labels:mL.map(mLab),datasets:[{data:mV,backgroundColor:mV.map(v=>v<0?'#ff453a':'#0a84ff'),borderWidth:0,borderRadius:5,borderSkipped:false}]},options:{responsive:true,plugins:{legend:{display:false},tooltip:{...TIP,callbacks:{label:c=>fmt(c.raw)}}},scales:{x:{grid:{display:false},ticks:{color:'rgba(235,235,245,.35)',font:{family:SF,size:10}}},y:{grid:{color:'rgba(255,255,255,.04)'},border:{display:false},ticks:{color:'rgba(235,235,245,.35)',font:{family:SF,size:10},callback:v=>fmtK(v)}}}}});
+  chartMonthsInst=new Chart(document.getElementById('chartMonths'),{type:'bar',data:{labels:mL.map(mLab),datasets:[{data:mV,backgroundColor:mV.map(v=>v<0?'#0a84ff':'#30d158'),borderWidth:0,borderRadius:5,borderSkipped:false}]},options:{responsive:true,plugins:{legend:{display:false},tooltip:{...TIP,callbacks:{label:c=>fmt(c.raw)}}},scales:{x:{grid:{display:false},ticks:{color:'rgba(235,235,245,.35)',font:{family:SF,size:10}}},y:{grid:{color:'rgba(255,255,255,.04)'},border:{display:false},ticks:{color:'rgba(235,235,245,.35)',font:{family:SF,size:10},callback:v=>fmtK(v)}}}}});
 
   // Donut — top categories (all months combined)
   const catTotals={};
