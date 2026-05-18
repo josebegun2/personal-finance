@@ -344,6 +344,7 @@ const DEBT_ICON_CARD=`<svg viewBox="0 0 20 20" fill="none" stroke="currentColor"
 
 // ── ENDPOINT ──
 const API_URL = "https://script.google.com/macros/s/AKfycbw9nCVlBJFlSs2XHRKAxAtt8rE7FvojYL79QRtKHlz4GS0Xk1Sb_vADo8NcP1JaU3eY/exec";
+const API_TOKEN = "mfos_x9k2p7";
 
 // ── TRANSFORM API → D + PNL ──
 function transformData(json){
@@ -616,7 +617,28 @@ function initPortfolio(){
   new Chart(document.getElementById('chartPortfolio'),{type:'doughnut',data:{labels:D.assets.map(a=>a.concept),datasets:[{data:D.assets.map(a=>a.value),backgroundColor:AC,borderWidth:0,hoverOffset:7}]},options:{cutout:'58%',plugins:{legend:{position:'bottom',labels:{color:'rgba(235,235,245,.45)',font:{family:SF,size:11,weight:'600'},padding:10,boxWidth:7,boxHeight:7,usePointStyle:true}},tooltip:{...TIP,callbacks:{label:c=>c.label+': '+fmt(c.raw)}}}}});
 }
 // Start app
-loadData();
+async function loadData(){
+  // PIN check — solo pregunta una vez, se guarda en localStorage
+  let pin = localStorage.getItem('mfos_pin');
+  if(pin !== '8520') {
+    pin = prompt('PIN:');
+    if(pin !== '8520'){ document.body.innerHTML='<div style="color:#fff;text-align:center;padding:40px">Acceso denegado</div>'; return; }
+    localStorage.setItem('mfos_pin', pin);
+  }
+
+  document.querySelector('.hero-num').innerHTML='<span class="sign">$</span><span id="heroNetWorth">…</span>';
+  try {
+    const res  = await fetch(API_URL + '?token=' + API_TOKEN);
+    const json = await res.json();
+    const transformed = transformData(json);
+    D   = transformed.D;
+    PNL = transformed.PNL;
+    renderAll();
+  } catch(e) {
+    console.error('Error loading data:', e);
+    document.getElementById('heroNetWorth').textContent='Error';
+  }
+}
 </script>
 </body>
 </html>
