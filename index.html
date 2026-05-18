@@ -27,8 +27,13 @@ body{font-family:var(--font);background:var(--bg);color:#fff;min-height:100vh;ov
 @keyframes skpulse{0%,100%{opacity:.2}50%{opacity:.5}}
 .sk{animation:skpulse 1.4s ease-in-out infinite;}
 
+/* Sticky compact header — title fades in when large-title scrolls away */
+.sticky-header{position:fixed;top:0;left:0;right:0;z-index:150;height:calc(44px + env(safe-area-inset-top));padding-top:env(safe-area-inset-top);display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.6);backdrop-filter:blur(24px) saturate(180%);-webkit-backdrop-filter:blur(24px) saturate(180%);border-bottom:.5px solid rgba(255,255,255,.06);pointer-events:none;}
+.sticky-title{font-size:17px;font-weight:600;letter-spacing:-.3px;opacity:0;transition:opacity .22s ease;}
+.sticky-header.title-visible .sticky-title{opacity:1;}
+
 /* Large title — Stocks style */
-.large-title{padding:calc(env(safe-area-inset-top) + 20px) 20px 0;}
+.large-title{padding:calc(env(safe-area-inset-top) + 58px) 20px 0;}
 .large-title-main{font-size:34px;font-weight:700;letter-spacing:-.8px;line-height:1.05;}
 .large-title-sub{font-size:17px;font-weight:400;color:var(--label);margin-top:3px;letter-spacing:-.2px;}
 
@@ -228,6 +233,9 @@ canvas{max-width:100%!important;}
   </button>
   <div id="pinError" style="display:none;color:#ff453a;font-size:14px;">PIN incorrecto</div>
 </div>
+
+<!-- Sticky compact header — title injected by JS on scroll -->
+<div id="stickyHeader" class="sticky-header"><span id="stickyTitle" class="sticky-title"></span></div>
 
 <!-- ═══ INICIO ═══ -->
 <div id="inicio" class="page active">
@@ -629,6 +637,26 @@ const SF="-apple-system,BlinkMacSystemFont,'SF Pro Text',sans-serif";
 const TIP={backgroundColor:'rgba(18,18,20,.96)',titleColor:'#fff',bodyColor:'rgba(235,235,245,.6)',padding:12,cornerRadius:12,displayColors:false,borderColor:'rgba(255,255,255,.1)',borderWidth:.5,titleFont:{family:SF,weight:'700',size:13},bodyFont:{family:SF,size:12}};
 
 // ── NAVIGATION ──
+// ── STICKY HEADER ──
+const STICKY_TITLES={inicio:'Finanzas',gastos:'Gastos',tendencias:'P&L',patrimonio:'Patrimonio',asistente:'Asistente'};
+let _stickyObs=null;
+function setStickyTitle(id){
+  const hdr=document.getElementById('stickyHeader');
+  const ttl=document.getElementById('stickyTitle');
+  ttl.textContent=STICKY_TITLES[id]||'';
+  hdr.classList.remove('title-visible');
+  // Disconnect previous observer
+  if(_stickyObs){_stickyObs.disconnect();_stickyObs=null;}
+  const largeTitleEl=document.querySelector('#'+id+' .large-title-main');
+  if(!largeTitleEl){hdr.classList.add('title-visible');return;}
+  _stickyObs=new IntersectionObserver(([e])=>{
+    hdr.classList.toggle('title-visible',!e.isIntersecting);
+  },{threshold:0,rootMargin:'-52px 0px 0px 0px'});
+  _stickyObs.observe(largeTitleEl);
+  // Scroll back to top on tab switch so large-title is visible
+  window.scrollTo({top:0,behavior:'instant'});
+}
+
 function go(id,btn){
   if(navigator.vibrate)navigator.vibrate(6);
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
@@ -638,11 +666,13 @@ function go(id,btn){
   if(id==='gastos'    &&!window._g) initGastos();
   if(id==='tendencias'&&!window._t) initTendencias();
   if(id==='patrimonio'&&!window._p) initPatrimonio();
+  setStickyTitle(id);
 }
 
 function renderAll(){
   renderInicio();
   window._g=false; window._t=false; window._p=false;
+  setStickyTitle('inicio');
 }
 
 // ══════════════════════════════════════════
