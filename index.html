@@ -170,8 +170,8 @@ body{font-family:var(--font);background:var(--bg);color:#fff;min-height:100vh;ov
 .asistente-icon{width:72px;height:72px;border-radius:22px;background:linear-gradient(135deg,#0a84ff,#bf5af2);display:flex;align-items:center;justify-content:center;}
 .asistente-icon svg{width:36px;height:36px;}
 
-/* TAB BAR — Liquid Glass floating pill */
-.tab-bar{position:fixed;bottom:max(16px,calc(env(safe-area-inset-bottom) + 8px));left:50%;transform:translateX(-50%);width:calc(100% - 32px);max-width:480px;z-index:200;display:flex;align-items:center;justify-content:space-around;padding:5px 6px;background:rgba(18,18,20,.44);backdrop-filter:blur(60px) saturate(200%);-webkit-backdrop-filter:blur(60px) saturate(200%);border-radius:30px;border:.5px solid rgba(255,255,255,.16);box-shadow:0 8px 32px rgba(0,0,0,.28),inset 0 1px 0 rgba(255,255,255,.1),inset 0 -0.5px 0 rgba(0,0,0,.1);}
+/* TAB BAR — Liquid Glass floating pill (Apple HIG: translucent material, blur does the work) */
+.tab-bar{position:fixed;bottom:max(16px,calc(env(safe-area-inset-bottom) + 8px));left:50%;transform:translateX(-50%);width:calc(100% - 32px);max-width:480px;z-index:200;display:flex;align-items:center;justify-content:space-around;padding:5px 6px;background:rgba(20,20,22,.28);backdrop-filter:blur(80px) saturate(250%) brightness(0.88);-webkit-backdrop-filter:blur(80px) saturate(250%) brightness(0.88);border-radius:30px;border:.5px solid rgba(255,255,255,.11);box-shadow:0 4px 24px rgba(0,0,0,.22),inset 0 1px 0 rgba(255,255,255,.08);}
 .tab-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:7px 2px;border:none;background:transparent;cursor:pointer;color:rgba(235,235,245,.38);font-family:var(--font);font-size:10px;font-weight:500;border-radius:22px;transition:color .2s,background .2s;-webkit-tap-highlight-color:transparent;}
 .tab-btn svg{width:21px;height:21px;transition:transform .2s;}
 .tab-btn.active{color:#fff;background:rgba(255,255,255,.15);}
@@ -237,13 +237,14 @@ canvas{max-width:100%!important;}
 
   <!-- Recent transactions -->
   <div class="sec"><span class="sec-title">Recientes</span></div>
-  <div class="card"><ul class="rows" id="recentList"></ul></div>
+  <div class="card" style="overflow:hidden"><div style="max-height:340px;overflow-y:auto;-webkit-overflow-scrolling:touch;"><ul class="rows" id="recentList"></ul></div></div>
 </div>
 
 <!-- ═══ GASTOS ═══ -->
 <div id="gastos" class="page">
-  <!-- Search — always at top per Fintonic/Copilot pattern -->
-  <div class="search-wrap" style="margin-top:calc(env(safe-area-inset-top) + 14px)">
+  <div class="large-title"><div class="large-title-main">Gastos</div></div>
+  <!-- Search -->
+  <div class="search-wrap" style="margin-top:14px">
     <svg class="search-ic" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
     <input class="search-input" id="txSearch" placeholder="Buscar transacciones…" oninput="onTxSearch()">
   </div>
@@ -260,6 +261,7 @@ canvas{max-width:100%!important;}
       <div class="gastos-label" id="gastosLabel">—</div>
       <div class="gastos-num"><span class="sign">$</span><span id="gastosNum">—</span></div>
     </div>
+    <div class="sec" style="padding-top:16px"><span class="sec-title">Clasificación</span></div>
     <div class="gastos-body">
       <div class="donut-wrap">
         <canvas id="chartWheel" width="190" height="190" style="max-width:190px"></canvas>
@@ -275,7 +277,7 @@ canvas{max-width:100%!important;}
   <div class="large-title"><div class="large-title-main">P&amp;L</div></div>
   <div class="hero">
     <div class="hero-label">Ahorro promedio mensual</div>
-    <div class="hero-num"><span class="sign">$</span><span id="pnlAvg">—</span></div>
+    <div class="hero-num" id="pnlAvgNum"><span class="sign">$</span><span id="pnlAvg">—</span></div>
     <div class="hero-row">
       <div class="hero-stat"><div class="hero-stat-label">Ingresos</div><div class="hero-stat-val" style="color:var(--green)" id="pnlInc">—</div></div>
       <div class="hero-stat"><div class="hero-stat-label">Egresos</div><div class="hero-stat-val" id="pnlExp">—</div></div>
@@ -616,12 +618,15 @@ function renderInicio(){
     deltaEl.innerHTML=`<span class="delta ${pos?'pos':'neg'}">${arrow} ${fmt(Math.abs(D.netWorthDelta))} vs ${mLab(D.prevMonth)}</span>`;
   } else { deltaEl.innerHTML=''; }
 
-  // Spending progress card
+  // Spending progress card — exclude account movements, use last 12 complete months for avg
+  const EXCL_AVG=['MOVIMIENTOS_CUENTA','POR_CLASIFICAR'];
   const mKeys=Object.keys(PNL.gastos).sort();
   const mCur=mKeys[mKeys.length-1]||'';
-  const allMonthVals=mKeys.map(m=>Object.values(PNL.gastos[m]||{}).reduce((a,b)=>a+b,0));
+  const histKeys=mKeys.slice(0,-1).slice(-12); // last 12 complete months (not current)
+  const spendVal=m=>Object.entries(PNL.gastos[m]||{}).filter(([k])=>!EXCL_AVG.includes(k)).reduce((a,[,v])=>a+v,0);
+  const allMonthVals=histKeys.map(spendVal);
   const avg=allMonthVals.length?Math.round(allMonthVals.reduce((a,b)=>a+b,0)/allMonthVals.length):0;
-  const curSpend=mCur?Object.values(PNL.gastos[mCur]||{}).reduce((a,b)=>a+b,0):0;
+  const curSpend=spendVal(mCur);
   const pct=avg>0?Math.round(curSpend/avg*100):0;
   const barColor=pct>100?'var(--red)':pct>80?'var(--orange)':'var(--blue)';
   document.getElementById('spendCur').textContent=fmt(curSpend);
@@ -635,7 +640,7 @@ function renderInicio(){
 
   // Recent 5 transactions
   const list=document.getElementById('recentList');
-  list.innerHTML=(D.allTx||[]).slice(0,5).map(tx=>{
+  list.innerHTML=(D.allTx||[]).slice(0,15).map(tx=>{
     const col=CC[tx.catKey]||CC[tx.cat]||'#555';
     const ico=ICONS[tx.catKey]||ICONS[tx.cat]||ICONS.POR_CLASIFICAR;
     return`<li class="row"><div class="row-ico" style="background:${col}1a;color:${col}">${ico}</div><div class="row-info"><div class="row-name">${tx.desc}</div><div class="row-sub">${tx.date} · ${tx.by}</div></div><div class="row-right"><div class="row-val">${fmt(tx.amount)}</div></div></li>`;
@@ -650,8 +655,8 @@ let wheel=null, selM='';
 function initGastos(){
   window._g=true;
   const sc=document.getElementById('monthScroller');
-  const bmcKeys=Object.keys(D.bmc).sort();
-  if(!selM||!D.bmc[selM]) selM=bmcKeys[bmcKeys.length-1]||'';
+  const bmcKeys=Object.keys(D.bmc).sort().reverse(); // newest first
+  if(!selM||!D.bmc[selM]) selM=bmcKeys[0]||'';
   bmcKeys.forEach(m=>{
     const b=document.createElement('button');
     b.className='mpill'+(m===selM?' active':'');
@@ -735,11 +740,12 @@ function onTxSearch(){
 function initTendencias(){
   window._t=true;
   const income=PNL.salario+PNL.thanksben+PNL.rendimientos;
-  const months=PNL.months;
+  const months=PNL.months.slice(-12); // últimos 12 meses
   const rows=months.map(m=>{const g=PNL.gastos[m]||{};const tg=Object.values(g).reduce((a,b)=>a+b,0);return{m,tg,neto:income-tg,cats:g};});
   const totalInc=income*months.length, totalExp=rows.reduce((s,r)=>s+r.tg,0);
   const totalNet=totalInc-totalExp, avgSav=Math.round(totalNet/months.length), rate=Math.round(totalNet/totalInc*100);
-  document.getElementById('pnlAvg').textContent=avgSav.toLocaleString('es-MX',{maximumFractionDigits:0});
+  const pnlSign=avgSav<0?'−$':'$';
+  document.getElementById('pnlAvgNum').innerHTML=`<span class="sign">${pnlSign}</span><span id="pnlAvg">${Math.abs(avgSav).toLocaleString('es-MX',{maximumFractionDigits:0})}</span>`;
   document.getElementById('pnlInc').textContent=fmtK(totalInc);
   document.getElementById('pnlExp').textContent=fmtK(totalExp);
   document.getElementById('pnlRate').textContent=rate+'%';
@@ -758,6 +764,8 @@ function initTendencias(){
   const ntr=document.createElement('tr');ntr.className='pnl-net';const ntot=rows.reduce((s,r)=>s+r.neto,0);ntr.innerHTML=`<td>Neto</td>`+rows.map(r=>`<td class="${r.neto>=0?'pos':'neg'}">${r.neto>=0?'+':''}${fmt(r.neto)}</td>`).join('')+`<td class="${ntot>=0?'pos':'neg'}" style="font-weight:800">${ntot>=0?'+':''}${fmt(ntot)}</td>`;tb.appendChild(ntr);
   const rtr=document.createElement('tr');rtr.className='pnl-rate';rtr.innerHTML=`<td>Tasa ahorro</td>`+rows.map(r=>{const rt=Math.round(r.neto/income*100);return`<td class="${r.neto>=0?'dim':'neg'}">${rt}%</td>`;}).join('')+`<td class="dim">${rate}%</td>`;tb.appendChild(rtr);
   tbl.appendChild(tb);
+  // Auto-scroll to show most recent months (right side)
+  requestAnimationFrame(()=>{const s=document.querySelector('.pnl-scroll');if(s)s.scrollLeft=s.scrollWidth;});
 }
 
 // ══════════════════════════════════════════
