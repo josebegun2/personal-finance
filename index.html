@@ -204,7 +204,7 @@ body{font-family:var(--font);background:var(--bg);color:#fff;min-height:100vh;ov
 /* TAB BAR — Liquid Glass (iOS 26 spec)
    Key: light tint on dark bg (not dark tint), strong specular on top rim = "glass edge" */
 .tab-bar{position:fixed;bottom:max(16px,calc(env(safe-area-inset-bottom) + 8px));left:50%;transform:translateX(-50%);width:calc(100% - 32px);max-width:480px;z-index:200;display:flex;align-items:center;justify-content:space-around;padding:5px 6px;background:rgba(255,255,255,.07);backdrop-filter:blur(60px) saturate(180%);-webkit-backdrop-filter:blur(60px) saturate(180%);border-radius:30px;border:none;box-shadow:inset 0 1.5px 0 rgba(255,255,255,.32),inset 0 -1px 0 rgba(0,0,0,.18),0 0 0 .5px rgba(255,255,255,.1),0 8px 28px rgba(0,0,0,.32);}
-.tab-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:7px 2px;border:none;background:transparent;cursor:pointer;color:rgba(235,235,245,.38);font-family:var(--font);font-size:10px;font-weight:500;border-radius:22px;transition:color .2s,background .2s;-webkit-tap-highlight-color:transparent;}
+.tab-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:7px 1px;border:none;background:transparent;cursor:pointer;color:rgba(235,235,245,.38);font-family:var(--font);font-size:9px;font-weight:500;border-radius:22px;transition:color .2s,background .2s;-webkit-tap-highlight-color:transparent;}
 .tab-btn svg{width:21px;height:21px;transition:transform .2s;}
 .tab-btn.active{color:#fff;background:rgba(255,255,255,.14);box-shadow:inset 0 1px 0 rgba(255,255,255,.22),inset 0 -0.5px 0 rgba(0,0,0,.12);}
 .tab-btn.active svg{transform:scale(1.05);}
@@ -348,6 +348,22 @@ canvas{max-width:100%!important;}
   <div class="card"><div class="card-inner" id="allocView"></div></div>
 </div>
 
+<!-- ═══ MOVIMIENTOS ═══ -->
+<div id="movimientos" class="page">
+  <div class="large-title"><div class="large-title-main">Movimientos</div></div>
+  <div class="month-scroll" id="movMonthScroller" style="margin-top:14px"></div>
+  <div class="hero" style="padding:16px 20px 14px">
+    <div class="hero-label" id="movLabel">—</div>
+    <div style="display:flex;gap:24px;margin-top:10px">
+      <div><div style="font-size:11px;color:var(--label);margin-bottom:3px">Salidas</div><div id="movOut" style="font-size:17px;font-weight:700;color:var(--red)">—</div></div>
+      <div><div style="font-size:11px;color:var(--label);margin-bottom:3px">Entradas</div><div id="movIn" style="font-size:17px;font-weight:700;color:var(--green)">—</div></div>
+      <div><div style="font-size:11px;color:var(--label);margin-bottom:3px">Neto</div><div id="movNet" style="font-size:17px;font-weight:700">—</div></div>
+    </div>
+  </div>
+  <div class="sec"><span class="sec-title">Detalle</span></div>
+  <div class="card"><ul class="rows" id="movList"></ul></div>
+</div>
+
 <!-- ═══ ASISTENTE ═══ -->
 <div id="asistente" class="page">
   <div class="large-title"><div class="large-title-main">Asistente</div></div>
@@ -403,6 +419,14 @@ canvas{max-width:100%!important;}
       <path d="M14 5a9 9 0 1 1-9 9"/><path d="M14 5v9h9A9 9 0 0 0 14 5z"/>
     </svg>
     <span>Gastos</span>
+  </button>
+  <!-- Movimientos -->
+  <button class="tab-btn" onclick="go('movimientos',this)">
+    <svg viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M4 10h20M20 6l4 4-4 4"/>
+      <path d="M24 18H4M8 14l-4 4 4 4"/>
+    </svg>
+    <span>Movs.</span>
   </button>
   <!-- Tendencias -->
   <button class="tab-btn" onclick="go('tendencias',this)">
@@ -462,9 +486,9 @@ const ASSET_ICONS = {
 };
 const DEBT_ICON_PERSON=`<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="7" r="4"/><path d="M3 18c0-3.9 3.1-7 7-7s7 3.1 7 7"/></svg>`;
 const DEBT_ICON_CARD=`<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="16" height="11" rx="2"/><path d="M2 9h16"/><line x1="6" y1="13" x2="8" y2="13" stroke-width="2.2"/></svg>`;
-/* SF Symbols–inspired filled icons */
-const DEBT_ICON_COUPLE=`<svg viewBox="0 0 20 20" fill="currentColor"><circle cx="13.5" cy="6" r="2.4" opacity=".55"/><path d="M9.8 18c.1-2.6 1.8-4.2 3.7-4.2 1.9 0 3.6 1.6 3.6 4.2H9.8z" opacity=".55"/><circle cx="7" cy="6.5" r="2.8"/><path d="M1.5 18c0-3 2.3-5 5.5-5s5.5 2 5.5 5H1.5z"/></svg>`;
-const DEBT_ICON_FAMILY=`<svg viewBox="0 0 20 20" fill="currentColor"><circle cx="3.8" cy="5" r="2.2"/><path d="M.2 18c0-2.8 1.6-4.4 3.6-4.4s3.6 1.6 3.6 4.4H.2z"/><circle cx="10" cy="7.5" r="1.8"/><path d="M7 18c0-2.2 1.3-3.6 3-3.6s3 1.4 3 3.6H7z"/><circle cx="16.2" cy="5" r="2.2"/><path d="M12.6 18c0-2.8 1.6-4.4 3.6-4.4s3.6 1.6 3.6 4.4h-7.2z"/></svg>`;
+/* SF Symbols–inspired stroke icons (match app style) */
+const DEBT_ICON_COUPLE=`<svg viewBox="0 0 28 22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="6" r="3.5"/><path d="M1.5 21c0-4.2 3.3-7 7.5-7s7.5 2.8 7.5 7"/><circle cx="21" cy="6.5" r="3"/><path d="M14.5 21c.6-3.8 3.2-6 6.5-6s5.9 2.2 6.5 6"/></svg>`;
+const DEBT_ICON_FAMILY=`<svg viewBox="0 0 34 22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="5.5" cy="5.5" r="3"/><path d="M.5 21c0-3.8 2.2-6 5-6s5 2.2 5 6"/><circle cx="17" cy="8" r="2.4"/><path d="M12 21c0-3 2-5 5-5s5 2 5 5"/><circle cx="28.5" cy="5.5" r="3"/><path d="M23.5 21c0-3.8 2.2-6 5-6s5 2.2 5 6"/></svg>`;
 
 // ── ENDPOINT ──
 const API_URL   = "https://script.google.com/macros/s/AKfycbw9nCVlBJFlSs2XHRKAxAtt8rE7FvojYL79QRtKHlz4GS0Xk1Sb_vADo8NcP1JaU3eY/exec";
@@ -513,6 +537,16 @@ function transformData(json){
   const totalDebts  = debts.reduce((s,d)=>s+d.value,0);
   const totalRendimientos = assets.reduce((s,a)=>s+(a.interest||0),0);
 
+  // Inter-account movements (all signs — both in and out)
+  const movements={};
+  ml.forEach(r=>{
+    const cat=(r.category||'').toUpperCase().replace(/ /g,'_');
+    if(cat==='MOVIMIENTOS_CUENTA'){
+      if(!movements[r.month]) movements[r.month]=[];
+      movements[r.month].push({date:r.date,desc:r.description||'—',amount:Math.abs(r.net),account:r.account,dir:r.sign<0?'out':'in'});
+    }
+  });
+
   // Gastos + transaction index
   const gastosByMonth={}, bmcRaw={}, txIndex={};
   const allTx=[];
@@ -547,7 +581,7 @@ function transformData(json){
   Object.keys(monthTotals).sort().forEach(k=>sortedMonthTotals[k]=monthTotals[k]);
 
   return {
-    D:{ months:sortedMonthTotals, bmc:bmcRaw, allTx, txIndex, assets, debts,
+    D:{ months:sortedMonthTotals, bmc:bmcRaw, allTx, txIndex, movements, assets, debts,
         netWorth, netWorthDelta, prevMonth, totalAssets, totalDebts, totalRendimientos },
     PNL:{ months:Object.keys(gastosByMonth).sort(), salario:102000, thanksben:1500, rendimientos:13343, gastos:gastosByMonth },
     lastMonth
@@ -643,7 +677,7 @@ const TIP={backgroundColor:'rgba(18,18,20,.96)',titleColor:'#fff',bodyColor:'rgb
 
 // ── NAVIGATION ──
 // ── STICKY HEADER ──
-const STICKY_TITLES={inicio:'Finanzas',gastos:'Gastos',tendencias:'P&L',patrimonio:'Patrimonio',asistente:'Asistente'};
+const STICKY_TITLES={inicio:'Finanzas',gastos:'Gastos',movimientos:'Movimientos',tendencias:'P&L',patrimonio:'Patrimonio',asistente:'Asistente'};
 let _stickyObs=null;
 function setStickyTitle(id){
   const hdr=document.getElementById('stickyHeader');
@@ -668,15 +702,16 @@ function go(id,btn){
   document.querySelectorAll('.tab-btn').forEach(t=>t.classList.remove('active'));
   document.getElementById(id).classList.add('active');
   btn.classList.add('active');
-  if(id==='gastos'    &&!window._g) initGastos();
-  if(id==='tendencias'&&!window._t) initTendencias();
-  if(id==='patrimonio'&&!window._p) initPatrimonio();
+  if(id==='gastos'      &&!window._g) initGastos();
+  if(id==='movimientos' &&!window._m) initMovimientos();
+  if(id==='tendencias'  &&!window._t) initTendencias();
+  if(id==='patrimonio'  &&!window._p) initPatrimonio();
   setStickyTitle(id);
 }
 
 function renderAll(){
   renderInicio();
-  window._g=false; window._t=false; window._p=false;
+  window._g=false; window._m=false; window._t=false; window._p=false;
   setStickyTitle('inicio');
 }
 
@@ -813,6 +848,49 @@ function onTxSearch(){
         return`<li class="row"><div class="row-ico" style="background:${col}1a;color:${col}">${ico}</div><div class="row-info"><div class="row-name">${tx.desc}</div><div class="row-sub">${tx.date} · ${tx.by} · ${tx.month}</div></div><div class="row-right"><div class="row-val">${fmt(tx.amount)}</div></div></li>`;
       }).join('')
     : `<li class="row"><div class="row-info"><div class="row-name" style="color:var(--label)">Sin resultados</div></div></li>`;
+}
+
+// ══════════════════════════════════════════
+// MOVIMIENTOS ENTRE CUENTAS
+// ══════════════════════════════════════════
+let selMovM='';
+function initMovimientos(){
+  window._m=true;
+  const sc=document.getElementById('movMonthScroller');
+  const mKeys=Object.keys(D.movements||{}).sort().reverse();
+  if(!selMovM||!D.movements[selMovM]) selMovM=mKeys[0]||'';
+  mKeys.forEach(m=>{
+    const b=document.createElement('button');
+    b.className='mpill'+(m===selMovM?' active':'');
+    const[y,mo]=m.split('-');b.textContent=MN[+mo-1]+' '+y;
+    b.onclick=()=>{selMovM=m;document.querySelectorAll('#movMonthScroller .mpill').forEach(x=>x.classList.remove('active'));b.classList.add('active');renderMovimientos();};
+    sc.appendChild(b);
+  });
+  renderMovimientos();
+}
+function renderMovimientos(){
+  const txs=(D.movements[selMovM]||[]).sort((a,b)=>b.date.localeCompare(a.date));
+  const[y,mo]=selMovM.split('-')||['',''];
+  document.getElementById('movLabel').textContent=(MN2[+mo-1]||'')+(y?' '+y:'');
+  const outs=txs.filter(t=>t.dir==='out').reduce((s,t)=>s+t.amount,0);
+  const ins=txs.filter(t=>t.dir==='in').reduce((s,t)=>s+t.amount,0);
+  const net=ins-outs;
+  document.getElementById('movOut').textContent='−'+fmt(outs).slice(1);
+  document.getElementById('movIn').textContent='+'+fmt(ins).slice(1);
+  const netEl=document.getElementById('movNet');
+  netEl.textContent=(net>=0?'+':'-')+fmt(Math.abs(net)).slice(1);
+  netEl.style.color=net>=0?'var(--green)':'var(--red)';
+  const list=document.getElementById('movList');
+  if(!txs.length){list.innerHTML=`<li class="row"><div class="row-info"><div class="row-name" style="color:var(--label)">Sin movimientos este mes</div></div></li>`;return;}
+  list.innerHTML=txs.map(t=>{
+    const col=t.dir==='out'?'var(--red)':'var(--green)';
+    const arrow=t.dir==='out'?'↑':'↓';
+    const acct=t.account||'';
+    const accIco=ACCOUNT_LOGOS[acct]
+      ?`<div class="row-ico logo-ico"><img src="https://www.google.com/s2/favicons?domain=${ACCOUNT_LOGOS[acct]}&sz=64" onerror="this.parentNode.style.background='rgba(255,255,255,.06)';this.parentNode.innerHTML='<span style=font-size:10px;font-weight:700;color:#fff>${acct.slice(0,2)}</span>'"></div>`
+      :`<div class="row-ico" style="background:rgba(255,255,255,.06);font-size:10px;font-weight:700;color:rgba(235,235,245,.7)">${acct.slice(0,3)}</div>`;
+    return`<li class="row">${accIco}<div class="row-info"><div class="row-name">${t.desc}</div><div class="row-sub">${t.date} · ${acct}</div></div><div class="row-right"><div class="row-val" style="color:${col}">${arrow} ${fmt(t.amount)}</div></div></li>`;
+  }).join('');
 }
 
 // ══════════════════════════════════════════
