@@ -165,10 +165,35 @@ body{font-family:var(--font);background:var(--bg);color:#fff;min-height:100vh;ov
 .debt-foot span:first-child{font-size:15px;font-weight:600;}
 .debt-foot span:last-child{font-size:17px;font-weight:700;color:var(--red);}
 
-/* ASISTENTE placeholder */
-.asistente-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 32px;text-align:center;gap:16px;}
-.asistente-icon{width:72px;height:72px;border-radius:22px;background:linear-gradient(135deg,#0a84ff,#bf5af2);display:flex;align-items:center;justify-content:center;}
-.asistente-icon svg{width:36px;height:36px;}
+/* ASISTENTE — Apple Intelligence / Revolut AIR aesthetic */
+.ai-wrap{display:flex;flex-direction:column;align-items:center;padding:40px 24px 24px;gap:0;}
+.ai-orb-ring{position:relative;width:120px;height:120px;margin-bottom:28px;}
+.ai-orb{width:120px;height:120px;border-radius:50%;background:conic-gradient(from 0deg,#bf5af2,#0a84ff,#5ac8fa,#30d158,#ffd60a,#ff375f,#bf5af2);animation:orbSpin 6s linear infinite;filter:blur(1px);opacity:.9;}
+.ai-orb-inner{position:absolute;inset:10px;border-radius:50%;background:radial-gradient(ellipse at 35% 35%,#2d2040,#0d0d10);backdrop-filter:blur(4px);}
+.ai-orb-shine{position:absolute;inset:10px;border-radius:50%;background:radial-gradient(ellipse at 32% 28%,rgba(255,255,255,.18),transparent 60%);}
+@keyframes orbSpin{to{transform:rotate(360deg)}}
+@keyframes orbPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.04)}}
+.ai-orb-ring{animation:orbPulse 4s ease-in-out infinite;}
+.ai-title{font-size:22px;font-weight:700;letter-spacing:-.5px;margin-bottom:8px;}
+.ai-sub{font-size:15px;color:var(--label);line-height:1.55;text-align:center;max-width:260px;margin-bottom:28px;}
+.ai-chips{display:flex;flex-direction:column;gap:8px;width:100%;max-width:340px;margin-bottom:28px;}
+.ai-chip{background:var(--bg1);border:.5px solid var(--bg3);border-radius:14px;padding:13px 16px;font-size:14px;font-weight:500;color:rgba(235,235,245,.55);text-align:left;cursor:default;display:flex;align-items:center;gap:10px;}
+.ai-chip-ic{width:28px;height:28px;border-radius:8px;background:rgba(191,90,242,.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.ai-chip-ic svg{width:14px;height:14px;color:#bf5af2;}
+.ai-input-mock{width:100%;max-width:340px;background:var(--bg1);border:.5px solid var(--bg3);border-radius:18px;padding:14px 16px;display:flex;align-items:center;gap:10px;opacity:.5;}
+.ai-input-mock span{flex:1;font-size:15px;color:var(--label2);font-family:var(--font);}
+.ai-badge{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;color:#bf5af2;background:rgba(191,90,242,.12);border:.5px solid rgba(191,90,242,.25);padding:4px 10px;border-radius:8px;margin-bottom:20px;}
+/* LOGO-ICO — account logos */
+.logo-ico{background:var(--bg2)!important;color:transparent!important;padding:3px;overflow:hidden;}
+.logo-ico img{width:100%;height:100%;object-fit:contain;border-radius:6px;}
+/* ALLOC BAR */
+.alloc-bar{height:8px;border-radius:4px;overflow:hidden;display:flex;gap:2px;margin-bottom:16px;}
+.alloc-seg{height:100%;border-radius:3px;transition:width .8s cubic-bezier(.2,.8,.2,1);}
+.alloc-tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+.alloc-tile{background:var(--bg2);border-radius:12px;padding:12px;}
+.alloc-tile-label{font-size:11px;font-weight:600;color:var(--label);margin-bottom:4px;}
+.alloc-tile-val{font-size:14px;font-weight:700;letter-spacing:-.3px;}
+.alloc-tile-pct{font-size:11px;color:var(--label);margin-top:2px;}
 
 /* TAB BAR — Liquid Glass floating pill (Apple HIG: translucent material, blur does the work) */
 .tab-bar{position:fixed;bottom:max(16px,calc(env(safe-area-inset-bottom) + 8px));left:50%;transform:translateX(-50%);width:calc(100% - 32px);max-width:480px;z-index:200;display:flex;align-items:center;justify-content:space-around;padding:5px 6px;background:rgba(20,20,22,.28);backdrop-filter:blur(80px) saturate(250%) brightness(0.88);-webkit-backdrop-filter:blur(80px) saturate(250%) brightness(0.88);border-radius:30px;border:.5px solid rgba(255,255,255,.11);box-shadow:0 4px 24px rgba(0,0,0,.22),inset 0 1px 0 rgba(255,255,255,.08);}
@@ -297,8 +322,8 @@ canvas{max-width:100%!important;}
     <div class="hero-label">Total Activos Brutos</div>
     <div class="hero-num"><span class="sign">$</span><span id="portTotal">—</span></div>
     <div class="hero-row">
-      <div class="hero-stat"><div class="hero-stat-label">Líquido e Inv.</div><div class="hero-stat-val" id="portInvest">—</div></div>
-      <div class="hero-stat"><div class="hero-stat-label">Acciones</div><div class="hero-stat-val" id="portEquity">—</div></div>
+      <div class="hero-stat"><div class="hero-stat-label">Financiero</div><div class="hero-stat-val" id="portInvest">—</div></div>
+      <div class="hero-stat"><div class="hero-stat-label">Inv. Privadas</div><div class="hero-stat-val" id="portEquity">—</div></div>
       <div class="hero-stat"><div class="hero-stat-label">Rend./mes</div><div class="hero-stat-val" style="color:var(--green)" id="portRend">—</div></div>
     </div>
   </div>
@@ -310,24 +335,45 @@ canvas{max-width:100%!important;}
     <div class="debt-foot"><span>Total deudas</span><span id="totalDebtsLabel">—</span></div>
   </div>
   <div class="sec"><span class="sec-title">Distribución</span></div>
-  <div class="card"><div class="card-inner" style="display:flex;justify-content:center"><canvas id="chartPortfolio" width="270" height="270" style="max-width:270px"></canvas></div></div>
+  <div class="card"><div class="card-inner" id="allocView"></div></div>
 </div>
 
 <!-- ═══ ASISTENTE ═══ -->
 <div id="asistente" class="page">
-  <div class="large-title">
-    <div class="large-title-main">Asistente</div>
-    <div class="large-title-sub">Próximamente</div>
-  </div>
-  <div class="asistente-wrap">
-    <div class="asistente-icon">
-      <svg viewBox="0 0 36 36" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M30 10H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h4l4 4 4-4h12a2 2 0 0 0 2-2V12a2 2 0 0 0-2-2z"/>
-        <line x1="11" y1="17" x2="25" y2="17"/><line x1="11" y1="22" x2="19" y2="22"/>
-      </svg>
+  <div class="large-title"><div class="large-title-main">Asistente</div></div>
+  <div class="ai-wrap">
+    <!-- Aurora orb — Apple Intelligence aesthetic -->
+    <div class="ai-orb-ring">
+      <div class="ai-orb"></div>
+      <div class="ai-orb-inner"></div>
+      <div class="ai-orb-shine"></div>
     </div>
-    <div style="font-size:20px;font-weight:700;letter-spacing:-.5px">Tu asistente financiero</div>
-    <div style="font-size:15px;color:var(--label);line-height:1.6;max-width:280px">Pronto podrás preguntarle a tu AI sobre tus gastos, tendencias y cómo mejorar tus finanzas.</div>
+    <span class="ai-badge">
+      <svg width="10" height="10" viewBox="0 0 10 10" fill="currentColor"><circle cx="5" cy="5" r="4"/></svg>
+      Próximamente
+    </span>
+    <div class="ai-title">Tu asistente financiero</div>
+    <div class="ai-sub">Pregúntale sobre tus gastos, hábitos y cómo optimizar tus finanzas personales.</div>
+    <!-- Suggested chips — Revolut AIR style -->
+    <div class="ai-chips">
+      <div class="ai-chip">
+        <div class="ai-chip-ic"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M10 3v14M3 10h14"/></svg></div>
+        ¿En qué gasté más este mes?
+      </div>
+      <div class="ai-chip">
+        <div class="ai-chip-ic"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><polyline points="3,14 7,9 11,12 17,5"/></svg></div>
+        ¿Cómo va mi patrimonio vs el año pasado?
+      </div>
+      <div class="ai-chip">
+        <div class="ai-chip-ic"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="10" cy="10" r="7"/><path d="M10 7v3l2 2"/></svg></div>
+        ¿Cuánto podría ahorrar al mes?
+      </div>
+    </div>
+    <!-- Mock input -->
+    <div class="ai-input-mock">
+      <span>Pregunta algo sobre tus finanzas…</span>
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" fill="rgba(191,90,242,.3)"/><path d="M7 10l3-3 3 3M10 7v7" stroke="#bf5af2" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
   </div>
 </div>
 
@@ -771,6 +817,20 @@ function initTendencias(){
 // ══════════════════════════════════════════
 // PATRIMONIO (was Portfolio)
 // ══════════════════════════════════════════
+// Public logo domains for known accounts
+const ACCOUNT_LOGOS={
+  BBVA:'bbva.com',MIFEL:'mifel.com.mx',REVOLUT:'revolut.com',
+  BITSO:'bitso.com',GBM:'gbm.com.mx',SPLITWISE:'splitwise.com',
+  Incode:'incode.com',Infonavit:'infonavit.org.mx',NU:'nu.com.mx'
+};
+function assetIco(concept,ico,col){
+  const d=ACCOUNT_LOGOS[concept];
+  if(d) return `<div class="row-ico logo-ico"><img src="https://logo.clearbit.com/${d}" alt="${concept}" onerror="this.parentNode.className='row-ico';this.parentNode.style.background='${col}1a';this.parentNode.style.color='${col}';this.parentNode.innerHTML='${ico.replace(/'/g,"&#39;")}'" /></div>`;
+  // private investment: monogram
+  const init=concept.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+  return `<div class="row-ico" style="background:${col}1a;color:${col};font-size:12px;font-weight:700;letter-spacing:-.3px">${init}</div>`;
+}
+
 function initPatrimonio(){
   window._p=true;
   const tA=D.assets.reduce((s,a)=>s+a.value,0);
@@ -781,15 +841,36 @@ function initPatrimonio(){
   document.getElementById('portInvest').textContent=fmt(invest);
   document.getElementById('portEquity').textContent=fmt(equity);
   document.getElementById('portRend').textContent='+'+(rend?fmt(rend):fmt(PNL.rendimientos))+'/mes';
+
+  // Asset list with logos
   const al=document.getElementById('assetList');
   al.innerHTML='';
   D.assets.forEach((a,i)=>{
     const ico=ASSET_ICONS[a.concept]||ASSET_ICONS["Incode Stocks"], col=AC[i%AC.length];
-    al.innerHTML+=`<li class="row"><div class="row-ico" style="background:${col}1a;color:${col}">${ico}</div><div class="row-info"><div class="row-name">${a.concept}</div><div class="row-sub">${a.type} · ${tA?(a.value/tA*100).toFixed(0):0}%</div></div><div class="row-right"><div class="row-val" style="color:${col}">${fmt(a.value)}</div>${a.interest?`<div class="row-yield">+${fmt(a.interest)}/mes</div>`:`<div style="font-size:12px;color:var(--label);margin-top:2px">${a.yield?a.yield+'% anual':'—'}</div>`}</div></li>`;
+    const typeLabel={Inversión:'Inv.',Crypto:'Crypto',Liquid:'Liquid',Net:'Net',Equity:'Privado'}[a.type]||a.type;
+    al.innerHTML+=`<li class="row">${assetIco(a.concept,ico,col)}<div class="row-info"><div class="row-name">${a.concept}</div><div class="row-sub">${typeLabel} · ${tA?(a.value/tA*100).toFixed(0):0}%</div></div><div class="row-right"><div class="row-val" style="color:${col}">${fmt(a.value)}</div>${a.interest?`<div class="row-yield">+${fmt(a.interest)}/mes</div>`:`<div style="font-size:12px;color:var(--label);margin-top:2px">${a.yield?a.yield+'% anual':'—'}</div>`}</div></li>`;
   });
+
   document.getElementById('debtList').innerHTML=D.debts.map(d=>`<li class="row"><div class="row-ico" style="background:rgba(255,69,58,.12);color:var(--red)">${d.type==='card'?DEBT_ICON_CARD:DEBT_ICON_PERSON}</div><div class="row-info"><div class="row-name">${d.concept}</div></div><div class="row-right"><div class="row-val red">${fmt(d.value)}</div></div></li>`).join('');
   document.getElementById('totalDebtsLabel').textContent='−'+fmt(D.totalDebts).slice(1);
-  new Chart(document.getElementById('chartPortfolio'),{type:'doughnut',data:{labels:D.assets.map(a=>a.concept),datasets:[{data:D.assets.map(a=>a.value),backgroundColor:AC,borderWidth:0,hoverOffset:7}]},options:{cutout:'58%',plugins:{legend:{position:'bottom',labels:{color:'rgba(235,235,245,.45)',font:{family:SF,size:11,weight:'600'},padding:10,boxWidth:7,boxHeight:7,usePointStyle:true}},tooltip:{...TIP,callbacks:{label:c=>c.label+': '+fmt(c.raw)}}}}});
+
+  // Allocation view — clean horizontal bar + 3 tiles (replaces giant donut)
+  const buckets=[
+    {label:'Liquid/Net',color:'#0a84ff',types:['Liquid','Net']},
+    {label:'Inversiones',color:'#30d158',types:['Inversión','Crypto']},
+    {label:'Inv. Privadas',color:'#bf5af2',types:['Equity']}
+  ];
+  buckets.forEach(b=>{ b.val=D.assets.filter(a=>b.types.includes(a.type)).reduce((s,a)=>s+a.value,0); b.pct=tA?Math.round(b.val/tA*100):0; });
+  const av=document.getElementById('allocView');
+  av.innerHTML=`
+    <div class="alloc-bar">${buckets.map(b=>`<div class="alloc-seg" style="width:${b.pct}%;background:${b.color}"></div>`).join('')}</div>
+    <div class="alloc-tiles">${buckets.map(b=>`
+      <div class="alloc-tile">
+        <div class="alloc-tile-label" style="color:${b.color}">${b.label}</div>
+        <div class="alloc-tile-val">${fmt(b.val)}</div>
+        <div class="alloc-tile-pct">${b.pct}%</div>
+      </div>`).join('')}
+    </div>`;
 }
 
 // ── BOOT ──
