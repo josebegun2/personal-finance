@@ -167,6 +167,24 @@ canvas{max-width:100%!important;}
 </head>
 <body>
 
+<!-- PIN SCREEN -->
+<div id="pinScreen" style="display:none;position:fixed;inset:0;z-index:999;background:#000;flex-direction:column;align-items:center;justify-content:center;gap:24px;">
+  <div style="font-size:28px;font-weight:700;letter-spacing:-1px;">Finanzas</div>
+  <div style="font-size:14px;color:rgba(235,235,245,.6);">Ingresa tu PIN</div>
+  <input id="pinInput" type="password" inputmode="numeric" maxlength="6"
+    style="width:160px;text-align:center;font-size:32px;font-weight:700;letter-spacing:8px;
+           background:rgba(255,255,255,.08);border:.5px solid rgba(255,255,255,.2);
+           border-radius:14px;padding:14px;color:#fff;outline:none;font-family:var(--font);"
+    onkeydown="if(event.key==='Enter')submitPin()"
+    autofocus>
+  <button onclick="submitPin()"
+    style="background:#fff;color:#000;border:none;border-radius:14px;
+           padding:14px 40px;font-size:17px;font-weight:700;font-family:var(--font);cursor:pointer;">
+    Entrar
+  </button>
+  <div id="pinError" style="display:none;color:#ff453a;font-size:14px;">PIN incorrecto</div>
+</div>
+
 <header class="topbar">
   <span class="topbar-title">Finanzas</span>
   <div class="avatar">J</div>
@@ -344,7 +362,6 @@ const DEBT_ICON_CARD=`<svg viewBox="0 0 20 20" fill="none" stroke="currentColor"
 
 // ── ENDPOINT ──
 const API_URL = "https://script.google.com/macros/s/AKfycbw9nCVlBJFlSs2XHRKAxAtt8rE7FvojYL79QRtKHlz4GS0Xk1Sb_vADo8NcP1JaU3eY/exec";
-const API_TOKEN = "mfos_x9k2p7";
 
 // ── TRANSFORM API → D + PNL ──
 function transformData(json){
@@ -425,10 +442,39 @@ let D={months:{},bmc:{},recent:[],assets:[],debts:[],netWorth:0,totalAssets:0,to
 let PNL={months:[],salario:102000,thanksben:1500,rendimientos:13343,gastos:{}};
 
 async function loadData(){
-  // Show skeleton
+  // PIN check
+  const stored = localStorage.getItem('mfos_pin');
+  if(stored === '8520'){
+    fetchData();
+  } else {
+    showPinScreen();
+  }
+}
+
+function showPinScreen(){
+  document.getElementById('pinScreen').style.display='flex';
+}
+
+function hidePinScreen(){
+  document.getElementById('pinScreen').style.display='none';
+}
+
+function submitPin(){
+  const val = document.getElementById('pinInput').value;
+  if(val === '8520'){
+    localStorage.setItem('mfos_pin', val);
+    hidePinScreen();
+    fetchData();
+  } else {
+    document.getElementById('pinError').style.display='block';
+    document.getElementById('pinInput').value='';
+  }
+}
+
+async function fetchData(){
   document.querySelector('.hero-num').innerHTML='<span class="sign">$</span><span id="heroNetWorth">…</span>';
   try {
-    const res  = await fetch(API_URL);
+    const res  = await fetch(API_URL + '?token=' + API_TOKEN);
     const json = await res.json();
     const transformed = transformData(json);
     D   = transformed.D;
@@ -617,28 +663,7 @@ function initPortfolio(){
   new Chart(document.getElementById('chartPortfolio'),{type:'doughnut',data:{labels:D.assets.map(a=>a.concept),datasets:[{data:D.assets.map(a=>a.value),backgroundColor:AC,borderWidth:0,hoverOffset:7}]},options:{cutout:'58%',plugins:{legend:{position:'bottom',labels:{color:'rgba(235,235,245,.45)',font:{family:SF,size:11,weight:'600'},padding:10,boxWidth:7,boxHeight:7,usePointStyle:true}},tooltip:{...TIP,callbacks:{label:c=>c.label+': '+fmt(c.raw)}}}}});
 }
 // Start app
-async function loadData(){
-  // PIN check — solo pregunta una vez, se guarda en localStorage
-  let pin = localStorage.getItem('mfos_pin');
-  if(pin !== '0896') {
-    pin = prompt('PIN:');
-    if(pin !== '8520'){ document.body.innerHTML='<div style="color:#fff;text-align:center;padding:40px">Acceso denegado</div>'; return; }
-    localStorage.setItem('mfos_pin', pin);
-  }
-
-  document.querySelector('.hero-num').innerHTML='<span class="sign">$</span><span id="heroNetWorth">…</span>';
-  try {
-    const res  = await fetch(API_URL + '?token=' + API_TOKEN);
-    const json = await res.json();
-    const transformed = transformData(json);
-    D   = transformed.D;
-    PNL = transformed.PNL;
-    renderAll();
-  } catch(e) {
-    console.error('Error loading data:', e);
-    document.getElementById('heroNetWorth').textContent='Error';
-  }
-}
+loadData();
 </script>
 </body>
 </html>
