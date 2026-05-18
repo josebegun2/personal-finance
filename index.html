@@ -176,16 +176,16 @@ canvas{max-width:100%!important;}
 <div id="resumen" class="page active">
   <div class="hero">
     <div class="hero-label">Patrimonio Neto</div>
-    <div class="hero-num"><span class="sign">$</span>1,973,087</div>
+    <div class="hero-num"><span class="sign">$</span><span id="heroNetWorth">…</span></div>
     <div class="hero-row">
-      <div class="hero-stat"><div class="hero-stat-label">Activos</div><div class="hero-stat-val" style="color:var(--green)">$2,191,802</div></div>
-      <div class="hero-stat"><div class="hero-stat-label">Deudas</div><div class="hero-stat-val" style="color:var(--red)">$218,715</div></div>
+      <div class="hero-stat"><div class="hero-stat-label">Activos</div><div class="hero-stat-val" style="color:var(--green)" id="heroAssets">…</div></div>
+      <div class="hero-stat"><div class="hero-stat-label">Deudas</div><div class="hero-stat-val" style="color:var(--red)" id="heroDebts">…</div></div>
       <div class="hero-stat"><div class="hero-stat-label">Rend./mes</div><div class="hero-stat-val" style="color:var(--green)">+$13,343</div></div>
     </div>
   </div>
   <div class="tiles" style="margin-top:18px">
-    <div class="tile"><div class="tile-label">Feb 2026</div><div class="tile-val red">$37k</div><div class="tile-sub">gastos mes</div><div class="badge dn">↑ 39%</div></div>
-    <div class="tile"><div class="tile-label">Ene 2026</div><div class="tile-val">$27k</div><div class="tile-sub">mes anterior</div><div class="badge up">↓ 62%</div></div>
+    <div class="tile"><div class="tile-label" id="tileCurLabel">—</div><div class="tile-val red" id="tileCurVal">…</div><div class="tile-sub">gastos mes</div><div id="tileBadge" class="badge dn">—</div></div>
+    <div class="tile"><div class="tile-label" id="tilePrevLabel">—</div><div class="tile-val" id="tilePrevVal">…</div><div class="tile-sub">mes anterior</div></div>
     <div class="tile"><div class="tile-label">Promedio</div><div class="tile-val">$56k</div><div class="tile-sub">últ. 12 meses</div></div>
   </div>
   <div class="sec"><span class="sec-title">Gastos mensuales</span></div>
@@ -248,10 +248,10 @@ canvas{max-width:100%!important;}
 <div id="portfolio" class="page">
   <div class="hero">
     <div class="hero-label">Activos Totales</div>
-    <div class="hero-num"><span class="sign">$</span>2,191,802</div>
+    <div class="hero-num"><span class="sign">$</span><span id="portTotal">…</span></div>
     <div class="hero-row">
-      <div class="hero-stat"><div class="hero-stat-label">Equity</div><div class="hero-stat-val">$897,500</div></div>
-      <div class="hero-stat"><div class="hero-stat-label">Inversiones</div><div class="hero-stat-val">$1,294k</div></div>
+      <div class="hero-stat"><div class="hero-stat-label">Equity</div><div class="hero-stat-val" id="portEquity">…</div></div>
+      <div class="hero-stat"><div class="hero-stat-label">Inversiones</div><div class="hero-stat-val" id="portInvest">…</div></div>
       <div class="hero-stat"><div class="hero-stat-label">Rend./mes</div><div class="hero-stat-val" style="color:var(--green)">+$13,343</div></div>
     </div>
   </div>
@@ -342,15 +342,109 @@ const ASSET_ICONS = {
 const DEBT_ICON_PERSON=`<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="7" r="4"/><path d="M3 18c0-3.9 3.1-7 7-7s7 3.1 7 7"/></svg>`;
 const DEBT_ICON_CARD=`<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="16" height="11" rx="2"/><path d="M2 9h16"/><line x1="6" y1="13" x2="8" y2="13" stroke-width="2.2"/></svg>`;
 
-// ── DATA ──
-const D={
-  months:{"2024-12":81747,"2025-01":-29752,"2025-02":25822,"2025-03":-6112,"2025-04":81144,"2025-05":6983,"2025-06":156351,"2025-07":44478,"2025-08":-7145,"2025-09":58249,"2025-10":127225,"2025-11":36195,"2025-12":70122,"2026-01":26834,"2026-02":37396},
-  bmc:{"2026-02":{"CASA":{total:10700,subs:{"Señora":750,"Internet":500,"Bebbia":200,"Mantenimiento":9250}},"MOVIMIENTOS CUENTA":{total:10819,subs:{"MSI nacional":3528,"MSI extranjero":6057,"Anualidad AMEX":1234}},"TECNOLOGÍA":{total:9500,subs:{"iPad":9500}},"TRANSPORTE":{total:2358,subs:{"Gasolina":1500,"Uber":858}},"SUPER":{total:2286,subs:{"Walmart":1500,"Chedraui":350,"Otros":436}},"RESTAURANTES":{total:1330,subs:{"Restaurante":800,"Rappi":350,"Uber Eats":180}},"SUSCRIPCIONES":{total:666,subs:{"Netflix":219,"Spotify":99,"HBO Max":149,"Amazon Prime":119,"Otros":80}},"SALUD":{total:500,subs:{"Farmacia":500}}},"2026-01":{"SALUD":{total:5000,subs:{"Consulta":2850,"Gym":800,"Farmacia":350,"Otros":1000}},"ENTRETENIMIENTO":{total:5000,subs:{"Eventos":3000,"Streaming":450,"Otros":1550}},"SUPER":{total:5000,subs:{"Walmart":1500,"Chedraui":900,"Mercado":1600,"Otros":1000}},"TRANSPORTE":{total:4000,subs:{"Gasolina":2750,"Uber":425,"Estacionamiento":825}},"CASA":{total:4334,subs:{"Señora":750,"Internet":500,"Agua":100,"Mantenimiento":2984}},"RESTAURANTES":{total:3500,subs:{"Restaurantes":650,"Rappi":320,"Uber Eats":250,"Otros":2280}}},"2025-12":{"SALUD":{total:20000,subs:{"Consultas":8000,"Medicamentos":4000,"Otros":8000}},"ENTRETENIMIENTO":{total:15000,subs:{"Eventos":8000,"Streaming":600,"Otros":6400}},"VIAJES":{total:12000,subs:{"Vuelos":7000,"Hotel":3000,"Experiencias":2000}},"SUPER":{total:8000,subs:{"Walmart":3000,"Chedraui":2000,"Mercado":3000}},"ROPA":{total:5000,subs:{"Navidad":3500,"Accesorios":1500}},"TRANSPORTE":{total:5000,subs:{"Gasolina":3000,"Uber":1200,"Otros":800}},"CASA":{total:5122,subs:{"Señora":750,"Internet":500,"Otros":3872}}},"2025-11":{"SUPER":{total:8000,subs:{"Semanal":6000,"Otros":2000}},"ENTRETENIMIENTO":{total:8000,subs:{"Salidas":5000,"Streaming":600,"Otros":2400}},"SALUD":{total:6000,subs:{"Consulta":3000,"Farmacia":1500,"Gym":800,"Otros":700}},"TRANSPORTE":{total:5000,subs:{"Gasolina":3000,"Uber":1200,"Otros":800}},"CASA":{total:5196,subs:{"Señora":750,"Servicios":2000,"Otros":2446}},"RESTAURANTES":{total:4000,subs:{"Restaurantes":2500,"Delivery":1500}}},"2025-10":{"SALUD":{total:30000,subs:{"Hospital":20000,"Medicamentos":5000,"Otros":5000}},"IMPUESTOS":{total:25000,subs:{"ISR":20000,"Otros":5000}},"ENTRETENIMIENTO":{total:25000,subs:{"Eventos":15000,"Salidas":5000,"Otros":5000}},"VIAJES":{total:20000,subs:{"Vuelos":12000,"Hotel":5000,"Otros":3000}},"MARKETPLACE":{total:10000,subs:{"Amazon":7000,"MercadoLibre":3000}},"SUPER":{total:10000,subs:{"Semanal":8000,"Otros":2000}},"TRANSPORTE":{total:5000,subs:{"Gasolina":3000,"Uber":1200,"Otros":800}}},"2025-09":{"SALUD":{total:15000,subs:{"Consultas":8000,"Medicamentos":4000,"Otros":3000}},"IMPUESTOS":{total:10000,subs:{"ISR":10000}},"ENTRETENIMIENTO":{total:10000,subs:{"Eventos":6000,"Streaming":600,"Otros":3400}},"VIAJES":{total:8000,subs:{"Vuelos":5000,"Hotel":2000,"Otros":1000}},"SUPER":{total:9000,subs:{"Semanal":7000,"Otros":2000}},"TRANSPORTE":{total:4250,subs:{"Gasolina":2800,"Uber":1000,"Otros":450}},"CASA":{total:2000,subs:{"Señora":750,"Servicios":1250}}},"2025-06":{"VIAJES":{total:50000,subs:{"Vuelos":25000,"Hotel":15000,"Experiencias":10000}},"SALUD":{total:45000,subs:{"Hospital":35000,"Medicamentos":5000,"Otros":5000}},"ENTRETENIMIENTO":{total:30000,subs:{"Eventos":20000,"Otros":10000}},"IMPUESTOS":{total:20000,subs:{"ISR":20000}},"CASA":{total:8000,subs:{"Señora":750,"Remodelación":5000,"Otros":2250}},"SUPER":{total:3352,subs:{"Semanal":3352}}}},
-  recent:[{date:"2026-02-20",desc:"Bebbia",amount:200,cat:"CASA",by:"Moises"},{date:"2026-02-20",desc:"Señora",amount:250,cat:"CASA",by:"Moises"},{date:"2026-02-16",desc:"iPad",amount:9500,cat:"TECNOLOGÍA",by:"Moises"},{date:"2026-02-16",desc:"Cuota anual AMEX",amount:1233,cat:"MOVIMIENTOS CUENTA",by:"José"},{date:"2026-02-16",desc:"MSI nacional",amount:3528,cat:"MOVIMIENTOS CUENTA",by:"José"},{date:"2026-02-16",desc:"MSI extranjero",amount:2501,cat:"MOVIMIENTOS CUENTA",by:"José"},{date:"2026-02-16",desc:"Uber Trip",amount:60,cat:"TRANSPORTE",by:"José"},{date:"2026-02-15",desc:"Spotify",amount:99,cat:"SUSCRIPCIONES",by:"José"},{date:"2026-02-14",desc:"Netflix",amount:219,cat:"SUSCRIPCIONES",by:"José"},{date:"2026-02-13",desc:"Chedraui",amount:350,cat:"SUPER",by:"Moises"},{date:"2026-02-12",desc:"Farmacia",amount:500,cat:"SALUD",by:"Moises"},{date:"2026-02-10",desc:"Oxxo Gas",amount:800,cat:"TRANSPORTE",by:"Moises"},{date:"2026-02-09",desc:"Walmart",amount:1500,cat:"SUPER",by:"Moises"},{date:"2026-02-07",desc:"Restaurante",amount:800,cat:"RESTAURANTES",by:"Moises"},{date:"2026-02-05",desc:"HBO Max",amount:149,cat:"SUSCRIPCIONES",by:"José"},{date:"2026-02-04",desc:"Rappi",amount:350,cat:"RESTAURANTES",by:"Moises"},{date:"2026-02-03",desc:"Uber Eats",amount:180,cat:"RESTAURANTES",by:"José"},{date:"2026-02-02",desc:"Gasolina",amount:700,cat:"TRANSPORTE",by:"Moises"},{date:"2026-02-01",desc:"Internet",amount:500,cat:"CASA",by:"Moises"},{date:"2026-01-31",desc:"Gym",amount:800,cat:"SALUD",by:"Moises"},{date:"2026-01-28",desc:"Chedraui",amount:900,cat:"SUPER",by:"Moises"},{date:"2026-01-24",desc:"Uber Trip",amount:85,cat:"TRANSPORTE",by:"José"},{date:"2026-01-22",desc:"Amazon",amount:750,cat:"MARKETPLACE",by:"Moises"},{date:"2026-01-18",desc:"Gasolina",amount:600,cat:"TRANSPORTE",by:"Moises"},{date:"2026-01-15",desc:"Spotify",amount:99,cat:"SUSCRIPCIONES",by:"José"},{date:"2026-01-14",desc:"Netflix",amount:219,cat:"SUSCRIPCIONES",by:"José"},{date:"2026-01-10",desc:"Uber Eats",amount:250,cat:"RESTAURANTES",by:"José"},{date:"2026-01-06",desc:"Rappi",amount:320,cat:"RESTAURANTES",by:"Moises"},{date:"2025-12-26",desc:"Super navidad",amount:2000,cat:"SUPER",by:"Moises"},{date:"2025-12-24",desc:"Ropa navidad",amount:1500,cat:"ROPA",by:"Moises"}],
-  assets:[{concept:"Silvatico Inversión",value:610000,yield:0,interest:0,type:"Equity"},{concept:"Ahorro J&M",value:287515,yield:10,interest:2396,type:"Inversión"},{concept:"Bitso",value:302605,yield:3.5,interest:883,type:"Crypto"},{concept:"Infonavit",value:243327,yield:0,interest:0,type:"Vivienda"},{concept:"Mi primera cajita",value:182624,yield:10,interest:1522,type:"Inversión"},{concept:"Revolut",value:169016,yield:8,interest:1127,type:"Inversión"},{concept:"Inversión familia",value:200000,yield:40,interest:6667,type:"Equity"},{concept:"Incode Stocks",value:87500,yield:0,interest:0,type:"Equity"},{concept:"Cetes",value:64229,yield:7,interest:375,type:"Inversión"},{concept:"Saldo mama",value:44985,yield:10,interest:375,type:"Inversión"}],
-  debts:[{concept:"Ahorro J&M (Moy)",value:143623,type:"person"},{concept:"Saldo a favor Familia",value:51187,type:"person"},{concept:"Sharon Romero",value:10500,type:"person"},{concept:"AMEX Platinum",value:8000,type:"card"},{concept:"J&M ♥️",value:13485,type:"person"},{concept:"Ámsterdam 149",value:2421,type:"person"}]
-};
-const PNL={months:["2024-12","2025-01","2025-02","2025-03","2025-04","2025-05","2025-06","2025-07","2025-08","2025-09","2025-10","2025-11","2025-12","2026-01","2026-02"],salario:102000,thanksben:1500,rendimientos:13343,gastos:{"2024-12":{ENTRETENIMIENTO:14982,SALUD:4148,SUPER:10047,TRANSPORTE:4019,RESTAURANTES:4820,CASA:6834,VIAJES:8050,MARKETPLACE:13100,TECNOLOGÍA:3700,POR_CLASIFICAR:4757,MOVIMIENTOS_CUENTA:7291},"2025-01":{ENTRETENIMIENTO:1475,SALUD:3143,SUPER:3823,TRANSPORTE:6015,RESTAURANTES:3268,CASA:5768},"2025-02":{ENTRETENIMIENTO:5960,SALUD:3050,SUPER:5428,TRANSPORTE:4520,RESTAURANTES:3180,CASA:7160,VIAJES:2400},"2025-03":{ENTRETENIMIENTO:1200,SUPER:2100,TRANSPORTE:1500,RESTAURANTES:1800,CASA:4500},"2025-04":{SALUD:12000,ENTRETENIMIENTO:25000,VIAJES:18000,SUPER:8000,TRANSPORTE:5000,CASA:7500,TECNOLOGÍA:5000},"2025-05":{SALUD:2000,SUPER:2500,TRANSPORTE:1200,RESTAURANTES:1500,CASA:3000},"2025-06":{SALUD:45000,VIAJES:50000,ENTRETENIMIENTO:30000,IMPUESTOS:20000,CASA:8000,SUPER:3352},"2025-07":{SALUD:8000,ENTRETENIMIENTO:12000,VIAJES:10000,SUPER:7000,TRANSPORTE:5000,CASA:2478},"2025-08":{SUPER:1500,TRANSPORTE:800,CASA:1000},"2025-09":{SALUD:15000,ENTRETENIMIENTO:10000,VIAJES:8000,SUPER:9000,IMPUESTOS:10000,TRANSPORTE:4250,CASA:2000},"2025-10":{SALUD:30000,ENTRETENIMIENTO:25000,VIAJES:20000,IMPUESTOS:25000,SUPER:10000,MARKETPLACE:10000,TRANSPORTE:5000,TECNOLOGÍA:2226},"2025-11":{ENTRETENIMIENTO:8000,SALUD:6000,SUPER:8000,TRANSPORTE:5000,RESTAURANTES:4000,CASA:5196},"2025-12":{SALUD:20000,ENTRETENIMIENTO:15000,VIAJES:12000,SUPER:8000,TRANSPORTE:5000,ROPA:5000,CASA:5122},"2026-01":{SALUD:5000,ENTRETENIMIENTO:5000,SUPER:5000,TRANSPORTE:4000,RESTAURANTES:3500,CASA:4334},"2026-02":{CASA:10700,TECNOLOGÍA:9500,MOVIMIENTOS_CUENTA:10819,TRANSPORTE:2358,SUSCRIPCIONES:666,SALUD:500,SUPER:2286,RESTAURANTES:1330}}};
+// ── ENDPOINT ──
+const API_URL = "https://script.google.com/macros/s/AKfycbw9nCVlBJFlSs2XHRKAxAtt8rE7FvojYL79QRtKHlz4GS0Xk1Sb_vADo8NcP1JaU3eY/exec";
+
+// ── TRANSFORM API → D + PNL ──
+function transformData(json){
+  const bs = json.balanceSheet || [];
+  const ml = json.masterLedger || [];
+
+  // Latest month snapshot
+  const lastMonth = bs.filter(r=>r.account==='TOTAL_NET_WORTH').slice(-1)[0]?.month;
+  const lastSnap  = bs.filter(r=>r.month===lastMonth);
+
+  // Assets from last snapshot
+  const assetMeta = {
+    MIFEL:{type:'Inversión',yield:10},REVOLUT:{type:'Inversión',yield:7.5},
+    BITSO:{type:'Crypto',yield:1.5},GBM:{type:'Inversión',yield:0},
+    BBVA:{type:'Liquid',yield:0},SPLITWISE:{type:'Net',yield:0},NU:{type:'Liquid',yield:0}
+  };
+  const assets = [];
+  lastSnap.filter(r=>r.type==='Liquid'||r.type==='Net').forEach(r=>{
+    if(r.value===0) return;
+    const meta=assetMeta[r.account]||{type:r.type,yield:0};
+    assets.push({concept:r.account,value:r.value,yield:meta.yield,interest:Math.round(r.value*meta.yield/100/12),type:meta.type});
+  });
+  lastSnap.filter(r=>r.type==='Equity').forEach(r=>{
+    if(r.value===0) return;
+    assets.push({concept:r.account,value:r.value,yield:0,interest:0,type:'Equity'});
+  });
+
+  // Debts from last snapshot
+  const debtNames={AMEX:'AMEX Platinum',JM:'Ahorro J&M (Moy)',Family:'Saldo a favor Familia'};
+  const debts=[];
+  lastSnap.filter(r=>r.type==='Debt').forEach(r=>{
+    if(Math.abs(r.value)===0) return;
+    debts.push({concept:debtNames[r.account]||r.account,value:Math.abs(r.value),type:r.account==='AMEX'?'card':'person'});
+  });
+
+  // Net worth total
+  const netWorth = lastSnap.find(r=>r.account==='TOTAL_NET_WORTH')?.value||0;
+  const totalAssets = assets.reduce((s,a)=>s+a.value,0);
+  const totalDebts  = debts.reduce((s,d)=>s+d.value,0);
+
+  // Gastos from Master Ledger
+  const gastosByMonth={}, bmcRaw={};
+  const recentTx=[];
+  ml.forEach(r=>{
+    if(r.sign>=0) return;
+    const cat=(r.category||'POR CLASIFICAR').toUpperCase();
+    const catKey=cat.replace(/ /g,'_');
+    if(!gastosByMonth[r.month]) gastosByMonth[r.month]={};
+    gastosByMonth[r.month][catKey]=(gastosByMonth[r.month][catKey]||0)+Math.abs(r.net);
+    if(!bmcRaw[r.month]) bmcRaw[r.month]={};
+    if(!bmcRaw[r.month][cat]) bmcRaw[r.month][cat]={total:0,subs:{}};
+    bmcRaw[r.month][cat].total+=Math.abs(r.net);
+    const sub=r.subcategory&&r.subcategory!=='POR CLASIFICAR'?r.subcategory:(r.description||'Otros');
+    bmcRaw[r.month][cat].subs[sub]=(bmcRaw[r.month][cat].subs[sub]||0)+Math.abs(r.net);
+    recentTx.push({date:r.date,desc:r.description,amount:Math.abs(r.net),cat:cat,by:r.account});
+  });
+
+  // Monthly totals for bar chart (negative = expense month)
+  const monthTotals={};
+  Object.entries(gastosByMonth).forEach(([m,cats])=>{
+    monthTotals[m]=-Object.values(cats).reduce((a,b)=>a+b,0);
+  });
+  // Fill net worth months with 0 if missing
+  bs.filter(r=>r.account==='TOTAL_NET_WORTH').forEach(r=>{ if(!monthTotals[r.month]) monthTotals[r.month]=0; });
+  const sortedMonthTotals={};
+  Object.keys(monthTotals).sort().forEach(k=>sortedMonthTotals[k]=monthTotals[k]);
+
+  return {
+    D:{ months:sortedMonthTotals, bmc:bmcRaw, recent:recentTx.slice(0,60), assets, debts,
+        netWorth, totalAssets, totalDebts },
+    PNL:{ months:Object.keys(gastosByMonth).sort(), salario:102000, thanksben:1500, rendimientos:13343, gastos:gastosByMonth },
+    lastMonth
+  };
+}
+
+// ── LOAD DATA ON START ──
+let D={months:{},bmc:{},recent:[],assets:[],debts:[],netWorth:0,totalAssets:0,totalDebts:0};
+let PNL={months:[],salario:102000,thanksben:1500,rendimientos:13343,gastos:{}};
+
+async function loadData(){
+  // Show skeleton
+  document.querySelector('.hero-num').innerHTML='<span class="sign">$</span><span id="heroNetWorth">…</span>';
+  try {
+    const res  = await fetch(API_URL);
+    const json = await res.json();
+    const transformed = transformData(json);
+    D   = transformed.D;
+    PNL = transformed.PNL;
+    renderAll();
+  } catch(e) {
+    console.error('Error loading data:', e);
+    document.getElementById('heroNetWorth').textContent='Error';
+  }
+}
+
+function renderAll(){
+  renderResumen();
+  // lazy-init others when tabs open
+  window._g=false; window._pnl=false; window._t=false; window._p=false;
+}
+
 
 const CC={SALUD:"#30d158",ENTRETENIMIENTO:"#ff375f",VIAJES:"#ff9f0a",IMPUESTOS:"#636366",CASA:"#ffd60a",SUPER:"#0a84ff",TRANSPORTE:"#5ac8fa",MARKETPLACE:"#bf5af2",TECNOLOGÍA:"#32ade6",RESTAURANTES:"#ff6b6b",ROPA:"#da77f2",SUSCRIPCIONES:"#5e5ce6","MOVIMIENTOS CUENTA":"#8e8e93",MOVIMIENTOS_CUENTA:"#8e8e93",POR_CLASIFICAR:"#48484a"};
 const AC=["#30d158","#0a84ff","#ff9f0a","#ff375f","#bf5af2","#5ac8fa","#ff6b6b","#ffd60a","#32ade6","#5e5ce6"];
@@ -377,25 +471,67 @@ function go(id,btn){
 }
 
 // RESUMEN
-const mL=Object.keys(D.months),mV=Object.values(D.months);
-new Chart(document.getElementById('chartMonths'),{type:'bar',data:{labels:mL.map(mLab),datasets:[{data:mV,backgroundColor:mV.map(v=>v<0?'#ff453a':'#0a84ff'),borderWidth:0,borderRadius:5,borderSkipped:false}]},options:{responsive:true,plugins:{legend:{display:false},tooltip:{...TIP,callbacks:{label:c=>fmt(c.raw)}}},scales:{x:{grid:{display:false},ticks:{color:'rgba(235,235,245,.35)',font:{family:SF,size:10}}},y:{grid:{color:'rgba(255,255,255,.04)'},border:{display:false},ticks:{color:'rgba(235,235,245,.35)',font:{family:SF,size:10},callback:v=>fmtK(v)}}}}});
+let chartMonthsInst=null, chartDonutInst=null, chartPortSmallInst=null;
+function renderResumen(){
+  // Hero numbers
+  const nw = D.netWorth||0, ta = D.totalAssets||0, td = D.totalDebts||0;
+  document.getElementById('heroNetWorth').textContent = nw.toLocaleString('es-MX',{maximumFractionDigits:0});
+  document.getElementById('heroAssets').textContent   = '$'+ta.toLocaleString('es-MX',{maximumFractionDigits:0});
+  document.getElementById('heroDebts').textContent    = '$'+td.toLocaleString('es-MX',{maximumFractionDigits:0});
 
-const cK=["SALUD","ENTRETENIMIENTO","VIAJES","IMPUESTOS","CASA","SUPER","TRANSPORTE","MARKETPLACE","TECNOLOGÍA"];
-const cV=[478116,357301,207035,166613,116407,101562,87328,80565,71661];
-['chartDonut','chartPortSmall'].forEach(id=>{new Chart(document.getElementById(id),{type:'doughnut',data:{labels:cK,datasets:[{data:cV,backgroundColor:cK.map(k=>CC[k]||'#555'),borderWidth:0,hoverOffset:6}]},options:{cutout:'70%',plugins:{legend:{display:false},tooltip:{...TIP,callbacks:{label:c=>c.label+': '+fmt(c.raw)}}}}})});
+  // Tiles — last 2 months
+  const mKeys = Object.keys(D.months).sort().slice(-3);
+  const [mPrev2, mPrev1, mCur] = mKeys;
+  if(mCur){
+    const gastosCur  = Object.values(PNL.gastos?.[mCur]||{}).reduce((a,b)=>a+b,0);
+    const gastosPrev = Object.values(PNL.gastos?.[mPrev1]||{}).reduce((a,b)=>a+b,0);
+    const pct = gastosPrev>0?Math.round((gastosCur-gastosPrev)/gastosPrev*100):0;
+    document.getElementById('tileCurVal').textContent  = fmtK(gastosCur);
+    document.getElementById('tileCurLabel').textContent= mCur;
+    document.getElementById('tilePrevVal').textContent = fmtK(gastosPrev);
+    document.getElementById('tilePrevLabel').textContent= mPrev1||'—';
+    document.getElementById('tileBadge').textContent   = (pct>=0?'↑':'↓')+' '+Math.abs(pct)+'%';
+    document.getElementById('tileBadge').className     = 'badge '+(pct>=0?'dn':'up');
+  }
 
-const tL=document.getElementById('topCatList'),tot=cV.reduce((a,b)=>a+b,0);
-cK.forEach((cat,i)=>{
-  const pct=(cV[i]/tot*100).toFixed(0),col=CC[cat]||'#555',ico=ICONS[cat]||ICONS.POR_CLASIFICAR;
-  tL.innerHTML+=`<li class="row"><div class="row-ico" style="background:${col}1a;color:${col}">${ico}</div><div class="row-info"><div class="row-name">${cat.charAt(0)+cat.slice(1).toLowerCase()}</div><div class="prog"><div class="prog-fill" style="width:${pct}%;background:${col}"></div></div></div><div class="row-right"><div class="row-val">${fmt(cV[i])}</div><div style="font-size:12px;color:var(--label);margin-top:2px">${pct}%</div></div></li>`;
-});
+  // Bar chart — monthly spending
+  const mL=Object.keys(D.months).sort(), mV=mL.map(k=>D.months[k]);
+  if(chartMonthsInst){ chartMonthsInst.destroy(); chartMonthsInst=null; }
+  chartMonthsInst=new Chart(document.getElementById('chartMonths'),{type:'bar',data:{labels:mL.map(mLab),datasets:[{data:mV,backgroundColor:mV.map(v=>v<0?'#ff453a':'#0a84ff'),borderWidth:0,borderRadius:5,borderSkipped:false}]},options:{responsive:true,plugins:{legend:{display:false},tooltip:{...TIP,callbacks:{label:c=>fmt(c.raw)}}},scales:{x:{grid:{display:false},ticks:{color:'rgba(235,235,245,.35)',font:{family:SF,size:10}}},y:{grid:{color:'rgba(255,255,255,.04)'},border:{display:false},ticks:{color:'rgba(235,235,245,.35)',font:{family:SF,size:10},callback:v=>fmtK(v)}}}}});
+
+  // Donut — top categories (all months combined)
+  const catTotals={};
+  Object.values(PNL.gastos).forEach(month=>{
+    Object.entries(month).forEach(([cat,v])=>{ catTotals[cat]=(catTotals[cat]||0)+v; });
+  });
+  const sorted=Object.entries(catTotals).sort((a,b)=>b[1]-a[1]).slice(0,9);
+  const cK=sorted.map(([k])=>k.replace(/_/g,' ')), cV=sorted.map(([,v])=>v);
+  if(chartDonutInst){ chartDonutInst.destroy(); chartDonutInst=null; }
+  if(chartPortSmallInst){ chartPortSmallInst.destroy(); chartPortSmallInst=null; }
+  ['chartDonut','chartPortSmall'].forEach((id,i)=>{
+    const inst=new Chart(document.getElementById(id),{type:'doughnut',data:{labels:cK,datasets:[{data:cV,backgroundColor:cK.map(k=>CC[k.replace(/ /g,'_')]||CC[k]||'#555'),borderWidth:0,hoverOffset:6}]},options:{cutout:'70%',plugins:{legend:{display:false},tooltip:{...TIP,callbacks:{label:c=>c.label+': '+fmt(c.raw)}}}}});
+    if(i===0) chartDonutInst=inst; else chartPortSmallInst=inst;
+  });
+
+  // Top categories list
+  const tL=document.getElementById('topCatList'); tL.innerHTML='';
+  const tot=cV.reduce((a,b)=>a+b,0);
+  cK.forEach((cat,i)=>{
+    const key=cat.replace(/ /g,'_').toUpperCase();
+    const pct=(cV[i]/tot*100).toFixed(0),col=CC[key]||CC[cat.toUpperCase()]||'#555',ico=ICONS[key]||ICONS[cat.toUpperCase()]||ICONS.POR_CLASIFICAR;
+    tL.innerHTML+=`<li class="row"><div class="row-ico" style="background:${col}1a;color:${col}">${ico}</div><div class="row-info"><div class="row-name">${cat.charAt(0)+cat.slice(1).toLowerCase()}</div><div class="prog"><div class="prog-fill" style="width:${pct}%;background:${col}"></div></div></div><div class="row-right"><div class="row-val">${fmt(cV[i])}</div><div style="font-size:12px;color:var(--label);margin-top:2px">${pct}%</div></div></li>`;
+  });
+}
 
 // GASTOS
-let wheel=null,selM='2026-02';
+let wheel=null,selM='';
 function initGastos(){
   window._g=true;
   const sc=document.getElementById('monthScroller');
-  Object.keys(D.bmc).forEach(m=>{
+  // default to last available month
+  const bmcKeys=Object.keys(D.bmc).sort();
+  if(!selM||!D.bmc[selM]) selM=bmcKeys[bmcKeys.length-1]||'';
+  Object.keys(D.bmc).sort().forEach(m=>{
     const b=document.createElement('button');b.className='mpill'+(m===selM?' active':'');
     const[y,mo]=m.split('-');b.textContent=MN[+mo-1]+' '+y;
     b.onclick=()=>{selM=m;document.querySelectorAll('.mpill').forEach(x=>x.classList.remove('active'));b.classList.add('active');renderGastos()};
@@ -466,6 +602,12 @@ function filterTx(){const q=document.getElementById('txSearch').value.toLowerCas
 function initPortfolio(){
   window._p=true;
   const al=document.getElementById('assetList'),tA=D.assets.reduce((s,a)=>s+a.value,0);
+  // Update hero
+  const equity=D.assets.filter(a=>a.type==='Equity').reduce((s,a)=>s+a.value,0);
+  const invest=D.assets.filter(a=>a.type!=='Equity').reduce((s,a)=>s+a.value,0);
+  document.getElementById('portTotal').textContent=tA.toLocaleString('es-MX',{maximumFractionDigits:0});
+  document.getElementById('portEquity').textContent=fmtK(equity);
+  document.getElementById('portInvest').textContent=fmtK(invest);
   D.assets.forEach((a,i)=>{
     const ico=ASSET_ICONS[a.concept]||ASSET_ICONS["Incode Stocks"],col=AC[i%AC.length];
     al.innerHTML+=`<li class="row"><div class="row-ico" style="background:${col}1a;color:${col}">${ico}</div><div class="row-info"><div class="row-name">${a.concept}</div><div class="row-sub">${a.type} · ${(a.value/tA*100).toFixed(0)}%</div></div><div class="row-right"><div class="row-val" style="color:${col}">${fmt(a.value)}</div>${a.interest?`<div class="row-yield">+${fmt(a.interest)}/mes</div>`:`<div style="font-size:12px;color:var(--label);margin-top:2px">${a.yield?a.yield+'% anual':'—'}</div>`}</div></li>`;
@@ -473,6 +615,8 @@ function initPortfolio(){
   document.getElementById('debtList').innerHTML=D.debts.map(d=>`<li class="row"><div class="row-ico" style="background:rgba(255,69,58,.12);color:var(--red)">${d.type==='card'?DEBT_ICON_CARD:DEBT_ICON_PERSON}</div><div class="row-info"><div class="row-name">${d.concept}</div></div><div class="row-right"><div class="row-val red">${fmt(d.value)}</div></div></li>`).join('');
   new Chart(document.getElementById('chartPortfolio'),{type:'doughnut',data:{labels:D.assets.map(a=>a.concept),datasets:[{data:D.assets.map(a=>a.value),backgroundColor:AC,borderWidth:0,hoverOffset:7}]},options:{cutout:'58%',plugins:{legend:{position:'bottom',labels:{color:'rgba(235,235,245,.45)',font:{family:SF,size:11,weight:'600'},padding:10,boxWidth:7,boxHeight:7,usePointStyle:true}},tooltip:{...TIP,callbacks:{label:c=>c.label+': '+fmt(c.raw)}}}}});
 }
+// Start app
+loadData();
 </script>
 </body>
 </html>
