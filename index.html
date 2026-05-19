@@ -654,6 +654,10 @@ function transformData(json){
       incomeByMonth[r.month].salary+=Math.abs(r.net);
     }
   });
+  // Ensure every spending month has an entry
+  Object.keys(gastosByMonth).forEach(m=>{
+    if(!incomeByMonth[m]) incomeByMonth[m]={salary:0,thanksben:0};
+  });
 
   // Monthly totals
   const monthTotals={};
@@ -678,7 +682,7 @@ function transformData(json){
   return {
     D:{ months:sortedMonthTotals, bmc:bmcRaw, allTx, txIndex, movements, assets, debts,
         netWorth, netWorthDelta, prevMonth, totalAssets, totalDebts, totalRendimientos, portfolioHistory },
-    PNL:{ months:Object.keys(gastosByMonth).sort(), salario:102000, thanksben:1500, rendimientos:13343, gastos:gastosByMonth, incomeByMonth:incomeByMonth },
+    PNL:{ months:Object.keys(gastosByMonth).sort(), thanksben:1500, rendimientos:13343, gastos:gastosByMonth, incomeByMonth:incomeByMonth },
     nwHistory,
     lastMonth
   };
@@ -1048,8 +1052,7 @@ function renderMovimientos(){
 function initTendencias(){
   window._t=true;
   const months=PNL.months.slice(-12);
-  const income=PNL.salario+PNL.thanksben+PNL.rendimientos;
-  const incomeM=()=>income;
+  const incomeM=m=>{const d=PNL.incomeByMonth[m]||{};return (d.salary||0)+(d.thanksben||PNL.thanksben)+PNL.rendimientos;};
   const rows=months.map(m=>{const g=PNL.gastos[m]||{};const tg=Object.values(g).reduce((a,b)=>a+b,0);const inc=incomeM(m);return{m,tg,inc,neto:inc-tg,cats:g};});
   const totalInc=rows.reduce((s,r)=>s+r.inc,0), totalExp=rows.reduce((s,r)=>s+r.tg,0);
   const totalNet=totalInc-totalExp, avgSav=Math.round(totalNet/months.length), rate=totalInc?Math.round(totalNet/totalInc*100):0;
@@ -1063,7 +1066,7 @@ function initTendencias(){
   new Chart(document.getElementById('pnlChart'),{data:{labels:months.map(mLab),datasets:[{type:'line',label:'Income',data:rows.map(r=>r.inc),borderColor:'#2997ff',borderWidth:1.5,pointRadius:2.5,pointBackgroundColor:'#2997ff',fill:false,tension:0,order:0,yAxisID:'y'},...usedCats.map(cat=>({type:'bar',label:CAT_LABEL[cat]||cat,data:rows.map(r=>r.cats[cat]||0),backgroundColor:catC[cat],borderWidth:0,stack:'g',order:1,yAxisID:'y'}))]},options:{responsive:true,interaction:{mode:'index',intersect:false},plugins:{legend:{display:false},tooltip:{...TIP,displayColors:true,callbacks:{label:ctx=>{if(!ctx.raw||ctx.raw===0)return null;return` ${ctx.dataset.label}: ${fmt(ctx.raw)}`},afterBody:items=>{const g=items.filter(i=>i.dataset.stack==='g').reduce((s,i)=>s+(i.raw||0),0);if(!g)return[];const inc=rows.find(r=>mLab(r.m)===items[0]?.label)?.inc||0;return['',`Total: ${fmt(g)}`,`Net: ${inc-g>=0?'+':''}${fmt(inc-g)}`]}}}},scales:{x:{stacked:true,grid:{display:false},ticks:{color:'rgba(235,235,245,.35)',font:{family:SF,size:10}}},y:{stacked:true,grid:{color:'rgba(255,255,255,.04)'},border:{display:false},ticks:{color:'rgba(235,235,245,.35)',font:{family:SF,size:10},callback:v=>fmtK(v)}}}}});
   // Table uses newest-first column order
   const tableMonths=[...months].reverse();
-  const tableRows=tableMonths.map(m=>{const g=PNL.gastos[m]||{};const tg=Object.values(g).reduce((a,b)=>a+b,0);return{m,tg,inc:income,neto:income-tg,cats:g,sal:PNL.salario,tb:PNL.thanksben};});
+  const tableRows=tableMonths.map(m=>{const g=PNL.gastos[m]||{};const tg=Object.values(g).reduce((a,b)=>a+b,0);const d=PNL.incomeByMonth[m]||{};const sal=d.salary||0;const tb=d.thanksben||PNL.thanksben;const inc=sal+tb+PNL.rendimientos;return{m,tg,inc,neto:inc-tg,cats:g,sal,tb};});
   const tbl=document.getElementById('pnlTable');
   tbl.innerHTML=`<thead><tr><th>Category</th>${tableMonths.map(m=>`<th>${mLab(m)}</th>`).join('')}<th>Total</th></tr></thead>`;
   const tb2=document.createElement('tbody');
