@@ -14,7 +14,7 @@
   --bg:#000;--bg1:#1c1c1e;--bg2:#2c2c2e;--bg3:#3a3a3c;
   --sep:rgba(255,255,255,0.08);
   --label:rgba(235,235,245,0.6);--label2:rgba(235,235,245,0.3);
-  --green:#30d158;--red:#ff453a;--blue:#0a84ff;--orange:#ff9f0a;--purple:#bf5af2;--teal:#5ac8fa;--yellow:#ffd60a;--pink:#ff375f;
+  --green:#2997ff;--red:#ff9f0a;--blue:#0a84ff;--orange:#ff9f0a;--purple:#bf5af2;--teal:#5ac8fa;--yellow:#ffd60a;--pink:#ff375f;
   --font:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text","Helvetica Neue",sans-serif;
   color-scheme:dark;
 }
@@ -55,8 +55,8 @@ body{font-family:var(--font);background:var(--bg);color:#fff;min-height:100vh;ov
 
 /* Delta chip — MoM net worth change */
 .delta{display:inline-flex;align-items:center;gap:4px;font-size:14px;font-weight:600;margin-top:10px;padding:4px 10px;border-radius:10px;letter-spacing:-.2px;}
-.delta.pos{background:rgba(48,209,88,.15);color:var(--green);}
-.delta.neg{background:rgba(255,69,58,.15);color:var(--red);}
+.delta.pos{background:rgba(41,151,255,.15);color:var(--green);}
+.delta.neg{background:rgba(255,159,10,.15);color:var(--red);}
 
 /* Spending progress card */
 .spend-card{background:var(--bg1);border-radius:16px;padding:18px 16px;margin:16px 16px 0;}
@@ -95,8 +95,8 @@ body{font-family:var(--font);background:var(--bg);color:#fff;min-height:100vh;ov
 
 /* BADGE */
 .badge{display:inline-block;font-size:11px;font-weight:700;padding:3px 8px;border-radius:7px;margin-top:5px;letter-spacing:-.1px;}
-.badge.up{background:#30d158;color:#000;}
-.badge.dn{background:#ff453a;color:#fff;}
+.badge.up{background:#2997ff;color:#fff;}
+.badge.dn{background:#ff9f0a;color:#000;}
 
 /* PROGRESS */
 .prog{height:2px;background:rgba(255,255,255,.07);border-radius:2px;margin-top:7px;overflow:hidden;}
@@ -174,7 +174,7 @@ body{font-family:var(--font);background:var(--bg);color:#fff;min-height:100vh;ov
 /* ASISTENTE — Apple Intelligence / Revolut AIR aesthetic */
 .ai-wrap{display:flex;flex-direction:column;align-items:center;padding:40px 24px 24px;gap:0;}
 .ai-orb-ring{position:relative;width:120px;height:120px;margin-bottom:28px;}
-.ai-orb{width:120px;height:120px;border-radius:50%;background:conic-gradient(from 0deg,#bf5af2,#0a84ff,#5ac8fa,#30d158,#ffd60a,#ff375f,#bf5af2);animation:orbSpin 6s linear infinite;filter:blur(1px);opacity:.9;}
+.ai-orb{width:120px;height:120px;border-radius:50%;background:conic-gradient(from 0deg,#bf5af2,#0a84ff,#5ac8fa,#2997ff,#ffd60a,#ff375f,#bf5af2);animation:orbSpin 6s linear infinite;filter:blur(1px);opacity:.9;}
 .ai-orb-inner{position:absolute;inset:10px;border-radius:50%;background:radial-gradient(ellipse at 35% 35%,#2d2040,#0d0d10);backdrop-filter:blur(4px);}
 .ai-orb-shine{position:absolute;inset:10px;border-radius:50%;background:radial-gradient(ellipse at 32% 28%,rgba(255,255,255,.18),transparent 60%);}
 @keyframes orbSpin{to{transform:rotate(360deg)}}
@@ -230,7 +230,7 @@ canvas{max-width:100%!important;}
            padding:14px 40px;font-size:17px;font-weight:700;font-family:var(--font);cursor:pointer;">
     Enter
   </button>
-  <div id="pinError" style="display:none;color:#ff453a;font-size:14px;">Incorrect PIN</div>
+  <div id="pinError" style="display:none;color:#ff9f0a;font-size:14px;">Incorrect PIN</div>
 </div>
 
 <!-- Sticky compact header — title injected by JS on scroll -->
@@ -926,7 +926,7 @@ function initTendencias(){
   document.getElementById('pnlRate').textContent=rate+'%';
   const usedCats=ALL_CATS.filter(c=>rows.some(r=>r.cats[c]));
   const catC=Object.fromEntries(ALL_CATS.map(c=>[c,CC[c]||'#555']));
-  new Chart(document.getElementById('pnlChart'),{data:{labels:months.map(mLab),datasets:[{type:'line',label:'Ingresos',data:months.map(()=>income),borderColor:'#30d158',borderWidth:1.5,pointRadius:2.5,pointBackgroundColor:'#30d158',fill:false,tension:0,order:0,yAxisID:'y'},...usedCats.map(cat=>({type:'bar',label:CAT_LABEL[cat]||cat,data:rows.map(r=>r.cats[cat]||0),backgroundColor:catC[cat],borderWidth:0,stack:'g',order:1,yAxisID:'y'}))]},options:{responsive:true,interaction:{mode:'index',intersect:false},plugins:{legend:{display:false},tooltip:{...TIP,displayColors:true,callbacks:{label:ctx=>{if(!ctx.raw||ctx.raw===0)return null;return` ${ctx.dataset.label}: ${fmt(ctx.raw)}`},afterBody:items=>{const g=items.filter(i=>i.dataset.stack==='g').reduce((s,i)=>s+(i.raw||0),0);if(!g)return[];return['',`Total: ${fmt(g)}`,`Neto: ${income-g>=0?'+':''}${fmt(income-g)}`]}}}},scales:{x:{stacked:true,grid:{display:false},ticks:{color:'rgba(235,235,245,.35)',font:{family:SF,size:10}}},y:{stacked:true,grid:{color:'rgba(255,255,255,.04)'},border:{display:false},ticks:{color:'rgba(235,235,245,.35)',font:{family:SF,size:10},callback:v=>fmtK(v)}}}}});
+  new Chart(document.getElementById('pnlChart'),{data:{labels:months.map(mLab),datasets:[{type:'line',label:'Ingresos',data:months.map(()=>income),borderColor:'#2997ff',borderWidth:1.5,pointRadius:2.5,pointBackgroundColor:'#2997ff',fill:false,tension:0,order:0,yAxisID:'y'},...usedCats.map(cat=>({type:'bar',label:CAT_LABEL[cat]||cat,data:rows.map(r=>r.cats[cat]||0),backgroundColor:catC[cat],borderWidth:0,stack:'g',order:1,yAxisID:'y'}))]},options:{responsive:true,interaction:{mode:'index',intersect:false},plugins:{legend:{display:false},tooltip:{...TIP,displayColors:true,callbacks:{label:ctx=>{if(!ctx.raw||ctx.raw===0)return null;return` ${ctx.dataset.label}: ${fmt(ctx.raw)}`},afterBody:items=>{const g=items.filter(i=>i.dataset.stack==='g').reduce((s,i)=>s+(i.raw||0),0);if(!g)return[];return['',`Total: ${fmt(g)}`,`Neto: ${income-g>=0?'+':''}${fmt(income-g)}`]}}}},scales:{x:{stacked:true,grid:{display:false},ticks:{color:'rgba(235,235,245,.35)',font:{family:SF,size:10}}},y:{stacked:true,grid:{color:'rgba(255,255,255,.04)'},border:{display:false},ticks:{color:'rgba(235,235,245,.35)',font:{family:SF,size:10},callback:v=>fmtK(v)}}}}});
   // Table uses newest-first column order
   const tableMonths=[...months].reverse();
   const tableRows=tableMonths.map(m=>{const g=PNL.gastos[m]||{};const tg=Object.values(g).reduce((a,b)=>a+b,0);return{m,tg,neto:income-tg,cats:g};});
@@ -988,13 +988,13 @@ function initPatrimonio(){
   document.getElementById('debtList').innerHTML=D.debts.map(d=>{
     let ico;
     if(d.account==='AMEX'){
-      ico=`<div class="row-ico logo-ico"><img src="https://www.google.com/s2/favicons?domain=americanexpress.com&sz=64" alt="AMEX" onerror="this.parentNode.className='row-ico';this.parentNode.style.background='rgba(255,69,58,.12)';this.parentNode.style.color='var(--red)';this.parentNode.innerHTML='${DEBT_ICON_CARD}'"></div>`;
+      ico=`<div class="row-ico logo-ico"><img src="https://www.google.com/s2/favicons?domain=americanexpress.com&sz=64" alt="AMEX" onerror="this.parentNode.className='row-ico';this.parentNode.style.background='rgba(255,159,10,.12)';this.parentNode.style.color='var(--red)';this.parentNode.innerHTML='${DEBT_ICON_CARD}'"></div>`;
     } else if(d.account==='JM'){
-      ico=`<div class="row-ico" style="background:rgba(255,69,58,.12);color:var(--red)">${DEBT_ICON_COUPLE}</div>`;
+      ico=`<div class="row-ico" style="background:rgba(255,159,10,.12);color:var(--red)">${DEBT_ICON_COUPLE}</div>`;
     } else if(d.account==='Family'){
-      ico=`<div class="row-ico" style="background:rgba(255,69,58,.12);color:var(--red)">${DEBT_ICON_FAMILY}</div>`;
+      ico=`<div class="row-ico" style="background:rgba(255,159,10,.12);color:var(--red)">${DEBT_ICON_FAMILY}</div>`;
     } else {
-      ico=`<div class="row-ico" style="background:rgba(255,69,58,.12);color:var(--red)">${DEBT_ICON_PERSON}</div>`;
+      ico=`<div class="row-ico" style="background:rgba(255,159,10,.12);color:var(--red)">${DEBT_ICON_PERSON}</div>`;
     }
     return`<li class="row">${ico}<div class="row-info"><div class="row-name">${d.concept}</div></div><div class="row-right"><div class="row-val red">${fmt(d.value)}</div></div></li>`;
   }).join('');
