@@ -228,6 +228,20 @@ body{font-family:var(--font);background:var(--bg);color:#fff;min-height:100vh;ov
 .tab-btn:active svg{transform:scale(.86);}
 
 canvas{max-width:100%!important;}
+/* REVIEW — transaction classification */
+.review-count{font-size:13px;color:var(--label);margin:4px 20px 14px;font-weight:400;}
+.review-card{background:var(--bg1);border-radius:18px;margin:0 16px 12px;overflow:hidden;box-shadow:0 1px 0 rgba(255,255,255,.04);transition:opacity .25s,max-height .3s .1s,margin .3s .1s;}
+.review-tx-head{padding:14px 16px 11px;}
+.review-tx-meta{display:flex;justify-content:space-between;font-size:11px;color:var(--label);margin-bottom:5px;}
+.review-tx-desc{font-size:15px;font-weight:600;color:var(--fg);margin-bottom:6px;line-height:1.35;word-break:break-word;}
+.review-tx-amt{font-size:24px;font-weight:700;color:var(--red);}
+.review-cat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;padding:10px 10px 12px;border-top:.5px solid var(--sep);}
+.review-cat-btn{display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 2px;border:none;background:transparent;border-radius:12px;cursor:pointer;font-size:9px;color:rgba(235,235,245,.65);font-family:var(--font);transition:transform .12s,opacity .12s;-webkit-tap-highlight-color:transparent;text-align:center;line-height:1.25;}
+.review-cat-btn:active{transform:scale(.88);opacity:.7;}
+.review-cat-ic{width:32px;height:32px;border-radius:9px;display:flex;align-items:center;justify-content:center;margin:0 auto 1px;}
+.review-cat-ic svg{width:14px;height:14px;}
+.review-empty{text-align:center;padding:64px 20px;color:var(--label);}
+.review-done{font-size:17px;font-weight:600;color:rgba(235,235,245,.45);margin-top:10px;}
 </style>
 <div id="loadBar"></div>
 </head>
@@ -411,8 +425,15 @@ canvas{max-width:100%!important;}
   <div class="card"><ul class="rows" id="movList"></ul></div>
 </div>
 
+<!-- ═══ REVIEW ═══ -->
+<div id="review" class="page">
+  <div class="large-title"><div class="large-title-main">Review</div></div>
+  <div class="review-count" id="reviewCount">Loading…</div>
+  <div id="reviewContent"></div>
+</div>
+
 <!-- ═══ ASISTENTE ═══ -->
-<div id="asistente" class="page">
+<div id="asistente" class="page" style="display:none!important">
   <div class="large-title"><div class="large-title-main">Assistant</div></div>
   <div class="ai-wrap">
     <!-- Aurora orb — Apple Intelligence aesthetic -->
@@ -490,13 +511,13 @@ canvas{max-width:100%!important;}
     </svg>
     <span>Wealth</span>
   </button>
-  <!-- Asistente -->
-  <button class="tab-btn" onclick="go('asistente',this)">
+  <!-- Review -->
+  <button class="tab-btn" onclick="go('review',this)">
     <svg viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M24 8H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h4l4 4 4-4h8a2 2 0 0 0 2-2V10a2 2 0 0 0-2-2z"/>
-      <line x1="8" y1="14" x2="20" y2="14"/><line x1="8" y1="18" x2="14" y2="18"/>
+      <path d="M15 3H8a1 1 0 0 0-1 1v7a1 1 0 0 0 .3.7l10 10a1 1 0 0 0 1.4 0l6-6a1 1 0 0 0 0-1.4l-10-10A1 1 0 0 0 15 3z"/>
+      <circle cx="11" cy="11" r="1.8" fill="currentColor" stroke="none"/>
     </svg>
-    <span>Assistant</span>
+    <span>Review</span>
   </button>
 </nav>
 
@@ -615,7 +636,7 @@ function transformData(json){
     if(!txIndex[r.month][catKey]) txIndex[r.month][catKey]=[];
     txIndex[r.month][catKey].push({date:r.date,desc:r.description||'—',amount:Math.abs(r.net),by:r.account,cat:catKey});
     // All transactions (for global search)
-    allTx.push({date:r.date,desc:r.description||'—',amount:Math.abs(r.net),cat,catKey,by:r.account,month:r.month});
+    allTx.push({id:r.id,date:r.date,desc:r.description||'—',rawDesc:r.description||'',amount:Math.abs(r.net),cat,catKey,by:r.account,month:r.month});
   });
 
   // Income by month: BBVA nomina deposits + ThanksBen
@@ -765,12 +786,13 @@ function go(id,btn){
   if(id==='movimientos' &&!window._m) initMovimientos();
   if(id==='tendencias'  &&!window._t) initTendencias();
   if(id==='patrimonio'  &&!window._p) initPatrimonio();
+  if(id==='review'      &&!window._r) initReview();
   setStickyTitle(id);
 }
 
 function renderAll(){
   renderInicio();
-  window._g=false; window._m=false; window._t=false; window._p=false;
+  window._g=false; window._m=false; window._t=false; window._p=false; window._r=false;
   setStickyTitle('inicio');
 }
 
@@ -1178,6 +1200,72 @@ function initPatrimonio(){
   const tyCanvas=document.getElementById('chartByType');
   tyCanvas.style.height=(buckets.length*42+20)+'px';
   _chartByType.resize();
+}
+
+// ══════════════════════════════════════════
+// REVIEW — classify POR_CLASIFICAR transactions
+// ══════════════════════════════════════════
+const REVIEW_CATS=['SALUD','SUPER','CASA','TRANSPORTE','ENTRETENIMIENTO','RESTAURANTES','VIAJES','TECNOLOGÍA','MARKETPLACE','IMPUESTOS','ROPA','SUSCRIPCIONES','MOVIMIENTOS_CUENTA'];
+
+function initReview(){
+  window._r=true;
+  const uncat=(D.allTx||[]).filter(tx=>(tx.catKey||'').toUpperCase()==='POR_CLASIFICAR')
+    .sort((a,b)=>b.amount-a.amount);
+
+  const countEl=document.getElementById('reviewCount');
+  const el=document.getElementById('reviewContent');
+  if(!el) return;
+
+  if(!uncat.length){
+    if(countEl) countEl.textContent='All classified';
+    el.innerHTML=`<div class="review-empty"><svg width="52" height="52" viewBox="0 0 52 52" fill="none" stroke="rgba(235,235,245,.2)" stroke-width="1.4" stroke-linecap="round"><path d="M14 26l8 8 16-16"/><circle cx="26" cy="26" r="22"/></svg><div class="review-done">All done!</div><div style="font-size:13px;margin-top:4px">No uncategorized transactions</div></div>`;
+    return;
+  }
+  if(countEl) countEl.textContent=uncat.length+' uncategorized';
+
+  el.innerHTML=uncat.map(tx=>{
+    const safeDesc=(tx.rawDesc||tx.desc||'').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+    const buttons=REVIEW_CATS.map(cat=>{
+      const color=CC[cat]||'#888';
+      const icon=ICONS[cat]||'';
+      return `<button class="review-cat-btn" data-txid="${tx.id}" data-desc="${safeDesc}" data-cat="${cat}" onclick="classifyTx(this)"><div class="review-cat-ic" style="background:${color}22;color:${color}">${icon}</div>${CAT_LABEL[cat]||cat}</button>`;
+    }).join('');
+    return `<div class="review-card" id="rtx-${tx.id}"><div class="review-tx-head"><div class="review-tx-meta"><span>${tx.by||''}</span><span>${tx.date||tx.month||''}</span></div><div class="review-tx-desc">${tx.desc}</div><div class="review-tx-amt">$${fmt(tx.amount)}</div></div><div class="review-cat-grid">${buttons}</div></div>`;
+  }).join('');
+}
+
+async function classifyTx(btn){
+  const rowId=btn.dataset.txid;
+  const rawDesc=btn.dataset.desc;
+  const category=btn.dataset.cat;
+  const card=document.getElementById('rtx-'+rowId);
+  if(!card||card.dataset.sending) return;
+  card.dataset.sending='1';
+
+  // Animate out
+  const h=card.offsetHeight;
+  card.style.overflow='hidden';
+  card.style.maxHeight=h+'px';
+  card.style.opacity='0';
+  setTimeout(()=>{card.style.maxHeight='0';card.style.marginBottom='0';},120);
+  setTimeout(()=>card.remove(),450);
+
+  // Update count
+  const cEl=document.getElementById('reviewCount');
+  if(cEl){
+    const n=parseInt(cEl.textContent)||0;
+    const next=Math.max(0,n-1);
+    cEl.textContent=next>0?next+' uncategorized':'All classified';
+  }
+
+  // Update local tx so Spending tab reflects immediately
+  const tx=D.allTx.find(t=>t.id==rowId);
+  if(tx){tx.cat=category;tx.catKey=category;window._g=false;window._m=false;}
+
+  // POST to Apps Script
+  try{
+    await fetch(API_URL,{method:'POST',body:JSON.stringify({token:API_TOKEN,action:'categorize',rowId:String(rowId),category,subcategory:category,keyword:rawDesc.trim().slice(0,80)})});
+  }catch(err){console.warn('classify post error',err);}
 }
 
 // ── BOOT ──
