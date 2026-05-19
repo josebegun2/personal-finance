@@ -655,6 +655,12 @@ function transformData(json){
       incomeByMonth[r.month].salary+=Math.abs(r.net);
     }
   });
+  // Merge salaryByMonth from doGet (BBVA_Raw Abono nomina — not in masterLedger)
+  const salaryByMonth=json.salaryByMonth||{};
+  Object.entries(salaryByMonth).forEach(([m,amt])=>{
+    if(!incomeByMonth[m]) incomeByMonth[m]={salary:0,thanksben:0};
+    incomeByMonth[m].salary+=amt;
+  });
   // Ensure every spending month has an entry
   Object.keys(gastosByMonth).forEach(m=>{
     if(!incomeByMonth[m]) incomeByMonth[m]={salary:0,thanksben:0};
