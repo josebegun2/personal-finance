@@ -779,6 +779,7 @@ const MN2=['January','February','March','April','May','June','July','August','Se
 const fmt=n=>'$'+Math.abs(n).toLocaleString('es-MX',{maximumFractionDigits:0});
 const fmtK=n=>Math.abs(n)>=1e6?'$'+(Math.abs(n)/1e6).toFixed(1)+'M':Math.abs(n)>=1000?'$'+(Math.abs(n)/1000).toFixed(0)+'k':fmt(n);
 const mLab=m=>{const[y,mo]=m.split('-');return MN[+mo-1]+"'"+y.slice(2)};
+const dateRange=(a,b)=>{if(!a)return'';const fmtD=d=>{const[y,m]=d.split('-');return MN[+m-1]+"'"+y.slice(2);};return a.slice(0,7)===b.slice(0,7)?fmtD(a):fmtD(a)+' – '+fmtD(b);};
 const SF="-apple-system,BlinkMacSystemFont,'SF Pro Text',sans-serif";
 const TIP={backgroundColor:'rgba(18,18,20,.96)',titleColor:'#fff',bodyColor:'rgba(235,235,245,.6)',padding:12,cornerRadius:12,displayColors:false,borderColor:'rgba(255,255,255,.1)',borderWidth:.5,titleFont:{family:SF,weight:'700',size:13},bodyFont:{family:SF,size:12}};
 
@@ -1235,11 +1236,13 @@ function initReview(){
   const groups={};
   uncat.forEach(tx=>{
     const key=tx.desc||'—';
-    if(!groups[key]){groups[key]={desc:tx.desc,rawDesc:tx.rawDesc||tx.desc||'',ids:[],total:0,count:0,latestDate:'',by:tx.by};}
+    if(!groups[key]){groups[key]={desc:tx.desc,rawDesc:tx.rawDesc||tx.desc||'',ids:[],total:0,count:0,firstDate:'',lastDate:'',by:tx.by};}
     groups[key].ids.push(String(tx.id));
     groups[key].total+=tx.amount;
     groups[key].count++;
-    if(!groups[key].latestDate||(tx.date||'')>groups[key].latestDate) groups[key].latestDate=tx.date||tx.month||'';
+    const d=tx.date||tx.month||'';
+    if(!groups[key].firstDate||d<groups[key].firstDate) groups[key].firstDate=d;
+    if(!groups[key].lastDate||d>groups[key].lastDate) groups[key].lastDate=d;
     if(groups[key].by!==tx.by) groups[key].by='Multiple';
   });
   const sorted=Object.values(groups).sort((a,b)=>b.total-a.total);
@@ -1257,7 +1260,7 @@ function initReview(){
       const color=CC[cat]||'#888';
       return `<button class="review-cat-btn" data-gid="${cardId(g.desc)}" data-desc="${safeDesc}" data-ids="${safeIds}" data-cat="${cat}" onclick="classifyTx(this)"><div class="review-cat-ic" style="background:${color}22;color:${color}">${ICONS[cat]||''}</div>${CAT_LABEL[cat]||cat}</button>`;
     }).join('');
-    return `<div class="review-card" id="${cardId(g.desc)}"><div class="review-tx-head"><div class="review-tx-meta"><span>${g.by||''}${countBadge}</span><span>${g.latestDate}</span></div><div class="review-tx-desc">${g.desc}</div><div class="review-tx-amt">${fmt(g.total)}</div></div><div class="review-cat-grid">${buttons}</div></div>`;
+    return `<div class="review-card" id="${cardId(g.desc)}"><div class="review-tx-head"><div class="review-tx-meta"><span>${g.by||''}${countBadge}</span><span>${dateRange(g.firstDate,g.lastDate)}</span></div><div class="review-tx-desc">${g.desc}</div><div class="review-tx-amt">${fmt(g.total)}</div></div><div class="review-cat-grid">${buttons}</div></div>`;
   }).join('');
 }
 
