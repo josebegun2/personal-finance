@@ -47,6 +47,19 @@ body{font-family:var(--font);background:var(--bg);color:#fff;min-height:100vh;ov
 .nw-chart-wrap{overflow:hidden;max-height:0;transition:max-height .35s cubic-bezier(.2,.8,.2,1);padding:0 12px;}
 .nw-chart-wrap.open{max-height:220px;}
 .hero-sep{height:.5px;background:var(--sep);margin-top:16px;}
+/* Currency toggle — Liquid Glass */
+.currency-toggle{position:fixed;top:calc(env(safe-area-inset-top) + 10px);right:16px;z-index:200;display:flex;background:rgba(255,255,255,.07);backdrop-filter:blur(40px) saturate(180%);-webkit-backdrop-filter:blur(40px) saturate(180%);border:.5px solid rgba(255,255,255,.18);border-radius:20px;padding:3px;gap:2px;box-shadow:inset 0 1px 0 rgba(255,255,255,.22),0 4px 16px rgba(0,0,0,.3);}
+.currency-btn{font-family:var(--font);font-size:12px;font-weight:600;padding:5px 11px;border-radius:16px;border:none;letter-spacing:-.2px;transition:all .18s ease;}
+.currency-btn.active{background:rgba(255,255,255,.88);color:#000;cursor:default;box-shadow:0 1px 4px rgba(0,0,0,.2);}
+.currency-btn:not(.active){background:transparent;color:rgba(235,235,245,.35);cursor:not-allowed;}
+/* Wealth history charts */
+.wealth-toggle{display:flex;align-items:center;gap:5px;margin:0 20px 0;padding:8px 0;border:none;border-top:.5px solid var(--sep);background:none;color:var(--label);font-family:var(--font);font-size:13px;font-weight:500;cursor:pointer;width:calc(100% - 40px);-webkit-tap-highlight-color:transparent;}
+.wealth-toggle svg{transition:transform .25s cubic-bezier(.2,.8,.2,1);}
+.wealth-toggle.open svg{transform:rotate(180deg);}
+.wealth-chart-wrap{overflow:hidden;max-height:0;transition:max-height .4s cubic-bezier(.2,.8,.2,1);}
+.wealth-chart-wrap.open{max-height:900px;}
+.wealth-chart-section{padding:4px 12px 16px;}
+.wealth-chart-label{font-size:11px;font-weight:600;color:var(--label);letter-spacing:.3px;text-transform:uppercase;margin-bottom:8px;padding-left:4px;}
 .hero-num{font-size:56px;font-weight:700;letter-spacing:-2.8px;line-height:1;}
 .hero-num .sign{font-size:36px;font-weight:700;vertical-align:top;margin-top:9px;display:inline-block;margin-right:1px;}
 .hero-row{display:flex;gap:0;margin-top:20px;border:.5px solid var(--sep);border-radius:14px;overflow:hidden;background:var(--bg1);}
@@ -238,6 +251,12 @@ canvas{max-width:100%!important;}
 <!-- Sticky compact header — title injected by JS on scroll -->
 
 
+<!-- Currency toggle — fixed, always visible -->
+<div class="currency-toggle">
+  <button class="currency-btn active">MXN</button>
+  <button class="currency-btn" disabled>USD</button>
+</div>
+
 <!-- ═══ INICIO ═══ -->
 <div id="inicio" class="page active">
   <div class="large-title">
@@ -343,6 +362,26 @@ canvas{max-width:100%!important;}
   </div>
   <div class="sec"><span class="sec-title">Allocation</span></div>
   <div class="card"><div class="card-inner" id="allocView"></div></div>
+  <button class="wealth-toggle" id="wealthToggleBtn" onclick="toggleWealthCharts()">
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="2,4 7,10 12,4"/></svg>
+    2-year evolution
+  </button>
+  <div class="wealth-chart-wrap" id="wealthChartWrap">
+    <div class="card" style="margin-top:12px">
+      <div class="wealth-chart-section">
+        <div class="wealth-chart-label">Allocation</div>
+        <canvas id="wChartAlloc" style="max-height:160px"></canvas>
+      </div>
+      <div class="wealth-chart-section">
+        <div class="wealth-chart-label">By Account</div>
+        <canvas id="wChartAccount" style="max-height:200px"></canvas>
+      </div>
+      <div class="wealth-chart-section">
+        <div class="wealth-chart-label">By Type</div>
+        <canvas id="wChartType" style="max-height:160px"></canvas>
+      </div>
+    </div>
+  </div>
   <div class="sec"><span class="sec-title">By Account</span><span style="font-size:13px;color:var(--label);font-weight:400">Gross Assets</span></div>
   <div class="card"><div class="card-inner" style="padding-bottom:12px"><canvas id="chartByAccount" style="max-height:240px"></canvas></div></div>
   <div class="sec"><span class="sec-title">By Type</span><span style="font-size:13px;color:var(--label);font-weight:400">Composition</span></div>
@@ -604,9 +643,20 @@ function transformData(json){
   const sortedMonthTotals={};
   Object.keys(monthTotals).sort().forEach(k=>sortedMonthTotals[k]=monthTotals[k]);
 
+  // Portfolio history — last 24 months, by account
+  const portfolioHistory={};
+  const phCutoff=new Date();phCutoff.setMonth(phCutoff.getMonth()-24);
+  bs.forEach(r=>{
+    if(r.account==='TOTAL_NET_WORTH') return;
+    if(r.type==='Debt') return;
+    if(new Date(r.month+'-01')<phCutoff) return;
+    if(!portfolioHistory[r.month]) portfolioHistory[r.month]={};
+    portfolioHistory[r.month][r.account]={value:r.value||0,type:r.type||'Other'};
+  });
+
   return {
     D:{ months:sortedMonthTotals, bmc:bmcRaw, allTx, txIndex, movements, assets, debts,
-        netWorth, netWorthDelta, prevMonth, totalAssets, totalDebts, totalRendimientos },
+        netWorth, netWorthDelta, prevMonth, totalAssets, totalDebts, totalRendimientos, portfolioHistory },
     PNL:{ months:Object.keys(gastosByMonth).sort(), salario:102000, thanksben:1500, rendimientos:13343, gastos:gastosByMonth, incomeByMonth:incomeByMonth },
     nwHistory,
     lastMonth
@@ -651,7 +701,7 @@ async function authenticate(){
 }
 
 // ── DATA ──
-let D={months:{},bmc:{},allTx:[],txIndex:{},assets:[],debts:[],netWorth:0,netWorthDelta:0,prevMonth:null,totalAssets:0,totalDebts:0,totalRendimientos:0,nwHistory:[]};
+let D={months:{},bmc:{},allTx:[],txIndex:{},assets:[],debts:[],netWorth:0,netWorthDelta:0,prevMonth:null,totalAssets:0,totalDebts:0,totalRendimientos:0,nwHistory:[],portfolioHistory:{}};
 let PNL={months:[],salario:102000,thanksben:1500,rendimientos:13343,gastos:{},incomeByMonth:{}};
 
 async function fetchData(){
@@ -663,7 +713,7 @@ async function fetchData(){
     const res=await fetch(API_URL+'?token='+API_TOKEN);
     const json=await res.json();
     const t=transformData(json);
-    D=t.D; D.nwHistory=t.nwHistory||[]; PNL=t.PNL;
+    D=t.D; D.nwHistory=t.nwHistory||[]; D.portfolioHistory=t.D.portfolioHistory||{}; PNL=t.PNL;
     bar.style.width='100%';
     setTimeout(()=>{ bar.style.opacity='0'; setTimeout(()=>{ bar.style.width='0%'; },300); },400);
     document.querySelectorAll('.sk').forEach(el=>el.classList.remove('sk'));
@@ -741,6 +791,41 @@ function renderNwChart(){
   if(!pts.length) return;
   const fmtM=n=>(n/1e6).toFixed(2)+'M';
   _nwChart=new Chart(document.getElementById('nwChart'),{type:'line',data:{labels:pts.map(r=>mLab(r.month)),datasets:[{data:pts.map(r=>r.value),borderColor:'#2997ff',borderWidth:2,pointRadius:0,pointHoverRadius:5,pointHoverBackgroundColor:'#2997ff',fill:true,backgroundColor:'rgba(41,151,255,.08)',tension:0.35}]},options:{responsive:true,interaction:{mode:'index',intersect:false},plugins:{legend:{display:false},tooltip:{...TIP,callbacks:{label:ctx=>`$${fmtM(ctx.raw)}`}}},scales:{x:{grid:{display:false},ticks:{color:'rgba(235,235,245,.35)',font:{family:SF,size:10},maxTicksLimit:6}},y:{grid:{color:'rgba(255,255,255,.04)'},border:{display:false},ticks:{color:'rgba(235,235,245,.35)',font:{family:SF,size:10},callback:v=>'$'+fmtM(v)}}}}});
+}
+let _wealthCharts=[];
+function toggleWealthCharts(){
+  const wrap=document.getElementById('wealthChartWrap');
+  const btn=document.getElementById('wealthToggleBtn');
+  const isOpen=wrap.classList.toggle('open');
+  btn.classList.toggle('open',isOpen);
+  if(isOpen&&!_wealthCharts.length) renderWealthCharts();
+}
+function renderWealthCharts(){
+  const ph=D.portfolioHistory||{};
+  const months=Object.keys(ph).sort();
+  if(!months.length) return;
+  const labels=months.map(mLab);
+  const fmtM=n=>(n/1e6).toFixed(2)+'M';
+  const scaleOpts={x:{stacked:true,grid:{display:false},ticks:{color:'rgba(235,235,245,.35)',font:{family:SF,size:10},maxTicksLimit:8}},y:{stacked:true,grid:{color:'rgba(255,255,255,.04)'},border:{display:false},ticks:{color:'rgba(235,235,245,.35)',font:{family:SF,size:10},callback:v=>'$'+fmtM(v)}}};
+  const tipOpts={...TIP,callbacks:{label:ctx=>ctx.raw?` ${ctx.dataset.label}: $${fmtM(ctx.raw)}`:null}};
+  // ── Allocation buckets ──
+  const allocBuckets=[
+    {label:'Liquid/Net',color:'#4a8ecf',types:['Liquid','Net']},
+    {label:'Investments',color:'#3a9e72',types:['Inversión','Crypto']},
+    {label:'Private',color:'#8b60c4',types:['Equity']}
+  ];
+  const allocDs=allocBuckets.map(b=>({label:b.label,backgroundColor:b.color,data:months.map(m=>Object.values(ph[m]).filter(e=>b.types.includes(e.type)).reduce((s,e)=>s+(e.value||0),0))}));
+  _wealthCharts.push(new Chart(document.getElementById('wChartAlloc'),{type:'bar',data:{labels,datasets:allocDs},options:{responsive:true,interaction:{mode:'index',intersect:false},plugins:{legend:{display:false},tooltip:tipOpts},scales:scaleOpts}}));
+  // ── By Account ──
+  const accounts=[...new Set(months.flatMap(m=>Object.keys(ph[m])))].filter(a=>months.some(m=>ph[m][a]?.value>0));
+  const acColors=['#2997ff','#ff9f0a','#bf5af2','#5ac8fa','#ffd60a','#ff375f','#30d158','#32ade6','#5e5ce6','#8e8e93'];
+  const accountDs=accounts.map((a,i)=>({label:a,backgroundColor:acColors[i%acColors.length],data:months.map(m=>ph[m][a]?.value||0)}));
+  _wealthCharts.push(new Chart(document.getElementById('wChartAccount'),{type:'bar',data:{labels,datasets:accountDs},options:{responsive:true,interaction:{mode:'index',intersect:false},plugins:{legend:{display:false},tooltip:tipOpts},scales:scaleOpts}}));
+  // ── By Type ──
+  const types=[...new Set(months.flatMap(m=>Object.values(ph[m]).map(e=>e.type)))];
+  const typeColors={Inversión:'#3a9e72',Crypto:'#5ac8fa',Liquid:'#4a8ecf',Net:'#88bfe0',Equity:'#8b60c4'};
+  const typeDs=types.map(t=>({label:{Inversión:'Investment',Crypto:'Crypto',Liquid:'Liquid',Net:'Net',Equity:'Private'}[t]||t,backgroundColor:typeColors[t]||'#636366',data:months.map(m=>Object.values(ph[m]).filter(e=>e.type===t).reduce((s,e)=>s+(e.value||0),0))}));
+  _wealthCharts.push(new Chart(document.getElementById('wChartType'),{type:'bar',data:{labels,datasets:typeDs},options:{responsive:true,interaction:{mode:'index',intersect:false},plugins:{legend:{display:false},tooltip:tipOpts},scales:scaleOpts}}));
 }
 function renderInicio(){
   // Date
@@ -995,6 +1080,9 @@ function assetIco(concept,ico,col){
 
 function initPatrimonio(){
   window._p=true;
+  _wealthCharts.forEach(c=>c.destroy()); _wealthCharts=[];
+  const ww=document.getElementById('wealthChartWrap'); if(ww){ww.classList.remove('open');}
+  const wb=document.getElementById('wealthToggleBtn'); if(wb){wb.classList.remove('open');}
   const tA=D.assets.reduce((s,a)=>s+a.value,0);
   const equity=D.assets.filter(a=>a.type==='Equity').reduce((s,a)=>s+a.value,0);
   const invest=D.assets.filter(a=>a.type!=='Equity').reduce((s,a)=>s+a.value,0);
