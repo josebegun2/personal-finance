@@ -640,9 +640,10 @@ function transformData(json){
   });
 
   // Income by month: BBVA nomina deposits + ThanksBen
+  // Use r.net>0 (not r.sign) because sign may be 0/undefined for Abono entries
   const incomeByMonth={};
   ml.forEach(r=>{
-    if(r.sign<=0) return;
+    if((r.net||0)<=0) return;
     if(r.account!=='BBVA') return;
     const cat=(r.category||'').toUpperCase().replace(/ /g,'_');
     if(cat==='MOVIMIENTOS_CUENTA') return;
