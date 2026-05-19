@@ -333,38 +333,38 @@ canvas{max-width:100%!important;}
   </div>
   <div class="sec"><span class="sec-title">Allocation</span></div>
   <div class="card"><div class="card-inner" id="allocView"></div></div>
-  <div class="sec"><span class="sec-title">Por cuenta</span><span style="font-size:13px;color:var(--label);font-weight:400">Activos brutos</span></div>
+  <div class="sec"><span class="sec-title">By Account</span><span style="font-size:13px;color:var(--label);font-weight:400">Gross Assets</span></div>
   <div class="card"><div class="card-inner" style="padding-bottom:12px"><canvas id="chartByAccount" style="max-height:240px"></canvas></div></div>
-  <div class="sec"><span class="sec-title">Por tipo</span><span style="font-size:13px;color:var(--label);font-weight:400">Composición</span></div>
+  <div class="sec"><span class="sec-title">By Type</span><span style="font-size:13px;color:var(--label);font-weight:400">Composition</span></div>
   <div class="card"><div class="card-inner" style="padding-bottom:12px"><canvas id="chartByType" style="max-height:130px"></canvas></div></div>
-  <div class="sec"><span class="sec-title">Cuentas</span></div>
+  <div class="sec"><span class="sec-title">Accounts</span></div>
   <div class="card"><ul class="rows" id="assetList"></ul></div>
-  <div class="sec"><span class="sec-title">Deudas</span></div>
+  <div class="sec"><span class="sec-title">Debts</span></div>
   <div class="card" style="overflow:hidden">
     <ul class="rows" id="debtList"></ul>
-    <div class="debt-foot"><span>Total deudas</span><span id="totalDebtsLabel">—</span></div>
+    <div class="debt-foot"><span>Total debts</span><span id="totalDebtsLabel">—</span></div>
   </div>
 </div>
 
 <!-- ═══ MOVIMIENTOS ═══ -->
 <div id="movimientos" class="page">
-  <div class="large-title"><div class="large-title-main">Movimientos</div></div>
+  <div class="large-title"><div class="large-title-main">Transactions</div></div>
   <div class="month-scroll" id="movMonthScroller" style="margin-top:14px"></div>
   <div class="hero" style="padding:16px 20px 14px">
     <div class="hero-label" id="movLabel">—</div>
     <div style="display:flex;gap:24px;margin-top:10px">
-      <div><div style="font-size:11px;color:var(--label);margin-bottom:3px">Salidas</div><div id="movOut" style="font-size:17px;font-weight:700;color:var(--red)">—</div></div>
-      <div><div style="font-size:11px;color:var(--label);margin-bottom:3px">Entradas</div><div id="movIn" style="font-size:17px;font-weight:700;color:var(--green)">—</div></div>
+      <div><div style="font-size:11px;color:var(--label);margin-bottom:3px">Outflow</div><div id="movOut" style="font-size:17px;font-weight:700;color:var(--red)">—</div></div>
+      <div><div style="font-size:11px;color:var(--label);margin-bottom:3px">Inflow</div><div id="movIn" style="font-size:17px;font-weight:700;color:var(--green)">—</div></div>
       <div><div style="font-size:11px;color:var(--label);margin-bottom:3px">Neto</div><div id="movNet" style="font-size:17px;font-weight:700">—</div></div>
     </div>
   </div>
-  <div class="sec"><span class="sec-title">Detalle</span></div>
+  <div class="sec"><span class="sec-title">Detail</span></div>
   <div class="card"><ul class="rows" id="movList"></ul></div>
 </div>
 
 <!-- ═══ ASISTENTE ═══ -->
 <div id="asistente" class="page">
-  <div class="large-title"><div class="large-title-main">Asistente</div></div>
+  <div class="large-title"><div class="large-title-main">Assistant</div></div>
   <div class="ai-wrap">
     <!-- Aurora orb — Apple Intelligence aesthetic -->
     <div class="ai-orb-ring">
@@ -374,28 +374,28 @@ canvas{max-width:100%!important;}
     </div>
     <span class="ai-badge">
       <svg width="10" height="10" viewBox="0 0 10 10" fill="currentColor"><circle cx="5" cy="5" r="4"/></svg>
-      Próximamente
+      Coming soon
     </span>
-    <div class="ai-title">Tu asistente financiero</div>
-    <div class="ai-sub">Pregúntale sobre tus gastos, hábitos y cómo optimizar tus finanzas personales.</div>
+    <div class="ai-title">Your financial assistant</div>
+    <div class="ai-sub">Ask about your spending, habits, and how to optimize your personal finances.</div>
     <!-- Suggested chips — Revolut AIR style -->
     <div class="ai-chips">
       <div class="ai-chip">
         <div class="ai-chip-ic"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M10 3v14M3 10h14"/></svg></div>
-        ¿En qué gasté más este mes?
+        What did I spend the most on this month?
       </div>
       <div class="ai-chip">
         <div class="ai-chip-ic"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><polyline points="3,14 7,9 11,12 17,5"/></svg></div>
-        ¿Cómo va mi patrimonio vs el año pasado?
+        How is my net worth vs last year?
       </div>
       <div class="ai-chip">
         <div class="ai-chip-ic"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="10" cy="10" r="7"/><path d="M10 7v3l2 2"/></svg></div>
-        ¿Cuánto podría ahorrar al mes?
+        How much could I save per month?
       </div>
     </div>
     <!-- Mock input -->
     <div class="ai-input-mock">
-      <span>Pregunta algo sobre tus finanzas…</span>
+      <span>Ask something about your finances…</span>
       <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" fill="rgba(191,90,242,.3)"/><path d="M7 10l3-3 3 3M10 7v7" stroke="#bf5af2" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
     </div>
   </div>
@@ -409,14 +409,14 @@ canvas{max-width:100%!important;}
       <path d="M4 11.5L14 4l10 7.5V24a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V11.5z"/>
       <path d="M10 25V17h8v8"/>
     </svg>
-    <span>Inicio</span>
+    <span>Home</span>
   </button>
   <!-- Gastos -->
   <button class="tab-btn" onclick="go('gastos',this)">
     <svg viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
       <path d="M14 5a9 9 0 1 1-9 9"/><path d="M14 5v9h9A9 9 0 0 0 14 5z"/>
     </svg>
-    <span>Gastos</span>
+    <span>Spending</span>
   </button>
   <!-- Movimientos -->
   <button class="tab-btn" onclick="go('movimientos',this)">
@@ -424,7 +424,7 @@ canvas{max-width:100%!important;}
       <path d="M4 10h20M20 6l4 4-4 4"/>
       <path d="M24 18H4M8 14l-4 4 4 4"/>
     </svg>
-    <span>Movs.</span>
+    <span>Txns</span>
   </button>
   <!-- Tendencias -->
   <button class="tab-btn" onclick="go('tendencias',this)">
@@ -439,7 +439,7 @@ canvas{max-width:100%!important;}
     <svg viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
       <path d="M4 20h20M6 20V12m4 8V9m4 8V6m4 14V11"/>
     </svg>
-    <span>Patrimonio</span>
+    <span>Wealth</span>
   </button>
   <!-- Asistente -->
   <button class="tab-btn" onclick="go('asistente',this)">
@@ -447,7 +447,7 @@ canvas{max-width:100%!important;}
       <path d="M24 8H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h4l4 4 4-4h8a2 2 0 0 0 2-2V10a2 2 0 0 0-2-2z"/>
       <line x1="8" y1="14" x2="20" y2="14"/><line x1="8" y1="18" x2="14" y2="18"/>
     </svg>
-    <span>Asistente</span>
+    <span>Assistant</span>
   </button>
 </nav>
 
@@ -675,7 +675,7 @@ const TIP={backgroundColor:'rgba(18,18,20,.96)',titleColor:'#fff',bodyColor:'rgb
 
 // ── NAVIGATION ──
 // ── STICKY HEADER ──
-const STICKY_TITLES={inicio:'Finanzas',gastos:'Gastos',movimientos:'Movimientos',tendencias:'P&L',patrimonio:'Patrimonio',asistente:'Asistente'};
+const STICKY_TITLES={inicio:'Finance',gastos:'Spending',movimientos:'Transactions',tendencias:'P&L',patrimonio:'Wealth',asistente:'Assistant'};
 let _stickyObs=null;
 function setStickyTitle(id){
   const hdr=document.getElementById('stickyHeader');
