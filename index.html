@@ -15,7 +15,7 @@ charset="UTF-8">
   --bg:#000;--bg1:#1c1c1e;--bg2:#2c2c2e;--bg3:#3a3a3c;
   --sep:rgba(255,255,255,0.08);
   --label:rgba(235,235,245,0.6);--label2:rgba(235,235,245,0.3);
-  --green:#30d158;--red:#ff453a;--blue:#0a84ff;--orange:#ff9f0a;--purple:#bf5af2;--teal:#5ac8fa;--yellow:#ffd60a;--pink:#ff375f;
+  --green:#2997ff;--red:#ff9f0a;--blue:#0a84ff;--orange:#ff9f0a;--purple:#bf5af2;--teal:#5ac8fa;--yellow:#ffd60a;--pink:#ff375f;
   --font:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text","Helvetica Neue",sans-serif;
   color-scheme:dark;
 }
@@ -56,8 +56,8 @@ body{font-family:var(--font);background:var(--bg);color:#fff;min-height:100vh;ov
 
 /* Delta chip — MoM net worth change */
 .delta{display:inline-flex;align-items:center;gap:4px;font-size:14px;font-weight:600;margin-top:10px;padding:4px 10px;border-radius:10px;letter-spacing:-.2px;}
-.delta.pos{background:rgba(48,209,88,.15);color:var(--green);}
-.delta.neg{background:rgba(255,69,58,.15);color:var(--red);}
+.delta.pos{background:rgba(41,151,255,.15);color:var(--green);}
+.delta.neg{background:rgba(255,159,10,.15);color:var(--red);}
 
 /* Spending progress card */
 .spend-card{background:var(--bg1);border-radius:16px;padding:18px 16px;margin:16px 16px 0;}
@@ -96,8 +96,8 @@ body{font-family:var(--font);background:var(--bg);color:#fff;min-height:100vh;ov
 
 /* BADGE */
 .badge{display:inline-block;font-size:11px;font-weight:700;padding:3px 8px;border-radius:7px;margin-top:5px;letter-spacing:-.1px;}
-.badge.up{background:#30d158;color:#000;}
-.badge.dn{background:#ff453a;color:#fff;}
+.badge.up{background:#2997ff;color:#fff;}
+.badge.dn{background:#ff9f0a;color:#000;}
 
 /* PROGRESS */
 .prog{height:2px;background:rgba(255,255,255,.07);border-radius:2px;margin-top:7px;overflow:hidden;}
@@ -175,7 +175,7 @@ body{font-family:var(--font);background:var(--bg);color:#fff;min-height:100vh;ov
 /* ASISTENTE — Apple Intelligence / Revolut AIR aesthetic */
 .ai-wrap{display:flex;flex-direction:column;align-items:center;padding:40px 24px 24px;gap:0;}
 .ai-orb-ring{position:relative;width:120px;height:120px;margin-bottom:28px;}
-.ai-orb{width:120px;height:120px;border-radius:50%;background:conic-gradient(from 0deg,#bf5af2,#0a84ff,#5ac8fa,#30d158,#ffd60a,#ff375f,#bf5af2);animation:orbSpin 6s linear infinite;filter:blur(1px);opacity:.9;}
+.ai-orb{width:120px;height:120px;border-radius:50%;background:conic-gradient(from 0deg,#bf5af2,#0a84ff,#5ac8fa,#2997ff,#ffd60a,#ff375f,#bf5af2);animation:orbSpin 6s linear infinite;filter:blur(1px);opacity:.9;}
 .ai-orb-inner{position:absolute;inset:10px;border-radius:50%;background:radial-gradient(ellipse at 35% 35%,#2d2040,#0d0d10);backdrop-filter:blur(4px);}
 .ai-orb-shine{position:absolute;inset:10px;border-radius:50%;background:radial-gradient(ellipse at 32% 28%,rgba(255,255,255,.18),transparent 60%);}
 @keyframes orbSpin{to{transform:rotate(360deg)}}
@@ -231,7 +231,7 @@ canvas{max-width:100%!important;}
            padding:14px 40px;font-size:17px;font-weight:700;font-family:var(--font);cursor:pointer;">
     Enter
   </button>
-  <div id="pinError" style="display:none;color:#ff453a;font-size:14px;">Incorrect PIN</div>
+  <div id="pinError" style="display:none;color:#ff9f0a;font-size:14px;">Incorrect PIN</div>
 </div>
 
 <!-- Sticky compact header — title injected by JS on scroll -->
@@ -334,38 +334,38 @@ canvas{max-width:100%!important;}
   </div>
   <div class="sec"><span class="sec-title">Allocation</span></div>
   <div class="card"><div class="card-inner" id="allocView"></div></div>
-  <div class="sec"><span class="sec-title">Por cuenta</span><span style="font-size:13px;color:var(--label);font-weight:400">Activos brutos</span></div>
+  <div class="sec"><span class="sec-title">By Account</span><span style="font-size:13px;color:var(--label);font-weight:400">Gross Assets</span></div>
   <div class="card"><div class="card-inner" style="padding-bottom:12px"><canvas id="chartByAccount" style="max-height:240px"></canvas></div></div>
-  <div class="sec"><span class="sec-title">Por tipo</span><span style="font-size:13px;color:var(--label);font-weight:400">Composición</span></div>
+  <div class="sec"><span class="sec-title">By Type</span><span style="font-size:13px;color:var(--label);font-weight:400">Composition</span></div>
   <div class="card"><div class="card-inner" style="padding-bottom:12px"><canvas id="chartByType" style="max-height:130px"></canvas></div></div>
-  <div class="sec"><span class="sec-title">Cuentas</span></div>
+  <div class="sec"><span class="sec-title">Accounts</span></div>
   <div class="card"><ul class="rows" id="assetList"></ul></div>
-  <div class="sec"><span class="sec-title">Deudas</span></div>
+  <div class="sec"><span class="sec-title">Debts</span></div>
   <div class="card" style="overflow:hidden">
     <ul class="rows" id="debtList"></ul>
-    <div class="debt-foot"><span>Total deudas</span><span id="totalDebtsLabel">—</span></div>
+    <div class="debt-foot"><span>Total debts</span><span id="totalDebtsLabel">—</span></div>
   </div>
 </div>
 
 <!-- ═══ MOVIMIENTOS ═══ -->
 <div id="movimientos" class="page">
-  <div class="large-title"><div class="large-title-main">Movimientos</div></div>
+  <div class="large-title"><div class="large-title-main">Transactions</div></div>
   <div class="month-scroll" id="movMonthScroller" style="margin-top:14px"></div>
   <div class="hero" style="padding:16px 20px 14px">
     <div class="hero-label" id="movLabel">—</div>
     <div style="display:flex;gap:24px;margin-top:10px">
-      <div><div style="font-size:11px;color:var(--label);margin-bottom:3px">Salidas</div><div id="movOut" style="font-size:17px;font-weight:700;color:var(--red)">—</div></div>
-      <div><div style="font-size:11px;color:var(--label);margin-bottom:3px">Entradas</div><div id="movIn" style="font-size:17px;font-weight:700;color:var(--green)">—</div></div>
+      <div><div style="font-size:11px;color:var(--label);margin-bottom:3px">Outflow</div><div id="movOut" style="font-size:17px;font-weight:700;color:var(--red)">—</div></div>
+      <div><div style="font-size:11px;color:var(--label);margin-bottom:3px">Inflow</div><div id="movIn" style="font-size:17px;font-weight:700;color:var(--green)">—</div></div>
       <div><div style="font-size:11px;color:var(--label);margin-bottom:3px">Neto</div><div id="movNet" style="font-size:17px;font-weight:700">—</div></div>
     </div>
   </div>
-  <div class="sec"><span class="sec-title">Detalle</span></div>
+  <div class="sec"><span class="sec-title">Detail</span></div>
   <div class="card"><ul class="rows" id="movList"></ul></div>
 </div>
 
 <!-- ═══ ASISTENTE ═══ -->
 <div id="asistente" class="page">
-  <div class="large-title"><div class="large-title-main">Asistente</div></div>
+  <div class="large-title"><div class="large-title-main">Assistant</div></div>
   <div class="ai-wrap">
     <!-- Aurora orb — Apple Intelligence aesthetic -->
     <div class="ai-orb-ring">
@@ -375,28 +375,28 @@ canvas{max-width:100%!important;}
     </div>
     <span class="ai-badge">
       <svg width="10" height="10" viewBox="0 0 10 10" fill="currentColor"><circle cx="5" cy="5" r="4"/></svg>
-      Próximamente
+      Coming soon
     </span>
-    <div class="ai-title">Tu asistente financiero</div>
-    <div class="ai-sub">Pregúntale sobre tus gastos, hábitos y cómo optimizar tus finanzas personales.</div>
+    <div class="ai-title">Your financial assistant</div>
+    <div class="ai-sub">Ask about your spending, habits, and how to optimize your personal finances.</div>
     <!-- Suggested chips — Revolut AIR style -->
     <div class="ai-chips">
       <div class="ai-chip">
         <div class="ai-chip-ic"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M10 3v14M3 10h14"/></svg></div>
-        ¿En qué gasté más este mes?
+        What did I spend the most on this month?
       </div>
       <div class="ai-chip">
         <div class="ai-chip-ic"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><polyline points="3,14 7,9 11,12 17,5"/></svg></div>
-        ¿Cómo va mi patrimonio vs el año pasado?
+        How is my net worth vs last year?
       </div>
       <div class="ai-chip">
         <div class="ai-chip-ic"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="10" cy="10" r="7"/><path d="M10 7v3l2 2"/></svg></div>
-        ¿Cuánto podría ahorrar al mes?
+        How much could I save per month?
       </div>
     </div>
     <!-- Mock input -->
     <div class="ai-input-mock">
-      <span>Pregunta algo sobre tus finanzas…</span>
+      <span>Ask something about your finances…</span>
       <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" fill="rgba(191,90,242,.3)"/><path d="M7 10l3-3 3 3M10 7v7" stroke="#bf5af2" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
     </div>
   </div>
@@ -410,14 +410,14 @@ canvas{max-width:100%!important;}
       <path d="M4 11.5L14 4l10 7.5V24a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V11.5z"/>
       <path d="M10 25V17h8v8"/>
     </svg>
-    <span>Inicio</span>
+    <span>Home</span>
   </button>
   <!-- Gastos -->
   <button class="tab-btn" onclick="go('gastos',this)">
     <svg viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
       <path d="M14 5a9 9 0 1 1-9 9"/><path d="M14 5v9h9A9 9 0 0 0 14 5z"/>
     </svg>
-    <span>Gastos</span>
+    <span>Spending</span>
   </button>
   <!-- Movimientos -->
   <button class="tab-btn" onclick="go('movimientos',this)">
@@ -425,7 +425,7 @@ canvas{max-width:100%!important;}
       <path d="M4 10h20M20 6l4 4-4 4"/>
       <path d="M24 18H4M8 14l-4 4 4 4"/>
     </svg>
-    <span>Movs.</span>
+    <span>Txns</span>
   </button>
   <!-- Tendencias -->
   <button class="tab-btn" onclick="go('tendencias',this)">
@@ -440,7 +440,7 @@ canvas{max-width:100%!important;}
     <svg viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
       <path d="M4 20h20M6 20V12m4 8V9m4 8V6m4 14V11"/>
     </svg>
-    <span>Patrimonio</span>
+    <span>Wealth</span>
   </button>
   <!-- Asistente -->
   <button class="tab-btn" onclick="go('asistente',this)">
@@ -448,7 +448,7 @@ canvas{max-width:100%!important;}
       <path d="M24 8H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h4l4 4 4-4h8a2 2 0 0 0 2-2V10a2 2 0 0 0-2-2z"/>
       <line x1="8" y1="14" x2="20" y2="14"/><line x1="8" y1="18" x2="14" y2="18"/>
     </svg>
-    <span>Asistente</span>
+    <span>Assistant</span>
   </button>
 </nav>
 
@@ -676,7 +676,7 @@ const TIP={backgroundColor:'rgba(18,18,20,.96)',titleColor:'#fff',bodyColor:'rgb
 
 // ── NAVIGATION ──
 // ── STICKY HEADER ──
-const STICKY_TITLES={inicio:'Finanzas',gastos:'Gastos',movimientos:'Movimientos',tendencias:'P&L',patrimonio:'Patrimonio',asistente:'Asistente'};
+const STICKY_TITLES={inicio:'Finance',gastos:'Spending',movimientos:'Transactions',tendencias:'P&L',patrimonio:'Wealth',asistente:'Assistant'};
 let _stickyObs=null;
 function setStickyTitle(id){
   const hdr=document.getElementById('stickyHeader');
@@ -927,7 +927,7 @@ function initTendencias(){
   document.getElementById('pnlRate').textContent=rate+'%';
   const usedCats=ALL_CATS.filter(c=>rows.some(r=>r.cats[c]));
   const catC=Object.fromEntries(ALL_CATS.map(c=>[c,CC[c]||'#555']));
-  new Chart(document.getElementById('pnlChart'),{data:{labels:months.map(mLab),datasets:[{type:'line',label:'Ingresos',data:months.map(()=>income),borderColor:'#30d158',borderWidth:1.5,pointRadius:2.5,pointBackgroundColor:'#30d158',fill:false,tension:0,order:0,yAxisID:'y'},...usedCats.map(cat=>({type:'bar',label:CAT_LABEL[cat]||cat,data:rows.map(r=>r.cats[cat]||0),backgroundColor:catC[cat],borderWidth:0,stack:'g',order:1,yAxisID:'y'}))]},options:{responsive:true,interaction:{mode:'index',intersect:false},plugins:{legend:{display:false},tooltip:{...TIP,displayColors:true,callbacks:{label:ctx=>{if(!ctx.raw||ctx.raw===0)return null;return` ${ctx.dataset.label}: ${fmt(ctx.raw)}`},afterBody:items=>{const g=items.filter(i=>i.dataset.stack==='g').reduce((s,i)=>s+(i.raw||0),0);if(!g)return[];return['',`Total: ${fmt(g)}`,`Neto: ${income-g>=0?'+':''}${fmt(income-g)}`]}}}},scales:{x:{stacked:true,grid:{display:false},ticks:{color:'rgba(235,235,245,.35)',font:{family:SF,size:10}}},y:{stacked:true,grid:{color:'rgba(255,255,255,.04)'},border:{display:false},ticks:{color:'rgba(235,235,245,.35)',font:{family:SF,size:10},callback:v=>fmtK(v)}}}}});
+  new Chart(document.getElementById('pnlChart'),{data:{labels:months.map(mLab),datasets:[{type:'line',label:'Ingresos',data:months.map(()=>income),borderColor:'#2997ff',borderWidth:1.5,pointRadius:2.5,pointBackgroundColor:'#2997ff',fill:false,tension:0,order:0,yAxisID:'y'},...usedCats.map(cat=>({type:'bar',label:CAT_LABEL[cat]||cat,data:rows.map(r=>r.cats[cat]||0),backgroundColor:catC[cat],borderWidth:0,stack:'g',order:1,yAxisID:'y'}))]},options:{responsive:true,interaction:{mode:'index',intersect:false},plugins:{legend:{display:false},tooltip:{...TIP,displayColors:true,callbacks:{label:ctx=>{if(!ctx.raw||ctx.raw===0)return null;return` ${ctx.dataset.label}: ${fmt(ctx.raw)}`},afterBody:items=>{const g=items.filter(i=>i.dataset.stack==='g').reduce((s,i)=>s+(i.raw||0),0);if(!g)return[];return['',`Total: ${fmt(g)}`,`Neto: ${income-g>=0?'+':''}${fmt(income-g)}`]}}}},scales:{x:{stacked:true,grid:{display:false},ticks:{color:'rgba(235,235,245,.35)',font:{family:SF,size:10}}},y:{stacked:true,grid:{color:'rgba(255,255,255,.04)'},border:{display:false},ticks:{color:'rgba(235,235,245,.35)',font:{family:SF,size:10},callback:v=>fmtK(v)}}}}});
   // Table uses newest-first column order
   const tableMonths=[...months].reverse();
   const tableRows=tableMonths.map(m=>{const g=PNL.gastos[m]||{};const tg=Object.values(g).reduce((a,b)=>a+b,0);return{m,tg,neto:income-tg,cats:g};});
@@ -989,13 +989,13 @@ function initPatrimonio(){
   document.getElementById('debtList').innerHTML=D.debts.map(d=>{
     let ico;
     if(d.account==='AMEX'){
-      ico=`<div class="row-ico logo-ico"><img src="https://www.google.com/s2/favicons?domain=americanexpress.com&sz=64" alt="AMEX" onerror="this.parentNode.className='row-ico';this.parentNode.style.background='rgba(255,69,58,.12)';this.parentNode.style.color='var(--red)';this.parentNode.innerHTML='${DEBT_ICON_CARD}'"></div>`;
+      ico=`<div class="row-ico logo-ico"><img src="https://www.google.com/s2/favicons?domain=americanexpress.com&sz=64" alt="AMEX" onerror="this.parentNode.className='row-ico';this.parentNode.style.background='rgba(255,159,10,.12)';this.parentNode.style.color='var(--red)';this.parentNode.innerHTML='${DEBT_ICON_CARD}'"></div>`;
     } else if(d.account==='JM'){
-      ico=`<div class="row-ico" style="background:rgba(255,69,58,.12);color:var(--red)">${DEBT_ICON_COUPLE}</div>`;
+      ico=`<div class="row-ico" style="background:rgba(255,159,10,.12);color:var(--red)">${DEBT_ICON_COUPLE}</div>`;
     } else if(d.account==='Family'){
-      ico=`<div class="row-ico" style="background:rgba(255,69,58,.12);color:var(--red)">${DEBT_ICON_FAMILY}</div>`;
+      ico=`<div class="row-ico" style="background:rgba(255,159,10,.12);color:var(--red)">${DEBT_ICON_FAMILY}</div>`;
     } else {
-      ico=`<div class="row-ico" style="background:rgba(255,69,58,.12);color:var(--red)">${DEBT_ICON_PERSON}</div>`;
+      ico=`<div class="row-ico" style="background:rgba(255,159,10,.12);color:var(--red)">${DEBT_ICON_PERSON}</div>`;
     }
     return`<li class="row">${ico}<div class="row-info"><div class="row-name">${d.concept}</div></div><div class="row-right"><div class="row-val red">${fmt(d.value)}</div></div></li>`;
   }).join('');
