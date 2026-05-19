@@ -579,17 +579,18 @@ function transformData(json){
     allTx.push({date:r.date,desc:r.description||'—',amount:Math.abs(r.net),cat,catKey,by:r.account,month:r.month});
   });
 
-  // Income by month: all positive-sign non-transfer transactions
+  // Income by month: BBVA nomina deposits + ThanksBen
   const incomeByMonth={};
   ml.forEach(r=>{
     if(r.sign<=0) return;
+    if(r.account!=='BBVA') return;
     const cat=(r.category||'').toUpperCase().replace(/ /g,'_');
     if(cat==='MOVIMIENTOS_CUENTA') return;
     if(!incomeByMonth[r.month]) incomeByMonth[r.month]={salary:0,thanksben:0};
     const desc=(r.description||'').toLowerCase();
     if(desc.includes('thanksbien')||desc.includes('thanksben')||cat.includes('THANKSBEN')) {
       incomeByMonth[r.month].thanksben+=Math.abs(r.net);
-    } else {
+    } else if(desc.includes('nomina')||desc.includes('nómina')||cat.includes('NOMINA')||cat.includes('SALARIO')) {
       incomeByMonth[r.month].salary+=Math.abs(r.net);
     }
   });
