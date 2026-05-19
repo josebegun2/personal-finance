@@ -772,6 +772,7 @@ const MN=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec
 const MN2=['January','February','March','April','May','June','July','August','September','October','November','December'];
 const fmt=n=>'$'+Math.abs(n).toLocaleString('es-MX',{maximumFractionDigits:0});
 const fmtK=n=>Math.abs(n)>=1e6?'$'+(Math.abs(n)/1e6).toFixed(1)+'M':Math.abs(n)>=1000?'$'+(Math.abs(n)/1000).toFixed(0)+'k':fmt(n);
+const fmtReviewDate=d=>{if(!d)return'';const[y,m,day]=d.split('-');const mo=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];return(mo[+m-1]||m)+' '+parseInt(day)+', '+y;};
 const mLab=m=>{const[y,mo]=m.split('-');return MN[+mo-1]+"'"+y.slice(2)};
 const SF="-apple-system,BlinkMacSystemFont,'SF Pro Text',sans-serif";
 const TIP={backgroundColor:'rgba(18,18,20,.96)',titleColor:'#fff',bodyColor:'rgba(235,235,245,.6)',padding:12,cornerRadius:12,displayColors:false,borderColor:'rgba(255,255,255,.1)',borderWidth:.5,titleFont:{family:SF,weight:'700',size:13},bodyFont:{family:SF,size:12}};
@@ -1251,7 +1252,7 @@ function initReview(){
       const color=CC[cat]||'#888';
       return `<button class="review-cat-btn" data-gid="${cardId(g.desc)}" data-desc="${safeDesc}" data-ids="${safeIds}" data-cat="${cat}" onclick="classifyTx(this)"><div class="review-cat-ic" style="background:${color}22;color:${color}">${ICONS[cat]||''}</div>${CAT_LABEL[cat]||cat}</button>`;
     }).join('');
-    return `<div class="review-card" id="${cardId(g.desc)}"><div class="review-tx-head"><div class="review-tx-meta"><span>${g.by||''}${countBadge}</span><span>${g.latestDate}</span></div><div class="review-tx-desc">${g.desc}</div><div class="review-tx-amt">${fmt(g.total)}</div></div><div class="review-cat-grid">${buttons}</div></div>`;
+    return `<div class="review-card" id="${cardId(g.desc)}"><div class="review-tx-head"><div class="review-tx-meta"><span>${g.by||''}${countBadge}</span><span>${fmtReviewDate(g.latestDate)}</span></div><div class="review-tx-desc">${g.desc}</div><div class="review-tx-amt">${fmt(g.total)}</div></div><div class="review-cat-grid">${buttons}</div></div>`;
   }).join('');
 }
 
