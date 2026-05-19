@@ -44,8 +44,15 @@ body{font-family:var(--font);background:var(--bg);color:#fff;min-height:100vh;ov
 @keyframes slideUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 
 /* HERO */
-.hero{padding:28px 20px 24px;border-bottom:.5px solid var(--sep);}
+.hero{padding:28px 20px 0;}
 .hero-label{font-size:15px;font-weight:500;color:var(--label);margin-bottom:8px;}
+/* Net worth chart toggle */
+.nw-toggle{display:flex;align-items:center;gap:5px;margin:14px 20px 0;padding:0;border:none;background:none;color:var(--label);font-family:var(--font);font-size:13px;font-weight:500;cursor:pointer;-webkit-tap-highlight-color:transparent;}
+.nw-toggle svg{transition:transform .25s cubic-bezier(.2,.8,.2,1);}
+.nw-toggle.open svg{transform:rotate(180deg);}
+.nw-chart-wrap{overflow:hidden;max-height:0;transition:max-height .35s cubic-bezier(.2,.8,.2,1);padding:0 12px;}
+.nw-chart-wrap.open{max-height:220px;}
+.hero-sep{height:.5px;background:var(--sep);margin-top:16px;}
 .hero-num{font-size:56px;font-weight:700;letter-spacing:-2.8px;line-height:1;}
 .hero-num .sign{font-size:36px;font-weight:700;vertical-align:top;margin-top:9px;display:inline-block;margin-right:1px;}
 .hero-row{display:flex;gap:0;margin-top:20px;border:.5px solid var(--sep);border-radius:14px;overflow:hidden;background:var(--bg1);}
@@ -250,6 +257,14 @@ canvas{max-width:100%!important;}
     <div class="hero-num"><span class="sign">$</span><span id="heroNetWorth"></span></div>
     <div id="nwDelta"></div>
   </div>
+  <button class="nw-toggle" id="nwToggleBtn" onclick="toggleNwChart()">
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="2,4 7,10 12,4"/></svg>
+    2-year history
+  </button>
+  <div class="nw-chart-wrap" id="nwChartWrap">
+    <canvas id="nwChart" style="max-height:180px;margin-top:12px"></canvas>
+  </div>
+  <div class="hero-sep"></div>
 
   <!-- Spending progress card -->
   <div class="spend-card">
@@ -570,6 +585,23 @@ function transformData(json){
     allTx.push({date:r.date,desc:r.description||'—',amount:Math.abs(r.net),cat,catKey,by:r.account,month:r.month});
   });
 
+  // Income by month from actual deposits (BBVA, non-transfer)
+  const incomeByMonth={};
+  ml.forEach(r=>{
+    if(r.sign<=0) return;
+    const cat=(r.category||'').toUpperCase();
+    if(cat==='MOVIMIENTOS_CUENTA') return;
+    if(!incomeByMonth[r.month]) incomeByMonth[r.month]={salary:0,thanksben:0,other:0};
+    const desc=(r.description||'').toLowerCase();
+    if(desc.includes('nomina')||desc.includes('nómina')||cat.includes('NOMINA')||cat.includes('SALARIO')) {
+      incomeByMonth[r.month].salary+=r.net;
+    } else if(desc.includes('thanksbien')||desc.includes('thanksben')||cat.includes('THANKSBEN')) {
+      incomeByMonth[r.month].thanksben+=r.net;
+    } else {
+      incomeByMonth[r.month].other+=r.net;
+    }
+  });
+
   // Monthly totals
   const monthTotals={};
   Object.entries(gastosByMonth).forEach(([m,cats])=>{
@@ -582,7 +614,8 @@ function transformData(json){
   return {
     D:{ months:sortedMonthTotals, bmc:bmcRaw, allTx, txIndex, movements, assets, debts,
         netWorth, netWorthDelta, prevMonth, totalAssets, totalDebts, totalRendimientos },
-    PNL:{ months:Object.keys(gastosByMonth).sort(), salario:102000, thanksben:1500, rendimientos:13343, gastos:gastosByMonth },
+    PNL:{ months:Object.keys(gastosByMonth).sort(), salario:102000, thanksben:1500, rendimientos:13343, gastos:gastosByMonth, incomeByMonth:incomeByMonth },
+    nwHistory,
     lastMonth
   };
 }
@@ -625,8 +658,8 @@ async function authenticate(){
 }
 
 // ── DATA ──
-let D={months:{},bmc:{},allTx:[],txIndex:{},assets:[],debts:[],netWorth:0,netWorthDelta:0,prevMonth:null,totalAssets:0,totalDebts:0,totalRendimientos:0};
-let PNL={months:[],salario:102000,thanksben:1500,rendimientos:13343,gastos:{}};
+let D={months:{},bmc:{},allTx:[],txIndex:{},assets:[],debts:[],netWorth:0,netWorthDelta:0,prevMonth:null,totalAssets:0,totalDebts:0,totalRendimientos:0,nwHistory:[]};
+let PNL={months:[],salario:102000,thanksben:1500,rendimientos:13343,gastos:{},incomeByMonth:{}};
 
 async function fetchData(){
   const bar=document.getElementById('loadBar');
@@ -637,7 +670,7 @@ async function fetchData(){
     const res=await fetch(API_URL+'?token='+API_TOKEN);
     const json=await res.json();
     const t=transformData(json);
-    D=t.D; PNL=t.PNL;
+    D=t.D; D.nwHistory=t.nwHistory||[]; PNL=t.PNL;
     bar.style.width='100%';
     setTimeout(()=>{ bar.style.opacity='0'; setTimeout(()=>{ bar.style.width='0%'; },300); },400);
     document.querySelectorAll('.sk').forEach(el=>el.classList.remove('sk'));
@@ -645,7 +678,7 @@ async function fetchData(){
   } catch(e){
     console.error(e);
     bar.style.opacity='0';
-    document.getElementById('heroNetWorth').textContent='Error al cargar';
+    document.getElementById('heroNetWorth').textContent='Error loading';
   }
 }
 
@@ -665,9 +698,9 @@ function submitPin(){
 const CC={SALUD:"#30d158",ENTRETENIMIENTO:"#ff375f",VIAJES:"#ff9f0a",IMPUESTOS:"#636366",CASA:"#ffd60a",SUPER:"#0a84ff",TRANSPORTE:"#5ac8fa",MARKETPLACE:"#bf5af2",TECNOLOGÍA:"#32ade6",RESTAURANTES:"#ff6b6b",ROPA:"#da77f2",SUSCRIPCIONES:"#5e5ce6","MOVIMIENTOS CUENTA":"#8e8e93",MOVIMIENTOS_CUENTA:"#8e8e93",POR_CLASIFICAR:"#48484a"};
 const AC=["#30d158","#0a84ff","#ff9f0a","#ff375f","#bf5af2","#5ac8fa","#ff6b6b","#ffd60a","#32ade6","#5e5ce6"];
 const ALL_CATS=["SALUD","SUPER","CASA","TRANSPORTE","ENTRETENIMIENTO","RESTAURANTES","VIAJES","TECNOLOGÍA","MARKETPLACE","IMPUESTOS","ROPA","SUSCRIPCIONES","MOVIMIENTOS_CUENTA","POR_CLASIFICAR"];
-const CAT_LABEL={SALUD:"Salud",SUPER:"Súper",CASA:"Casa",TRANSPORTE:"Transporte",ENTRETENIMIENTO:"Entretenimiento",RESTAURANTES:"Restaurantes",VIAJES:"Viajes",TECNOLOGÍA:"Tecnología",MARKETPLACE:"Marketplace",IMPUESTOS:"Impuestos",ROPA:"Ropa",SUSCRIPCIONES:"Suscripciones",MOVIMIENTOS_CUENTA:"Mov. Cuenta",POR_CLASIFICAR:"Por clasificar"};
-const MN=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
-const MN2=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+const CAT_LABEL={SALUD:"Health",SUPER:"Groceries",CASA:"Home",TRANSPORTE:"Transport",ENTRETENIMIENTO:"Entertainment",RESTAURANTES:"Dining",VIAJES:"Travel",TECNOLOGÍA:"Tech",MARKETPLACE:"Marketplace",IMPUESTOS:"Taxes",ROPA:"Clothing",SUSCRIPCIONES:"Subscriptions",MOVIMIENTOS_CUENTA:"Transfers",POR_CLASIFICAR:"Uncategorized"};
+const MN=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const MN2=['January','February','March','April','May','June','July','August','September','October','November','December'];
 const fmt=n=>'$'+Math.abs(n).toLocaleString('es-MX',{maximumFractionDigits:0});
 const fmtK=n=>Math.abs(n)>=1e6?'$'+(Math.abs(n)/1e6).toFixed(1)+'M':Math.abs(n)>=1000?'$'+(Math.abs(n)/1000).toFixed(0)+'k':fmt(n);
 const mLab=m=>{const[y,mo]=m.split('-');return MN[+mo-1]+"'"+y.slice(2)};
@@ -717,10 +750,25 @@ function renderAll(){
 // ══════════════════════════════════════════
 // INICIO — command center
 // ══════════════════════════════════════════
+let _nwChart=null;
+function toggleNwChart(){
+  const wrap=document.getElementById('nwChartWrap');
+  const btn=document.getElementById('nwToggleBtn');
+  const isOpen=wrap.classList.toggle('open');
+  btn.classList.toggle('open',isOpen);
+  if(isOpen&&!_nwChart) renderNwChart();
+}
+function renderNwChart(){
+  const cutoff=new Date();cutoff.setMonth(cutoff.getMonth()-24);
+  const pts=(D.nwHistory||[]).filter(r=>new Date(r.month+'-01')>=cutoff).sort((a,b)=>a.month.localeCompare(b.month));
+  if(!pts.length) return;
+  const fmtM=n=>(n/1e6).toFixed(2)+'M';
+  _nwChart=new Chart(document.getElementById('nwChart'),{type:'line',data:{labels:pts.map(r=>mLab(r.month)),datasets:[{data:pts.map(r=>r.value),borderColor:'#2997ff',borderWidth:2,pointRadius:0,pointHoverRadius:5,pointHoverBackgroundColor:'#2997ff',fill:true,backgroundColor:'rgba(41,151,255,.08)',tension:0.35}]},options:{responsive:true,interaction:{mode:'index',intersect:false},plugins:{legend:{display:false},tooltip:{...TIP,callbacks:{label:ctx=>`$${fmtM(ctx.raw)}`}}},scales:{x:{grid:{display:false},ticks:{color:'rgba(235,235,245,.35)',font:{family:SF,size:10},maxTicksLimit:6}},y:{grid:{color:'rgba(255,255,255,.04)'},border:{display:false},ticks:{color:'rgba(235,235,245,.35)',font:{family:SF,size:10},callback:v=>'$'+fmtM(v)}}}}});
+}
 function renderInicio(){
   // Date
   const now=new Date();
-  document.getElementById('ltDate').textContent=now.toLocaleDateString('es-MX',{month:'long',day:'numeric'});
+  document.getElementById('ltDate').textContent=now.toLocaleDateString('en-US',{month:'long',day:'numeric'});
 
   // Net worth
   document.getElementById('heroNetWorth').textContent=D.netWorth.toLocaleString('es-MX',{maximumFractionDigits:0});
@@ -915,11 +963,17 @@ function renderMovimientos(){
 // ══════════════════════════════════════════
 function initTendencias(){
   window._t=true;
-  const income=PNL.salario+PNL.thanksben+PNL.rendimientos;
-  const months=PNL.months.slice(-12); // últimos 12 meses
-  const rows=months.map(m=>{const g=PNL.gastos[m]||{};const tg=Object.values(g).reduce((a,b)=>a+b,0);return{m,tg,neto:income-tg,cats:g};});
-  const totalInc=income*months.length, totalExp=rows.reduce((s,r)=>s+r.tg,0);
-  const totalNet=totalInc-totalExp, avgSav=Math.round(totalNet/months.length), rate=Math.round(totalNet/totalInc*100);
+  const months=PNL.months.slice(-12);
+  // Per-month income: use actual deposits when available, fall back to hardcoded
+  const incomeM=m=>{
+    const ibm=PNL.incomeByMonth[m];
+    const sal=(ibm&&ibm.salary>0)?ibm.salary:PNL.salario;
+    const tb=(ibm&&ibm.thanksben>0)?ibm.thanksben:PNL.thanksben;
+    return sal+tb+PNL.rendimientos;
+  };
+  const rows=months.map(m=>{const g=PNL.gastos[m]||{};const tg=Object.values(g).reduce((a,b)=>a+b,0);const inc=incomeM(m);return{m,tg,inc,neto:inc-tg,cats:g};});
+  const totalInc=rows.reduce((s,r)=>s+r.inc,0), totalExp=rows.reduce((s,r)=>s+r.tg,0);
+  const totalNet=totalInc-totalExp, avgSav=Math.round(totalNet/months.length), rate=totalInc?Math.round(totalNet/totalInc*100):0;
   const pnlSign=avgSav<0?'−$':'$';
   document.getElementById('pnlAvgNum').innerHTML=`<span class="sign">${pnlSign}</span><span id="pnlAvg">${Math.abs(avgSav).toLocaleString('es-MX',{maximumFractionDigits:0})}</span>`;
   document.getElementById('pnlInc').textContent=fmtK(totalInc);
@@ -927,22 +981,22 @@ function initTendencias(){
   document.getElementById('pnlRate').textContent=rate+'%';
   const usedCats=ALL_CATS.filter(c=>rows.some(r=>r.cats[c]));
   const catC=Object.fromEntries(ALL_CATS.map(c=>[c,CC[c]||'#555']));
-  new Chart(document.getElementById('pnlChart'),{data:{labels:months.map(mLab),datasets:[{type:'line',label:'Ingresos',data:months.map(()=>income),borderColor:'#2997ff',borderWidth:1.5,pointRadius:2.5,pointBackgroundColor:'#2997ff',fill:false,tension:0,order:0,yAxisID:'y'},...usedCats.map(cat=>({type:'bar',label:CAT_LABEL[cat]||cat,data:rows.map(r=>r.cats[cat]||0),backgroundColor:catC[cat],borderWidth:0,stack:'g',order:1,yAxisID:'y'}))]},options:{responsive:true,interaction:{mode:'index',intersect:false},plugins:{legend:{display:false},tooltip:{...TIP,displayColors:true,callbacks:{label:ctx=>{if(!ctx.raw||ctx.raw===0)return null;return` ${ctx.dataset.label}: ${fmt(ctx.raw)}`},afterBody:items=>{const g=items.filter(i=>i.dataset.stack==='g').reduce((s,i)=>s+(i.raw||0),0);if(!g)return[];return['',`Total: ${fmt(g)}`,`Neto: ${income-g>=0?'+':''}${fmt(income-g)}`]}}}},scales:{x:{stacked:true,grid:{display:false},ticks:{color:'rgba(235,235,245,.35)',font:{family:SF,size:10}}},y:{stacked:true,grid:{color:'rgba(255,255,255,.04)'},border:{display:false},ticks:{color:'rgba(235,235,245,.35)',font:{family:SF,size:10},callback:v=>fmtK(v)}}}}});
+  new Chart(document.getElementById('pnlChart'),{data:{labels:months.map(mLab),datasets:[{type:'line',label:'Income',data:rows.map(r=>r.inc),borderColor:'#2997ff',borderWidth:1.5,pointRadius:2.5,pointBackgroundColor:'#2997ff',fill:false,tension:0,order:0,yAxisID:'y'},...usedCats.map(cat=>({type:'bar',label:CAT_LABEL[cat]||cat,data:rows.map(r=>r.cats[cat]||0),backgroundColor:catC[cat],borderWidth:0,stack:'g',order:1,yAxisID:'y'}))]},options:{responsive:true,interaction:{mode:'index',intersect:false},plugins:{legend:{display:false},tooltip:{...TIP,displayColors:true,callbacks:{label:ctx=>{if(!ctx.raw||ctx.raw===0)return null;return` ${ctx.dataset.label}: ${fmt(ctx.raw)}`},afterBody:items=>{const g=items.filter(i=>i.dataset.stack==='g').reduce((s,i)=>s+(i.raw||0),0);if(!g)return[];const inc=rows.find(r=>mLab(r.m)===items[0]?.label)?.inc||0;return['',`Total: ${fmt(g)}`,`Net: ${inc-g>=0?'+':''}${fmt(inc-g)}`]}}}},scales:{x:{stacked:true,grid:{display:false},ticks:{color:'rgba(235,235,245,.35)',font:{family:SF,size:10}}},y:{stacked:true,grid:{color:'rgba(255,255,255,.04)'},border:{display:false},ticks:{color:'rgba(235,235,245,.35)',font:{family:SF,size:10},callback:v=>fmtK(v)}}}}});
   // Table uses newest-first column order
   const tableMonths=[...months].reverse();
-  const tableRows=tableMonths.map(m=>{const g=PNL.gastos[m]||{};const tg=Object.values(g).reduce((a,b)=>a+b,0);return{m,tg,neto:income-tg,cats:g};});
+  const tableRows=tableMonths.map(m=>{const g=PNL.gastos[m]||{};const tg=Object.values(g).reduce((a,b)=>a+b,0);const inc=incomeM(m);const ibm=PNL.incomeByMonth[m];const sal=(ibm&&ibm.salary>0)?ibm.salary:PNL.salario;const tb=(ibm&&ibm.thanksben>0)?ibm.thanksben:PNL.thanksben;return{m,tg,inc,neto:inc-tg,cats:g,sal,tb};});
   const tbl=document.getElementById('pnlTable');
-  tbl.innerHTML=`<thead><tr><th>Concepto</th>${tableMonths.map(m=>`<th>${mLab(m)}</th>`).join('')}<th>Total</th></tr></thead>`;
-  const tb=document.createElement('tbody');
-  const secR=l=>{const tr=document.createElement('tr');tr.className='pnl-sec';tr.innerHTML=`<td colspan="${tableMonths.length+2}">${l}</td>`;tb.appendChild(tr);};
-  const dataR=(l,vals,cls,i)=>{const tr=document.createElement('tr');const t=vals.reduce((a,b)=>a+b,0);tr.innerHTML=`<td style="${i?'padding-left:20px;color:rgba(235,235,245,.7)':''}">${l}</td>`+vals.map(v=>`<td class="${v?cls:'dim'}">${v?fmt(v):'—'}</td>`).join('')+`<td class="${cls}" style="font-weight:700">${fmt(t)}</td>`;tb.appendChild(tr);};
-  const catR=(l,vals,col)=>{const tr=document.createElement('tr');tr.className='pnl-cat';const t=vals.reduce((a,b)=>a+b,0);tr.innerHTML=`<td><span style="display:inline-block;width:5px;height:5px;border-radius:50%;background:${col};margin-right:7px;vertical-align:middle"></span>${l}</td>`+vals.map(v=>`<td class="${v?'neg':'dim'}">${v?fmt(v):'—'}</td>`).join('')+`<td class="neg" style="font-weight:700">${fmt(t)}</td>`;tb.appendChild(tr);};
-  const totR=(l,vals,cls)=>{const tr=document.createElement('tr');tr.className='pnl-tot';const t=vals.reduce((a,b)=>a+b,0);tr.innerHTML=`<td>${l}</td>`+vals.map(v=>`<td class="${cls}">${fmt(v)}</td>`).join('')+`<td class="${cls}">${fmt(t)}</td>`;tb.appendChild(tr);};
-  secR('Ingresos');dataR('Salario neto',tableMonths.map(()=>PNL.salario),'pos',true);dataR('ThanksBen',tableMonths.map(()=>PNL.thanksben),'pos',true);dataR('Rendimientos',tableMonths.map(()=>PNL.rendimientos),'pos',true);totR('Total ingresos',tableMonths.map(()=>income),'pos');
-  secR('Gastos');usedCats.forEach(cat=>{const vals=tableRows.map(r=>r.cats[cat]||0);if(vals.every(v=>v===0))return;catR(CAT_LABEL[cat]||cat,vals,catC[cat]||'#555');});totR('Total gastos',tableRows.map(r=>r.tg),'neg');
-  const ntr=document.createElement('tr');ntr.className='pnl-net';const ntot=tableRows.reduce((s,r)=>s+r.neto,0);ntr.innerHTML=`<td>Neto</td>`+tableRows.map(r=>`<td class="${r.neto>=0?'pos':'neg'}">${r.neto>=0?'+':''}${fmt(r.neto)}</td>`).join('')+`<td class="${ntot>=0?'pos':'neg'}" style="font-weight:800">${ntot>=0?'+':''}${fmt(ntot)}</td>`;tb.appendChild(ntr);
-  const rtr=document.createElement('tr');rtr.className='pnl-rate';rtr.innerHTML=`<td>Tasa ahorro</td>`+tableRows.map(r=>{const rt=Math.round(r.neto/income*100);return`<td class="${r.neto>=0?'dim':'neg'}">${rt}%</td>`;}).join('')+`<td class="dim">${rate}%</td>`;tb.appendChild(rtr);
-  tbl.appendChild(tb);
+  tbl.innerHTML=`<thead><tr><th>Category</th>${tableMonths.map(m=>`<th>${mLab(m)}</th>`).join('')}<th>Total</th></tr></thead>`;
+  const tb2=document.createElement('tbody');
+  const secR=l=>{const tr=document.createElement('tr');tr.className='pnl-sec';tr.innerHTML=`<td colspan="${tableMonths.length+2}">${l}</td>`;tb2.appendChild(tr);};
+  const dataR=(l,vals,cls,i)=>{const tr=document.createElement('tr');const t=vals.reduce((a,b)=>a+b,0);tr.innerHTML=`<td style="${i?'padding-left:20px;color:rgba(235,235,245,.7)':''}">${l}</td>`+vals.map(v=>`<td class="${v?cls:'dim'}">${v?fmt(v):'—'}</td>`).join('')+`<td class="${cls}" style="font-weight:700">${fmt(t)}</td>`;tb2.appendChild(tr);};
+  const catR=(l,vals,col)=>{const tr=document.createElement('tr');tr.className='pnl-cat';const t=vals.reduce((a,b)=>a+b,0);tr.innerHTML=`<td><span style="display:inline-block;width:5px;height:5px;border-radius:50%;background:${col};margin-right:7px;vertical-align:middle"></span>${l}</td>`+vals.map(v=>`<td class="${v?'neg':'dim'}">${v?fmt(v):'—'}</td>`).join('')+`<td class="neg" style="font-weight:700">${fmt(t)}</td>`;tb2.appendChild(tr);};
+  const totR=(l,vals,cls)=>{const tr=document.createElement('tr');tr.className='pnl-tot';const t=vals.reduce((a,b)=>a+b,0);tr.innerHTML=`<td>${l}</td>`+vals.map(v=>`<td class="${cls}">${fmt(v)}</td>`).join('')+`<td class="${cls}">${fmt(t)}</td>`;tb2.appendChild(tr);};
+  secR('Income');dataR('Net Salary',tableRows.map(r=>r.sal),'pos',true);dataR('ThanksBen',tableRows.map(r=>r.tb),'pos',true);dataR('Returns',tableRows.map(()=>PNL.rendimientos),'pos',true);totR('Total Income',tableRows.map(r=>r.inc),'pos');
+  secR('Expenses');usedCats.forEach(cat=>{const vals=tableRows.map(r=>r.cats[cat]||0);if(vals.every(v=>v===0))return;catR(CAT_LABEL[cat]||cat,vals,catC[cat]||'#555');});totR('Total Expenses',tableRows.map(r=>r.tg),'neg');
+  const ntr=document.createElement('tr');ntr.className='pnl-net';const ntot=tableRows.reduce((s,r)=>s+r.neto,0);ntr.innerHTML=`<td>Net</td>`+tableRows.map(r=>`<td class="${r.neto>=0?'pos':'neg'}">${r.neto>=0?'+':''}${fmt(r.neto)}</td>`).join('')+`<td class="${ntot>=0?'pos':'neg'}" style="font-weight:800">${ntot>=0?'+':''}${fmt(ntot)}</td>`;tb2.appendChild(ntr);
+  const rtr=document.createElement('tr');rtr.className='pnl-rate';rtr.innerHTML=`<td>Savings rate</td>`+tableRows.map(r=>{const rt=r.inc?Math.round(r.neto/r.inc*100):0;return`<td class="${r.neto>=0?'dim':'neg'}">${rt}%</td>`;}).join('')+`<td class="dim">${rate}%</td>`;tb2.appendChild(rtr);
+  tbl.appendChild(tb2);
 }
 
 // ══════════════════════════════════════════
@@ -982,8 +1036,8 @@ function initPatrimonio(){
   al.innerHTML='';
   D.assets.forEach((a,i)=>{
     const ico=ASSET_ICONS[a.concept]||ASSET_ICONS["Incode Stocks"], col=AC[i%AC.length];
-    const typeLabel={Inversión:'Inversión',Crypto:'Crypto',Liquid:'Líquido',Net:'Neto',Equity:'Privada'}[a.type]||a.type;
-    al.innerHTML+=`<li class="row">${assetIco(a.concept,ico,col)}<div class="row-info"><div class="row-name">${a.concept}</div><div class="row-sub">${typeLabel} · ${tA?(a.value/tA*100).toFixed(0):0}%</div></div><div class="row-right"><div class="row-val">${fmt(a.value)}</div>${a.interest?`<div class="row-yield">+${fmt(a.interest)}/mes</div>`:`<div style="font-size:12px;color:var(--label);margin-top:2px">${a.yield?a.yield+'% anual':'—'}</div>`}</div></li>`;
+    const typeLabel={Inversión:'Investment',Crypto:'Crypto',Liquid:'Liquid',Net:'Net',Equity:'Private'}[a.type]||a.type;
+    al.innerHTML+=`<li class="row">${assetIco(a.concept,ico,col)}<div class="row-info"><div class="row-name">${a.concept}</div><div class="row-sub">${typeLabel} · ${tA?(a.value/tA*100).toFixed(0):0}%</div></div><div class="row-right"><div class="row-val">${fmt(a.value)}</div>${a.interest?`<div class="row-yield">+${fmt(a.interest)}/mo</div>`:`<div style="font-size:12px;color:var(--label);margin-top:2px">${a.yield?a.yield+'% annual':'—'}</div>`}</div></li>`;
   });
 
   document.getElementById('debtList').innerHTML=D.debts.map(d=>{
@@ -1003,8 +1057,8 @@ function initPatrimonio(){
 
   // Allocation view — horizontal bar + 3 tiles
   const buckets=[
-    {label:'Líquido/Neto',color:'#4a8ecf',types:['Liquid','Net']},
-    {label:'Inversiones',color:'#3a9e72',types:['Inversión','Crypto']},
+    {label:'Liquid/Net',color:'#4a8ecf',types:['Liquid','Net']},
+    {label:'Investments',color:'#3a9e72',types:['Inversión','Crypto']},
     {label:'Privadas',color:'#8b60c4',types:['Equity']}
   ];
   buckets.forEach(b=>{ b.val=D.assets.filter(a=>b.types.includes(a.type)).reduce((s,a)=>s+a.value,0); b.pct=tA?Math.round(b.val/tA*100):0; });
