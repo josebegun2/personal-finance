@@ -941,8 +941,19 @@ function renderMovimientos(){
 function initTendencias(){
   window._t=true;
   const months=PNL.months.slice(-12);
-  // Per-month income: use actual deposits when available, fall back to hardcoded
+  // Build NW map from balance sheet history
+  const nwMap={};
+  (D.nwHistory||[]).forEach(r=>{ nwMap[r.month]=r.value; });
+  const nwMonths=Object.keys(nwMap).sort();
+  // Per-month income: ΔNetWorth + Expenses (accounting identity)
+  // Falls back to hardcoded when NW history is insufficient
   const incomeM=m=>{
+    const idx=nwMonths.indexOf(m);
+    const exp=Object.values(PNL.gastos[m]||{}).reduce((a,b)=>a+b,0);
+    if(idx>0){
+      const delta=nwMap[m]-nwMap[nwMonths[idx-1]];
+      return Math.max(0,delta+exp);
+    }
     const ibm=PNL.incomeByMonth[m];
     const sal=(ibm&&ibm.salary>0)?ibm.salary:PNL.salario;
     const tb=(ibm&&ibm.thanksben>0)?ibm.thanksben:PNL.thanksben;
@@ -961,11 +972,12 @@ function initTendencias(){
   new Chart(document.getElementById('pnlChart'),{data:{labels:months.map(mLab),datasets:[{type:'line',label:'Income',data:rows.map(r=>r.inc),borderColor:'#2997ff',borderWidth:1.5,pointRadius:2.5,pointBackgroundColor:'#2997ff',fill:false,tension:0,order:0,yAxisID:'y'},...usedCats.map(cat=>({type:'bar',label:CAT_LABEL[cat]||cat,data:rows.map(r=>r.cats[cat]||0),backgroundColor:catC[cat],borderWidth:0,stack:'g',order:1,yAxisID:'y'}))]},options:{responsive:true,interaction:{mode:'index',intersect:false},plugins:{legend:{display:false},tooltip:{...TIP,displayColors:true,callbacks:{label:ctx=>{if(!ctx.raw||ctx.raw===0)return null;return` ${ctx.dataset.label}: ${fmt(ctx.raw)}`},afterBody:items=>{const g=items.filter(i=>i.dataset.stack==='g').reduce((s,i)=>s+(i.raw||0),0);if(!g)return[];const inc=rows.find(r=>mLab(r.m)===items[0]?.label)?.inc||0;return['',`Total: ${fmt(g)}`,`Net: ${inc-g>=0?'+':''}${fmt(inc-g)}`]}}}},scales:{x:{stacked:true,grid:{display:false},ticks:{color:'rgba(235,235,245,.35)',font:{family:SF,size:10}}},y:{stacked:true,grid:{color:'rgba(255,255,255,.04)'},border:{display:false},ticks:{color:'rgba(235,235,245,.35)',font:{family:SF,size:10},callback:v=>fmtK(v)}}}}});
   // Table uses newest-first column order
   const tableMonths=[...months].reverse();
-  const tableRows=tableMonths.map(m=>{const g=PNL.gastos[m]||{};const tg=Object.values(g).reduce((a,b)=>a+b,0);const inc=incomeM(m);const ibm=PNL.incomeByMonth[m];const sal=(ibm&&ibm.salary>0)?ibm.salary:PNL.salario;const tb=(ibm&&ibm.thanksben>0)?ibm.thanksben:PNL.thanksben;return{m,tg,inc,neto:inc-tg,cats:g,sal,tb};});
+  const tableRows=tableMonths.map(m=>{const g=PNL.gastos[m]||{};const tg=Object.values(g).reduce((a,b)=>a+b,0);const inc=incomeM(m);const tb2v=PNL.incomeByMonth[m]?.thanksben||PNL.thanksben;const sal=Math.max(0,inc-tb2v-PNL.rendimientos);return{m,tg,inc,neto:inc-tg,cats:g,sal,tb:tb2v};});
   const tbl=document.getElementById('pnlTable');
   tbl.innerHTML=`<thead><tr><th>Category</th>${tableMonths.map(m=>`<th>${mLab(m)}</th>`).join('')}<th>Total</th></tr></thead>`;
   const tb2=document.createElement('tbody');
-  const secR=l=>{const tr=document.createElement('tr');tr.className='pnl-sec';tr.innerHTML=`<td colspan="${tableMonths.length+2}">${l}</td>`;tb2.appendChild(tr);};
+  const emptyCols=`${'<td></td>'.repeat(tableMonths.length+1)}`;
+  const secR=l=>{const tr=document.createElement('tr');tr.className='pnl-sec';tr.innerHTML=`<td>${l}</td>${emptyCols}`;tb2.appendChild(tr);};
   const dataR=(l,vals,cls,i)=>{const tr=document.createElement('tr');const t=vals.reduce((a,b)=>a+b,0);tr.innerHTML=`<td style="${i?'padding-left:20px;color:rgba(235,235,245,.7)':''}">${l}</td>`+vals.map(v=>`<td class="${v?cls:'dim'}">${v?fmt(v):'—'}</td>`).join('')+`<td class="${cls}" style="font-weight:700">${fmt(t)}</td>`;tb2.appendChild(tr);};
   const catR=(l,vals,col)=>{const tr=document.createElement('tr');tr.className='pnl-cat';const t=vals.reduce((a,b)=>a+b,0);tr.innerHTML=`<td><span style="display:inline-block;width:5px;height:5px;border-radius:50%;background:${col};margin-right:7px;vertical-align:middle"></span>${l}</td>`+vals.map(v=>`<td class="${v?'neg':'dim'}">${v?fmt(v):'—'}</td>`).join('')+`<td class="neg" style="font-weight:700">${fmt(t)}</td>`;tb2.appendChild(tr);};
   const totR=(l,vals,cls)=>{const tr=document.createElement('tr');tr.className='pnl-tot';const t=vals.reduce((a,b)=>a+b,0);tr.innerHTML=`<td>${l}</td>`+vals.map(v=>`<td class="${cls}">${fmt(v)}</td>`).join('')+`<td class="${cls}">${fmt(t)}</td>`;tb2.appendChild(tr);};
