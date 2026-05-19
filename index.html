@@ -1,8 +1,7 @@
-<! DOCTYPE html>
-<html lang="es">
+<!DOCTYPE html>
+<html lang="en">
 <head>
-‹meta
-charset="UTF-8">
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -580,20 +579,18 @@ function transformData(json){
     allTx.push({date:r.date,desc:r.description||'—',amount:Math.abs(r.net),cat,catKey,by:r.account,month:r.month});
   });
 
-  // Income by month from actual deposits (BBVA, non-transfer)
+  // Income by month: all positive-sign non-transfer transactions
   const incomeByMonth={};
   ml.forEach(r=>{
     if(r.sign<=0) return;
-    const cat=(r.category||'').toUpperCase();
+    const cat=(r.category||'').toUpperCase().replace(/ /g,'_');
     if(cat==='MOVIMIENTOS_CUENTA') return;
-    if(!incomeByMonth[r.month]) incomeByMonth[r.month]={salary:0,thanksben:0,other:0};
+    if(!incomeByMonth[r.month]) incomeByMonth[r.month]={salary:0,thanksben:0};
     const desc=(r.description||'').toLowerCase();
-    if(desc.includes('nomina')||desc.includes('nómina')||cat.includes('NOMINA')||cat.includes('SALARIO')) {
-      incomeByMonth[r.month].salary+=r.net;
-    } else if(desc.includes('thanksbien')||desc.includes('thanksben')||cat.includes('THANKSBEN')) {
-      incomeByMonth[r.month].thanksben+=r.net;
+    if(desc.includes('thanksbien')||desc.includes('thanksben')||cat.includes('THANKSBEN')) {
+      incomeByMonth[r.month].thanksben+=Math.abs(r.net);
     } else {
-      incomeByMonth[r.month].other+=r.net;
+      incomeByMonth[r.month].salary+=Math.abs(r.net);
     }
   });
 
