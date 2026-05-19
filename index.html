@@ -228,6 +228,15 @@ body{font-family:var(--font);background:var(--bg);color:#fff;min-height:100vh;ov
 .tab-btn:active svg{transform:scale(.86);}
 
 canvas{max-width:100%!important;}
+/* ADMIN — liquid glass action buttons */
+.admin-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 16px 32px;}
+.admin-btn{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;padding:18px 12px 14px;border:none;background:rgba(255,255,255,.07);backdrop-filter:blur(28px) saturate(180%);-webkit-backdrop-filter:blur(28px) saturate(180%);border-radius:18px;box-shadow:inset 0 1.5px 0 rgba(255,255,255,.22),inset 0 -1px 0 rgba(0,0,0,.15),0 0 0 .5px rgba(255,255,255,.08),0 4px 16px rgba(0,0,0,.22);cursor:pointer;font-family:var(--font);color:#fff;font-size:12px;font-weight:500;letter-spacing:-.1px;transition:transform .15s,opacity .15s;-webkit-tap-highlight-color:transparent;text-align:center;line-height:1.35;}
+.admin-btn svg{width:22px;height:22px;opacity:.85;}
+.admin-btn:active{transform:scale(.94);opacity:.7;}
+.admin-btn.running{opacity:.45;pointer-events:none;}
+.admin-btn-label{font-size:12px;font-weight:600;}
+.admin-btn-status{font-size:10px;color:rgba(235,235,245,.4);min-height:13px;}
+.admin-ic{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;margin-bottom:2px;}
 /* REVIEW — transaction classification */
 .review-count{font-size:13px;color:var(--label);margin:4px 20px 14px;font-weight:400;}
 .review-card{background:var(--bg1);border-radius:18px;margin:0 16px 12px;overflow:hidden;box-shadow:0 1px 0 rgba(255,255,255,.04);transition:opacity .25s,max-height .3s .1s,margin .3s .1s;}
@@ -430,6 +439,39 @@ canvas{max-width:100%!important;}
   <div class="large-title"><div class="large-title-main">Review</div></div>
   <div class="review-count" id="reviewCount">Loading…</div>
   <div id="reviewContent"></div>
+
+  <!-- Admin -->
+  <div class="sec" style="margin-top:16px"><span class="sec-title">Admin</span></div>
+  <div class="admin-grid">
+    <button class="admin-btn" id="adminBtn0" onclick="triggerAction('pipelineCSVs','adminBtn0')">
+      <div class="admin-ic" style="background:rgba(41,151,255,.18)">
+        <svg viewBox="0 0 22 22" fill="none" stroke="#2997ff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M11 3v10M7 9l4 4 4-4"/><path d="M4 15v2a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-2"/></svg>
+      </div>
+      <span class="admin-btn-label">Pipeline CSVs</span>
+      <span class="admin-btn-status" id="adminSt0"></span>
+    </button>
+    <button class="admin-btn" id="adminBtn1" onclick="triggerAction('syncAPIs','adminBtn1')">
+      <div class="admin-ic" style="background:rgba(90,200,250,.18)">
+        <svg viewBox="0 0 22 22" fill="none" stroke="#5ac8fa" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11a7 7 0 0 1 13-3.5"/><path d="M18 11a7 7 0 0 1-13 3.5"/><path d="M4 7l0 4 4 0"/><path d="M18 15l0-4-4 0"/></svg>
+      </div>
+      <span class="admin-btn-label">Sync APIs</span>
+      <span class="admin-btn-status" id="adminSt1"></span>
+    </button>
+    <button class="admin-btn" id="adminBtn2" onclick="triggerAction('rebuildLedger','adminBtn2')">
+      <div class="admin-ic" style="background:rgba(255,159,10,.18)">
+        <svg viewBox="0 0 22 22" fill="none" stroke="#ff9f0a" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="16" height="3" rx="1"/><rect x="3" y="10" width="16" height="3" rx="1"/><rect x="3" y="15" width="10" height="3" rx="1"/><path d="M17 16l2 2 3-3" stroke="#ff9f0a"/></svg>
+      </div>
+      <span class="admin-btn-label">Rebuild Ledger</span>
+      <span class="admin-btn-status" id="adminSt2"></span>
+    </button>
+    <button class="admin-btn" id="adminBtn3" onclick="triggerAction('rebuildBalanceSheet','adminBtn3')">
+      <div class="admin-ic" style="background:rgba(48,209,88,.18)">
+        <svg viewBox="0 0 22 22" fill="none" stroke="#30d158" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 18h2V10H4zM9 18h2V6H9zM14 18h2v-8h-2zM19 18h2v-4h-2z" stroke-linejoin="round"/></svg>
+      </div>
+      <span class="admin-btn-label">Rebuild Balance</span>
+      <span class="admin-btn-status" id="adminSt3"></span>
+    </button>
+  </div>
 </div>
 
 <!-- ═══ ASISTENTE ═══ -->
@@ -1296,6 +1338,25 @@ async function classifyTx(btn){
   try{
     await fetch(API_URL,{method:'POST',body:JSON.stringify({token:API_TOKEN,action:'categorize',rowIds,category,subcategory:category,keyword:rawDesc.trim().slice(0,80)})});
   }catch(err){console.warn('classify post error',err);}
+}
+
+// ══════════════════════════════════════════
+// ADMIN — trigger Apps Script functions
+// ══════════════════════════════════════════
+async function triggerAction(action, btnId) {
+  const btn = document.getElementById(btnId);
+  const st = document.getElementById(btnId.replace('adminBtn','adminSt'));
+  if (!btn || btn.classList.contains('running')) return;
+  if(navigator.vibrate) navigator.vibrate(8);
+  btn.classList.add('running');
+  if (st) st.textContent = 'Running…';
+  try {
+    await fetch(API_URL, {method:'POST', body:JSON.stringify({token:API_TOKEN, action})});
+    if (st) st.textContent = 'Done ✓';
+  } catch(err) {
+    if (st) st.textContent = 'Check sheet';
+  }
+  setTimeout(()=>{btn.classList.remove('running');if(st)st.textContent='';}, 3000);
 }
 
 // ── BOOT ──
