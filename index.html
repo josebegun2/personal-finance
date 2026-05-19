@@ -228,15 +228,25 @@ body{font-family:var(--font);background:var(--bg);color:#fff;min-height:100vh;ov
 .tab-btn:active svg{transform:scale(.86);}
 
 canvas{max-width:100%!important;}
-/* ADMIN — liquid glass action buttons */
-.admin-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 16px 32px;}
-.admin-btn{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;padding:18px 12px 14px;border:none;background:rgba(255,255,255,.07);backdrop-filter:blur(28px) saturate(180%);-webkit-backdrop-filter:blur(28px) saturate(180%);border-radius:18px;box-shadow:inset 0 1.5px 0 rgba(255,255,255,.22),inset 0 -1px 0 rgba(0,0,0,.15),0 0 0 .5px rgba(255,255,255,.08),0 4px 16px rgba(0,0,0,.22);cursor:pointer;font-family:var(--font);color:#fff;font-size:12px;font-weight:500;letter-spacing:-.1px;transition:transform .15s,opacity .15s;-webkit-tap-highlight-color:transparent;text-align:center;line-height:1.35;}
-.admin-btn svg{width:22px;height:22px;opacity:.85;}
-.admin-btn:active{transform:scale(.94);opacity:.7;}
-.admin-btn.running{opacity:.45;pointer-events:none;}
-.admin-btn-label{font-size:12px;font-weight:600;}
-.admin-btn-status{font-size:10px;color:rgba(235,235,245,.4);min-height:13px;}
-.admin-ic{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;margin-bottom:2px;}
+/* MENU BUTTON */
+.menu-btn{position:fixed;top:calc(env(safe-area-inset-top) + 10px);left:16px;z-index:200;background:rgba(118,118,128,.32);backdrop-filter:blur(28px) saturate(200%);-webkit-backdrop-filter:blur(28px) saturate(200%);border:none;border-radius:10px;width:38px;height:38px;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:inset 0 0 0 .5px rgba(255,255,255,.12),0 2px 8px rgba(0,0,0,.28);-webkit-tap-highlight-color:transparent;}
+/* SIDEBAR */
+.sidebar-overlay{position:fixed;inset:0;z-index:300;background:rgba(0,0,0,.45);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);opacity:0;pointer-events:none;transition:opacity .28s;}
+.sidebar-overlay.open{opacity:1;pointer-events:all;}
+.sidebar{position:fixed;left:0;top:0;bottom:0;width:300px;max-width:85vw;z-index:301;background:rgba(18,18,22,.88);backdrop-filter:blur(48px) saturate(180%);-webkit-backdrop-filter:blur(48px) saturate(180%);border-right:.5px solid rgba(255,255,255,.1);box-shadow:4px 0 32px rgba(0,0,0,.4);transform:translateX(-100%);transition:transform .3s cubic-bezier(.2,.8,.2,1);}
+.sidebar.open{transform:translateX(0);}
+.sidebar-head{padding:calc(env(safe-area-inset-top) + 20px) 20px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:.5px solid rgba(255,255,255,.07);}
+.sidebar-title{font-size:22px;font-weight:700;letter-spacing:-.6px;}
+.sidebar-close{background:rgba(255,255,255,.1);border:none;border-radius:50%;width:30px;height:30px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:rgba(235,235,245,.7);-webkit-tap-highlight-color:transparent;}
+/* ADMIN BUTTONS inside sidebar */
+.admin-btn{display:flex;align-items:center;gap:14px;width:100%;padding:14px 16px;border:none;background:rgba(255,255,255,.06);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-radius:14px;box-shadow:inset 0 1px 0 rgba(255,255,255,.14),inset 0 -0.5px 0 rgba(0,0,0,.12),0 0 0 .5px rgba(255,255,255,.06);cursor:pointer;font-family:var(--font);color:#fff;font-size:14px;font-weight:500;transition:transform .12s,opacity .12s;-webkit-tap-highlight-color:transparent;text-align:left;}
+.admin-btn:active{transform:scale(.97);opacity:.7;}
+.admin-btn.running{opacity:.4;pointer-events:none;}
+.admin-ic{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.admin-ic svg{width:18px;height:18px;}
+.admin-btn-info{display:flex;flex-direction:column;gap:1px;}
+.admin-btn-label{font-size:14px;font-weight:600;line-height:1.2;}
+.admin-btn-status{font-size:11px;color:rgba(235,235,245,.4);}
 /* REVIEW — transaction classification */
 .review-count{font-size:13px;color:var(--label);margin:4px 20px 14px;font-weight:400;}
 .review-card{background:var(--bg1);border-radius:18px;margin:0 16px 12px;overflow:hidden;box-shadow:0 1px 0 rgba(255,255,255,.04);transition:opacity .25s,max-height .3s .1s,margin .3s .1s;}
@@ -440,38 +450,6 @@ canvas{max-width:100%!important;}
   <div class="review-count" id="reviewCount">Loading…</div>
   <div id="reviewContent"></div>
 
-  <!-- Admin -->
-  <div class="sec" style="margin-top:16px"><span class="sec-title">Admin</span></div>
-  <div class="admin-grid">
-    <button class="admin-btn" id="adminBtn0" onclick="triggerAction('pipelineCSVs','adminBtn0')">
-      <div class="admin-ic" style="background:rgba(41,151,255,.18)">
-        <svg viewBox="0 0 22 22" fill="none" stroke="#2997ff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M11 3v10M7 9l4 4 4-4"/><path d="M4 15v2a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-2"/></svg>
-      </div>
-      <span class="admin-btn-label">Pipeline CSVs</span>
-      <span class="admin-btn-status" id="adminSt0"></span>
-    </button>
-    <button class="admin-btn" id="adminBtn1" onclick="triggerAction('syncAPIs','adminBtn1')">
-      <div class="admin-ic" style="background:rgba(90,200,250,.18)">
-        <svg viewBox="0 0 22 22" fill="none" stroke="#5ac8fa" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11a7 7 0 0 1 13-3.5"/><path d="M18 11a7 7 0 0 1-13 3.5"/><path d="M4 7l0 4 4 0"/><path d="M18 15l0-4-4 0"/></svg>
-      </div>
-      <span class="admin-btn-label">Sync APIs</span>
-      <span class="admin-btn-status" id="adminSt1"></span>
-    </button>
-    <button class="admin-btn" id="adminBtn2" onclick="triggerAction('rebuildLedger','adminBtn2')">
-      <div class="admin-ic" style="background:rgba(255,159,10,.18)">
-        <svg viewBox="0 0 22 22" fill="none" stroke="#ff9f0a" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="16" height="3" rx="1"/><rect x="3" y="10" width="16" height="3" rx="1"/><rect x="3" y="15" width="10" height="3" rx="1"/><path d="M17 16l2 2 3-3" stroke="#ff9f0a"/></svg>
-      </div>
-      <span class="admin-btn-label">Rebuild Ledger</span>
-      <span class="admin-btn-status" id="adminSt2"></span>
-    </button>
-    <button class="admin-btn" id="adminBtn3" onclick="triggerAction('rebuildBalanceSheet','adminBtn3')">
-      <div class="admin-ic" style="background:rgba(48,209,88,.18)">
-        <svg viewBox="0 0 22 22" fill="none" stroke="#30d158" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 18h2V10H4zM9 18h2V6H9zM14 18h2v-8h-2zM19 18h2v-4h-2z" stroke-linejoin="round"/></svg>
-      </div>
-      <span class="admin-btn-label">Rebuild Balance</span>
-      <span class="admin-btn-status" id="adminSt3"></span>
-    </button>
-  </div>
 </div>
 
 <!-- ═══ ASISTENTE ═══ -->
@@ -510,6 +488,44 @@ canvas{max-width:100%!important;}
       <span>Ask something about your finances…</span>
       <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" fill="rgba(191,90,242,.3)"/><path d="M7 10l3-3 3 3M10 7v7" stroke="#bf5af2" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
     </div>
+  </div>
+</div>
+
+<!-- HAMBURGER BUTTON -->
+<button class="menu-btn" onclick="toggleSidebar()">
+  <svg width="17" height="13" viewBox="0 0 17 13" fill="none" stroke="rgba(255,255,255,.85)" stroke-width="1.7" stroke-linecap="round">
+    <line x1="0" y1="1" x2="17" y2="1"/><line x1="0" y1="6.5" x2="17" y2="6.5"/><line x1="0" y1="12" x2="17" y2="12"/>
+  </svg>
+</button>
+
+<!-- SIDEBAR OVERLAY -->
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+<!-- SIDEBAR -->
+<div class="sidebar" id="sidebar">
+  <div class="sidebar-head">
+    <span class="sidebar-title">Admin</span>
+    <button class="sidebar-close" onclick="toggleSidebar()">
+      <svg width="11" height="11" viewBox="0 0 11 11" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M1 1l9 9M10 1L1 10"/></svg>
+    </button>
+  </div>
+  <div style="padding:16px 14px;display:flex;flex-direction:column;gap:10px;">
+    <button class="admin-btn" id="adminBtn0" onclick="triggerAction('pipelineCSVs','adminBtn0')">
+      <div class="admin-ic" style="background:rgba(41,151,255,.18)"><svg viewBox="0 0 22 22" fill="none" stroke="#2997ff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M11 3v10M7 9l4 4 4-4"/><path d="M4 15v2a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-2"/></svg></div>
+      <div class="admin-btn-info"><span class="admin-btn-label">Pipeline CSVs</span><span class="admin-btn-status" id="adminSt0">Import new bank files</span></div>
+    </button>
+    <button class="admin-btn" id="adminBtn1" onclick="triggerAction('syncAPIs','adminBtn1')">
+      <div class="admin-ic" style="background:rgba(90,200,250,.18)"><svg viewBox="0 0 22 22" fill="none" stroke="#5ac8fa" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11a7 7 0 0 1 13-3.5"/><path d="M18 11a7 7 0 0 1-13 3.5"/><path d="M4 7v4h4"/><path d="M18 15v-4h-4"/></svg></div>
+      <div class="admin-btn-info"><span class="admin-btn-label">Sync APIs</span><span class="admin-btn-status" id="adminSt1">Bitso + Splitwise</span></div>
+    </button>
+    <button class="admin-btn" id="adminBtn2" onclick="triggerAction('rebuildLedger','adminBtn2')">
+      <div class="admin-ic" style="background:rgba(255,159,10,.18)"><svg viewBox="0 0 22 22" fill="none" stroke="#ff9f0a" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h16M3 11h16M3 16h10"/><path d="M16 14l2 2 3-3"/></svg></div>
+      <div class="admin-btn-info"><span class="admin-btn-label">Rebuild Ledger</span><span class="admin-btn-status" id="adminSt2">Reclassify transactions</span></div>
+    </button>
+    <button class="admin-btn" id="adminBtn3" onclick="triggerAction('rebuildBalanceSheet','adminBtn3')">
+      <div class="admin-ic" style="background:rgba(48,209,88,.18)"><svg viewBox="0 0 22 22" fill="none" stroke="#30d158" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 18h2v-8H4zM9 18h2V6H9zM14 18h2v-8h-2zM19 18h2v-4h-2z"/></svg></div>
+      <div class="admin-btn-info"><span class="admin-btn-label">Rebuild Balance Sheet</span><span class="admin-btn-status" id="adminSt3">Recalculate net worth history</span></div>
+    </button>
   </div>
 </div>
 
@@ -1343,12 +1359,19 @@ async function classifyTx(btn){
 // ══════════════════════════════════════════
 // ADMIN — trigger Apps Script functions
 // ══════════════════════════════════════════
+function toggleSidebar(){
+  const isOpen=document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('sidebarOverlay').classList.toggle('open',isOpen);
+  if(navigator.vibrate) navigator.vibrate(6);
+}
+
 async function triggerAction(action, btnId) {
   const btn = document.getElementById(btnId);
   const st = document.getElementById(btnId.replace('adminBtn','adminSt'));
   if (!btn || btn.classList.contains('running')) return;
   if(navigator.vibrate) navigator.vibrate(8);
   btn.classList.add('running');
+  const prev = st ? st.textContent : '';
   if (st) st.textContent = 'Running…';
   try {
     await fetch(API_URL, {method:'POST', body:JSON.stringify({token:API_TOKEN, action})});
@@ -1356,7 +1379,7 @@ async function triggerAction(action, btnId) {
   } catch(err) {
     if (st) st.textContent = 'Check sheet';
   }
-  setTimeout(()=>{btn.classList.remove('running');if(st)st.textContent='';}, 3000);
+  setTimeout(()=>{btn.classList.remove('running');if(st)st.textContent=prev;}, 3000);
 }
 
 // ── BOOT ──
