@@ -79,7 +79,7 @@ body{font-family:var(--font);background:var(--bg);color:#fff;min-height:100vh;ov
 
 /* ROWS */
 .rows{list-style:none;}
-.row{display:flex;align-items:center;gap:14px;padding:12px 16px;border-bottom:.5px solid var(--sep);transition:background .12s;}
+.row{display:flex;align-items:center;gap:14px;padding:15px 16px;border-bottom:.5px solid var(--sep);transition:background .12s;}
 .row:last-child{border-bottom:none;}
 .row:active{background:rgba(255,255,255,.04);}
 .row-ico{width:36px;height:36px;border-radius:10px;flex-shrink:0;display:flex;align-items:center;justify-content:center;}
@@ -102,12 +102,6 @@ body{font-family:var(--font);background:var(--bg);color:#fff;min-height:100vh;ov
 .prog{height:2px;background:rgba(255,255,255,.07);border-radius:2px;margin-top:7px;overflow:hidden;}
 .prog-fill{height:100%;border-radius:2px;transition:width 1s cubic-bezier(.2,.8,.2,1);}
 
-/* DONUT */
-.donut-wrap{position:relative;display:flex;justify-content:center;align-items:center;}
-.donut-mid{position:absolute;text-align:center;pointer-events:none;}
-.donut-mid-val{font-size:18px;font-weight:700;letter-spacing:-.8px;}
-.donut-mid-label{font-size:11px;color:var(--label);margin-top:2px;}
-
 /* GASTOS */
 .month-scroll{display:flex;gap:6px;overflow-x:auto;padding:14px 16px 0;scrollbar-width:none;}
 .month-scroll::-webkit-scrollbar{display:none;}
@@ -118,7 +112,9 @@ body{font-family:var(--font);background:var(--bg);color:#fff;min-height:100vh;ov
 .gastos-label{font-size:13px;font-weight:500;color:var(--label);margin-bottom:6px;}
 .gastos-num{font-size:50px;font-weight:700;letter-spacing:-2.5px;}
 .gastos-num .sign{font-size:32px;font-weight:700;vertical-align:top;margin-top:7px;display:inline-block;margin-right:1px;}
-.gastos-body{display:grid;grid-template-columns:190px 1fr;gap:16px;padding:16px 16px 0;align-items:start;}
+/* Cat bar — full-width stacked bar replacing donut */
+.cat-bar-wrap{height:20px;border-radius:10px;overflow:hidden;display:flex;gap:2px;margin-bottom:12px;}
+.cat-bar-seg{height:100%;flex-shrink:0;transition:width .7s cubic-bezier(.2,.8,.2,1);}
 
 /* CAT — categories with transaction drill-down */
 .cat-list{list-style:none;}
@@ -164,6 +160,10 @@ body{font-family:var(--font);background:var(--bg);color:#fff;min-height:100vh;ov
 .pnl-tot td{font-weight:700;font-size:13px;border-top:.5px solid rgba(255,255,255,.12)!important;padding:11px 12px!important;}
 .pnl-net td{font-weight:800;font-size:14px;padding:12px!important;background:rgba(255,255,255,.03);}
 .pnl-rate td{font-size:12px;padding:6px 12px!important;color:var(--label);}
+/* Sticky first column for P&L table */
+.pnl-table td:first-child{position:sticky;left:0;background:var(--bg1);z-index:1;box-shadow:2px 0 8px rgba(0,0,0,.35);}
+.pnl-table thead th:first-child{left:0;z-index:3;box-shadow:2px 0 8px rgba(0,0,0,.35);}
+.pnl-net td:first-child{background:#1f1f21;}
 .pos{color:var(--green);}.neg{color:var(--red);}.dim{color:var(--label2);}
 
 /* DEBT FOOTER */
@@ -210,9 +210,6 @@ body{font-family:var(--font);background:var(--bg);color:#fff;min-height:100vh;ov
 .tab-btn.active svg{transform:scale(1.05);}
 .tab-btn:active svg{transform:scale(.86);}
 
-@media(max-width:600px){
-  .gastos-body{grid-template-columns:1fr;}
-}
 canvas{max-width:100%!important;}
 </style>
 <div id="loadBar"></div>
@@ -297,11 +294,8 @@ canvas{max-width:100%!important;}
       <div class="gastos-num"><span class="sign">$</span><span id="gastosNum">—</span></div>
     </div>
     <div class="sec" style="padding-top:16px"><span class="sec-title">Clasificación</span></div>
-    <div class="gastos-body">
-      <div class="donut-wrap">
-        <canvas id="chartWheel" width="190" height="190" style="max-width:190px"></canvas>
-        <div class="donut-mid"><div class="donut-mid-val" id="wheelNum">—</div><div class="donut-mid-label">total</div></div>
-      </div>
+    <div class="card" style="overflow:hidden">
+      <div id="catBar" style="padding:16px 16px 10px"></div>
       <ul class="cat-list" id="catList"></ul>
     </div>
   </div>
@@ -333,10 +327,16 @@ canvas{max-width:100%!important;}
     <div class="hero-num"><span class="sign">$</span><span id="portTotal">—</span></div>
     <div class="hero-row">
       <div class="hero-stat"><div class="hero-stat-label">Financiero</div><div class="hero-stat-val" id="portInvest">—</div></div>
-      <div class="hero-stat"><div class="hero-stat-label">Inv. Privadas</div><div class="hero-stat-val" id="portEquity">—</div></div>
-      <div class="hero-stat"><div class="hero-stat-label">Rend./mes</div><div class="hero-stat-val" style="color:var(--green)" id="portRend">—</div></div>
+      <div class="hero-stat"><div class="hero-stat-label">Privadas</div><div class="hero-stat-val" id="portEquity">—</div></div>
+      <div class="hero-stat"><div class="hero-stat-label">Rendimientos</div><div class="hero-stat-val" style="color:var(--green)" id="portRend">—</div></div>
     </div>
   </div>
+  <div class="sec"><span class="sec-title">Distribución</span></div>
+  <div class="card"><div class="card-inner" id="allocView"></div></div>
+  <div class="sec"><span class="sec-title">Por cuenta</span><span style="font-size:13px;color:var(--label);font-weight:400">Activos brutos</span></div>
+  <div class="card"><div class="card-inner" style="padding-bottom:12px"><canvas id="chartByAccount" style="max-height:240px"></canvas></div></div>
+  <div class="sec"><span class="sec-title">Por tipo</span><span style="font-size:13px;color:var(--label);font-weight:400">Composición</span></div>
+  <div class="card"><div class="card-inner" style="padding-bottom:12px"><canvas id="chartByType" style="max-height:130px"></canvas></div></div>
   <div class="sec"><span class="sec-title">Cuentas</span></div>
   <div class="card"><ul class="rows" id="assetList"></ul></div>
   <div class="sec"><span class="sec-title">Deudas</span></div>
@@ -344,8 +344,6 @@ canvas{max-width:100%!important;}
     <ul class="rows" id="debtList"></ul>
     <div class="debt-foot"><span>Total deudas</span><span id="totalDebtsLabel">—</span></div>
   </div>
-  <div class="sec"><span class="sec-title">Distribución</span></div>
-  <div class="card"><div class="card-inner" id="allocView"></div></div>
 </div>
 
 <!-- ═══ MOVIMIENTOS ═══ -->
@@ -766,7 +764,7 @@ function renderInicio(){
 // ══════════════════════════════════════════
 // GASTOS — spending by category + tx drill-down + search
 // ══════════════════════════════════════════
-let wheel=null, selM='';
+let selM='';
 
 function initGastos(){
   window._g=true;
@@ -790,9 +788,25 @@ function renderGastos(){
   const[y,mo]=selM.split('-');
   document.getElementById('gastosLabel').textContent=MN2[+mo-1]+' '+y;
   document.getElementById('gastosNum').textContent=total.toLocaleString('es-MX',{maximumFractionDigits:0});
-  document.getElementById('wheelNum').textContent=fmt(total);
-  if(wheel)wheel.destroy();
-  wheel=new Chart(document.getElementById('chartWheel'),{type:'doughnut',data:{labels:entries.map(([k])=>k),datasets:[{data:entries.map(([,v])=>v.total),backgroundColor:entries.map(([k])=>CC[k]||'#555'),borderWidth:0,hoverOffset:7}]},options:{cutout:'65%',plugins:{legend:{display:false},tooltip:{...TIP,callbacks:{label:c=>c.label+': '+fmt(c.raw)}}}}});
+
+  // Full-width horizontal category bar (replaces donut)
+  const catBarEl=document.getElementById('catBar');
+  const barEntries=entries.filter(([k])=>k!=='MOVIMIENTOS_CUENTA'&&k!=='POR_CLASIFICAR');
+  const barTotal=barEntries.reduce((s,[,v])=>s+v.total,0);
+  const top5=barEntries.slice(0,6);
+  catBarEl.innerHTML=`
+    <div class="cat-bar-wrap">${barEntries.map(([cat,obj])=>{
+      const catKey=cat.replace(/ /g,'_');
+      const pct=barTotal?obj.total/barTotal*100:0;
+      const col=CC[catKey]||CC[cat]||'#555';
+      return pct>0?`<div class="cat-bar-seg" style="width:${pct.toFixed(1)}%;background:${col}"></div>`:'';
+    }).join('')}</div>
+    <div style="display:flex;flex-wrap:wrap;gap:5px 14px;margin-top:2px">${top5.map(([cat,obj])=>{
+      const catKey=cat.replace(/ /g,'_');
+      const col=CC[catKey]||CC[cat]||'#555';
+      const label=CAT_LABEL[catKey]||CAT_LABEL[cat]||(cat.charAt(0)+cat.slice(1).toLowerCase());
+      return`<div style="display:flex;align-items:center;gap:5px"><div style="width:7px;height:7px;border-radius:50%;background:${col};flex-shrink:0"></div><span style="font-size:12px;color:var(--label)">${label}</span><span style="font-size:12px;font-weight:700;color:#fff">${fmt(obj.total)}</span></div>`;
+    }).join('')}</div>`;
 
   // Categories with transaction drill-down
   const cl=document.getElementById('catList'); cl.innerHTML='';
@@ -911,25 +925,27 @@ function initTendencias(){
   const usedCats=ALL_CATS.filter(c=>rows.some(r=>r.cats[c]));
   const catC=Object.fromEntries(ALL_CATS.map(c=>[c,CC[c]||'#555']));
   new Chart(document.getElementById('pnlChart'),{data:{labels:months.map(mLab),datasets:[{type:'line',label:'Ingresos',data:months.map(()=>income),borderColor:'#30d158',borderWidth:1.5,pointRadius:2.5,pointBackgroundColor:'#30d158',fill:false,tension:0,order:0,yAxisID:'y'},...usedCats.map(cat=>({type:'bar',label:CAT_LABEL[cat]||cat,data:rows.map(r=>r.cats[cat]||0),backgroundColor:catC[cat],borderWidth:0,stack:'g',order:1,yAxisID:'y'}))]},options:{responsive:true,interaction:{mode:'index',intersect:false},plugins:{legend:{display:false},tooltip:{...TIP,displayColors:true,callbacks:{label:ctx=>{if(!ctx.raw||ctx.raw===0)return null;return` ${ctx.dataset.label}: ${fmt(ctx.raw)}`},afterBody:items=>{const g=items.filter(i=>i.dataset.stack==='g').reduce((s,i)=>s+(i.raw||0),0);if(!g)return[];return['',`Total: ${fmt(g)}`,`Neto: ${income-g>=0?'+':''}${fmt(income-g)}`]}}}},scales:{x:{stacked:true,grid:{display:false},ticks:{color:'rgba(235,235,245,.35)',font:{family:SF,size:10}}},y:{stacked:true,grid:{color:'rgba(255,255,255,.04)'},border:{display:false},ticks:{color:'rgba(235,235,245,.35)',font:{family:SF,size:10},callback:v=>fmtK(v)}}}}});
+  // Table uses newest-first column order
+  const tableMonths=[...months].reverse();
+  const tableRows=tableMonths.map(m=>{const g=PNL.gastos[m]||{};const tg=Object.values(g).reduce((a,b)=>a+b,0);return{m,tg,neto:income-tg,cats:g};});
   const tbl=document.getElementById('pnlTable');
-  tbl.innerHTML=`<thead><tr><th>Concepto</th>${months.map(m=>`<th>${mLab(m)}</th>`).join('')}<th>Total</th></tr></thead>`;
+  tbl.innerHTML=`<thead><tr><th>Concepto</th>${tableMonths.map(m=>`<th>${mLab(m)}</th>`).join('')}<th>Total</th></tr></thead>`;
   const tb=document.createElement('tbody');
-  const secR=l=>{const tr=document.createElement('tr');tr.className='pnl-sec';tr.innerHTML=`<td colspan="${months.length+2}">${l}</td>`;tb.appendChild(tr);};
+  const secR=l=>{const tr=document.createElement('tr');tr.className='pnl-sec';tr.innerHTML=`<td colspan="${tableMonths.length+2}">${l}</td>`;tb.appendChild(tr);};
   const dataR=(l,vals,cls,i)=>{const tr=document.createElement('tr');const t=vals.reduce((a,b)=>a+b,0);tr.innerHTML=`<td style="${i?'padding-left:20px;color:rgba(235,235,245,.7)':''}">${l}</td>`+vals.map(v=>`<td class="${v?cls:'dim'}">${v?fmt(v):'—'}</td>`).join('')+`<td class="${cls}" style="font-weight:700">${fmt(t)}</td>`;tb.appendChild(tr);};
   const catR=(l,vals,col)=>{const tr=document.createElement('tr');tr.className='pnl-cat';const t=vals.reduce((a,b)=>a+b,0);tr.innerHTML=`<td><span style="display:inline-block;width:5px;height:5px;border-radius:50%;background:${col};margin-right:7px;vertical-align:middle"></span>${l}</td>`+vals.map(v=>`<td class="${v?'neg':'dim'}">${v?fmt(v):'—'}</td>`).join('')+`<td class="neg" style="font-weight:700">${fmt(t)}</td>`;tb.appendChild(tr);};
   const totR=(l,vals,cls)=>{const tr=document.createElement('tr');tr.className='pnl-tot';const t=vals.reduce((a,b)=>a+b,0);tr.innerHTML=`<td>${l}</td>`+vals.map(v=>`<td class="${cls}">${fmt(v)}</td>`).join('')+`<td class="${cls}">${fmt(t)}</td>`;tb.appendChild(tr);};
-  secR('Ingresos');dataR('Salario neto',months.map(()=>PNL.salario),'pos',true);dataR('ThanksBen',months.map(()=>PNL.thanksben),'pos',true);dataR('Rendimientos',months.map(()=>PNL.rendimientos),'pos',true);totR('Total ingresos',months.map(()=>income),'pos');
-  secR('Gastos');usedCats.forEach(cat=>{const vals=rows.map(r=>r.cats[cat]||0);if(vals.every(v=>v===0))return;catR(CAT_LABEL[cat]||cat,vals,catC[cat]||'#555');});totR('Total gastos',rows.map(r=>r.tg),'neg');
-  const ntr=document.createElement('tr');ntr.className='pnl-net';const ntot=rows.reduce((s,r)=>s+r.neto,0);ntr.innerHTML=`<td>Neto</td>`+rows.map(r=>`<td class="${r.neto>=0?'pos':'neg'}">${r.neto>=0?'+':''}${fmt(r.neto)}</td>`).join('')+`<td class="${ntot>=0?'pos':'neg'}" style="font-weight:800">${ntot>=0?'+':''}${fmt(ntot)}</td>`;tb.appendChild(ntr);
-  const rtr=document.createElement('tr');rtr.className='pnl-rate';rtr.innerHTML=`<td>Tasa ahorro</td>`+rows.map(r=>{const rt=Math.round(r.neto/income*100);return`<td class="${r.neto>=0?'dim':'neg'}">${rt}%</td>`;}).join('')+`<td class="dim">${rate}%</td>`;tb.appendChild(rtr);
+  secR('Ingresos');dataR('Salario neto',tableMonths.map(()=>PNL.salario),'pos',true);dataR('ThanksBen',tableMonths.map(()=>PNL.thanksben),'pos',true);dataR('Rendimientos',tableMonths.map(()=>PNL.rendimientos),'pos',true);totR('Total ingresos',tableMonths.map(()=>income),'pos');
+  secR('Gastos');usedCats.forEach(cat=>{const vals=tableRows.map(r=>r.cats[cat]||0);if(vals.every(v=>v===0))return;catR(CAT_LABEL[cat]||cat,vals,catC[cat]||'#555');});totR('Total gastos',tableRows.map(r=>r.tg),'neg');
+  const ntr=document.createElement('tr');ntr.className='pnl-net';const ntot=tableRows.reduce((s,r)=>s+r.neto,0);ntr.innerHTML=`<td>Neto</td>`+tableRows.map(r=>`<td class="${r.neto>=0?'pos':'neg'}">${r.neto>=0?'+':''}${fmt(r.neto)}</td>`).join('')+`<td class="${ntot>=0?'pos':'neg'}" style="font-weight:800">${ntot>=0?'+':''}${fmt(ntot)}</td>`;tb.appendChild(ntr);
+  const rtr=document.createElement('tr');rtr.className='pnl-rate';rtr.innerHTML=`<td>Tasa ahorro</td>`+tableRows.map(r=>{const rt=Math.round(r.neto/income*100);return`<td class="${r.neto>=0?'dim':'neg'}">${rt}%</td>`;}).join('')+`<td class="dim">${rate}%</td>`;tb.appendChild(rtr);
   tbl.appendChild(tb);
-  // Auto-scroll to show most recent months (right side)
-  requestAnimationFrame(()=>{const s=document.querySelector('.pnl-scroll');if(s)s.scrollLeft=s.scrollWidth;});
 }
 
 // ══════════════════════════════════════════
 // PATRIMONIO (was Portfolio)
 // ══════════════════════════════════════════
+let _chartByAccount=null,_chartByType=null;
 // Public logo domains for known accounts
 const ACCOUNT_LOGOS={
   BBVA:'bbva.com',MIFEL:'mifel.com.mx',REVOLUT:'revolut.com',
@@ -963,7 +979,7 @@ function initPatrimonio(){
   al.innerHTML='';
   D.assets.forEach((a,i)=>{
     const ico=ASSET_ICONS[a.concept]||ASSET_ICONS["Incode Stocks"], col=AC[i%AC.length];
-    const typeLabel={Inversión:'Inv.',Crypto:'Crypto',Liquid:'Liquid',Net:'Net',Equity:'Privado'}[a.type]||a.type;
+    const typeLabel={Inversión:'Inversión',Crypto:'Crypto',Liquid:'Líquido',Net:'Neto',Equity:'Privada'}[a.type]||a.type;
     al.innerHTML+=`<li class="row">${assetIco(a.concept,ico,col)}<div class="row-info"><div class="row-name">${a.concept}</div><div class="row-sub">${typeLabel} · ${tA?(a.value/tA*100).toFixed(0):0}%</div></div><div class="row-right"><div class="row-val">${fmt(a.value)}</div>${a.interest?`<div class="row-yield">+${fmt(a.interest)}/mes</div>`:`<div style="font-size:12px;color:var(--label);margin-top:2px">${a.yield?a.yield+'% anual':'—'}</div>`}</div></li>`;
   });
 
@@ -982,11 +998,11 @@ function initPatrimonio(){
   }).join('');
   document.getElementById('totalDebtsLabel').textContent='−'+fmt(D.totalDebts).slice(1);
 
-  // Allocation view — clean horizontal bar + 3 tiles (replaces giant donut)
+  // Allocation view — horizontal bar + 3 tiles
   const buckets=[
-    {label:'Liquid/Net',color:'#4a8ecf',types:['Liquid','Net']},
+    {label:'Líquido/Neto',color:'#4a8ecf',types:['Liquid','Net']},
     {label:'Inversiones',color:'#3a9e72',types:['Inversión','Crypto']},
-    {label:'Inv. Privadas',color:'#8b60c4',types:['Equity']}
+    {label:'Privadas',color:'#8b60c4',types:['Equity']}
   ];
   buckets.forEach(b=>{ b.val=D.assets.filter(a=>b.types.includes(a.type)).reduce((s,a)=>s+a.value,0); b.pct=tA?Math.round(b.val/tA*100):0; });
   const av=document.getElementById('allocView');
@@ -999,6 +1015,51 @@ function initPatrimonio(){
         <div class="alloc-tile-pct">${b.pct}%</div>
       </div>`).join('')}
     </div>`;
+
+  // ── By-account horizontal bar chart ──
+  if(_chartByAccount){_chartByAccount.destroy();_chartByAccount=null;}
+  const sortedAssets=[...D.assets].sort((a,b)=>b.value-a.value);
+  const acTypeCol={Inversión:'#4a8ecf',Crypto:'#5ac8fa',Liquid:'#6ec4f0',Net:'#88bfe0',Equity:'#8b60c4'};
+  _chartByAccount=new Chart(document.getElementById('chartByAccount'),{
+    type:'bar',
+    data:{
+      labels:sortedAssets.map(a=>a.concept),
+      datasets:[{data:sortedAssets.map(a=>a.value),backgroundColor:sortedAssets.map(a=>acTypeCol[a.type]||'#636366'),borderWidth:0,borderRadius:6}]
+    },
+    options:{
+      indexAxis:'y',responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{...TIP,callbacks:{label:c=>fmt(c.raw)}}},
+      scales:{
+        x:{grid:{color:'rgba(255,255,255,.04)'},border:{display:false},ticks:{color:'rgba(235,235,245,.35)',font:{family:SF,size:10},callback:v=>fmtK(v)}},
+        y:{grid:{display:false},border:{display:false},ticks:{color:'rgba(235,235,245,.75)',font:{family:SF,size:11}}}
+      }
+    }
+  });
+  // Resize canvas height dynamically
+  const acCanvas=document.getElementById('chartByAccount');
+  acCanvas.style.height=(sortedAssets.length*38+20)+'px';
+  _chartByAccount.resize();
+
+  // ── By-type horizontal bar chart ──
+  if(_chartByType){_chartByType.destroy();_chartByType=null;}
+  _chartByType=new Chart(document.getElementById('chartByType'),{
+    type:'bar',
+    data:{
+      labels:buckets.map(b=>b.label),
+      datasets:[{data:buckets.map(b=>b.val),backgroundColor:buckets.map(b=>b.color),borderWidth:0,borderRadius:6}]
+    },
+    options:{
+      indexAxis:'y',responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{...TIP,callbacks:{label:c=>fmt(c.raw)+' ('+Math.round(c.raw/tA*100)+'%)'}}},
+      scales:{
+        x:{grid:{color:'rgba(255,255,255,.04)'},border:{display:false},ticks:{color:'rgba(235,235,245,.35)',font:{family:SF,size:10},callback:v=>fmtK(v)}},
+        y:{grid:{display:false},border:{display:false},ticks:{color:'rgba(235,235,245,.85)',font:{family:SF,size:12,weight:'600'}}}
+      }
+    }
+  });
+  const tyCanvas=document.getElementById('chartByType');
+  tyCanvas.style.height=(buckets.length*42+20)+'px';
+  _chartByType.resize();
 }
 
 // ── BOOT ──
