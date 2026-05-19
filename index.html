@@ -6,7 +6,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#000000">
-<title>Finanzas</title>
+<title>Finances</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><defs><linearGradient id='g' x1='0' y1='0' x2='0' y2='1'><stop offset='0' stop-color='%231B7A38'/><stop offset='1' stop-color='%230B4E22'/></linearGradient></defs><rect width='32' height='32' rx='7.2' fill='url(%23g)'/><rect x='5.5' y='6.5' width='21' height='13' rx='2.5' fill='%23F0B429' transform='rotate(-9,16,13)'/><rect x='5' y='10' width='22' height='13' rx='2.5' fill='%234A90D9' transform='rotate(5,16,16)'/><rect x='4.5' y='15' width='23' height='12' rx='2.5' fill='white'/><rect x='7' y='18.5' width='5.5' height='4' rx='1' fill='%23E8C040'/></svg>">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
@@ -218,8 +218,8 @@ canvas{max-width:100%!important;}
 
 <!-- PIN SCREEN -->
 <div id="pinScreen" style="display:none;position:fixed;inset:0;z-index:999;background:#000;flex-direction:column;align-items:center;justify-content:center;gap:24px;">
-  <div style="font-size:28px;font-weight:700;letter-spacing:-1px;">Finanzas</div>
-  <div style="font-size:14px;color:rgba(235,235,245,.6);">Ingresa tu PIN</div>
+  <div style="font-size:28px;font-weight:700;letter-spacing:-1px;">Finances</div>
+  <div style="font-size:14px;color:rgba(235,235,245,.6);">Enter your PIN</div>
   <input id="pinInput" type="password" inputmode="numeric" maxlength="6"
     style="width:160px;text-align:center;font-size:32px;font-weight:700;letter-spacing:8px;
            background:rgba(255,255,255,.08);border:.5px solid rgba(255,255,255,.2);
@@ -228,9 +228,9 @@ canvas{max-width:100%!important;}
   <button onclick="submitPin()"
     style="background:#fff;color:#000;border:none;border-radius:14px;
            padding:14px 40px;font-size:17px;font-weight:700;font-family:var(--font);cursor:pointer;">
-    Entrar
+    Enter
   </button>
-  <div id="pinError" style="display:none;color:#ff453a;font-size:14px;">PIN incorrecto</div>
+  <div id="pinError" style="display:none;color:#ff453a;font-size:14px;">Incorrect PIN</div>
 </div>
 
 <!-- Sticky compact header — title injected by JS on scroll -->
@@ -239,25 +239,25 @@ canvas{max-width:100%!important;}
 <!-- ═══ INICIO ═══ -->
 <div id="inicio" class="page active">
   <div class="large-title">
-    <div class="large-title-main">Finanzas</div>
+    <div class="large-title-main">Finances</div>
     <div class="large-title-sub" id="ltDate">—</div>
   </div>
 
   <!-- Net worth hero -->
   <div class="hero">
-    <div class="hero-label">Patrimonio Neto</div>
+    <div class="hero-label">Net Worth</div>
     <div class="hero-num"><span class="sign">$</span><span id="heroNetWorth"></span></div>
     <div id="nwDelta"></div>
   </div>
 
   <!-- Spending progress card -->
   <div class="spend-card">
-    <div class="spend-title">Gasto este mes</div>
+    <div class="spend-title">Spending this month</div>
     <div class="spend-row">
       <span class="spend-amt" id="spendCur">—</span>
       <span class="spend-of" id="spendMonth">—</span>
     </div>
-    <div style="font-size:13px;color:var(--label)">de <span id="spendAvgLabel">—</span> promedio</div>
+    <div style="font-size:13px;color:var(--label)">of <span id="spendAvgLabel">—</span> avg</div>
     <div class="spend-bar-wrap">
       <div class="spend-bar-fill" id="spendBar" style="width:0%;background:var(--blue)"></div>
     </div>
@@ -268,17 +268,17 @@ canvas{max-width:100%!important;}
   </div>
 
   <!-- Recent transactions -->
-  <div class="sec"><span class="sec-title">Recientes</span></div>
+  <div class="sec"><span class="sec-title">Recent</span></div>
   <div class="card" style="overflow:hidden"><div style="max-height:340px;overflow-y:auto;-webkit-overflow-scrolling:touch;"><ul class="rows" id="recentList"></ul></div></div>
 </div>
 
 <!-- ═══ GASTOS ═══ -->
 <div id="gastos" class="page">
-  <div class="large-title"><div class="large-title-main">Gastos</div></div>
+  <div class="large-title"><div class="large-title-main">Spending</div></div>
   <!-- Search -->
   <div class="search-wrap" style="margin-top:14px">
     <svg class="search-ic" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-    <input class="search-input" id="txSearch" placeholder="Buscar transacciones…" oninput="onTxSearch()">
+    <input class="search-input" id="txSearch" placeholder="Search transactions…" oninput="onTxSearch()">
   </div>
 
   <!-- Search results (shown when query active) -->
@@ -293,7 +293,7 @@ canvas{max-width:100%!important;}
       <div class="gastos-label" id="gastosLabel">—</div>
       <div class="gastos-num"><span class="sign">$</span><span id="gastosNum">—</span></div>
     </div>
-    <div class="sec" style="padding-top:16px"><span class="sec-title">Clasificación</span></div>
+    <div class="sec" style="padding-top:16px"><span class="sec-title">Categories</span></div>
     <div class="card" style="overflow:hidden">
       <div id="catBar" style="padding:20px 16px 18px"></div>
       <ul class="cat-list" id="catList"></ul>
@@ -305,33 +305,33 @@ canvas{max-width:100%!important;}
 <div id="tendencias" class="page">
   <div class="large-title"><div class="large-title-main">P&amp;L</div></div>
   <div class="hero">
-    <div class="hero-label">Ahorro promedio mensual</div>
+    <div class="hero-label">Average monthly savings</div>
     <div class="hero-num" id="pnlAvgNum"><span class="sign">$</span><span id="pnlAvg">—</span></div>
     <div class="hero-row">
-      <div class="hero-stat"><div class="hero-stat-label">Ingresos</div><div class="hero-stat-val" style="color:var(--green)" id="pnlInc">—</div></div>
-      <div class="hero-stat"><div class="hero-stat-label">Egresos</div><div class="hero-stat-val" id="pnlExp">—</div></div>
-      <div class="hero-stat"><div class="hero-stat-label">Tasa ahorro</div><div class="hero-stat-val" style="color:var(--green)" id="pnlRate">—</div></div>
+      <div class="hero-stat"><div class="hero-stat-label">Income</div><div class="hero-stat-val" style="color:var(--green)" id="pnlInc">—</div></div>
+      <div class="hero-stat"><div class="hero-stat-label">Expenses</div><div class="hero-stat-val" id="pnlExp">—</div></div>
+      <div class="hero-stat"><div class="hero-stat-label">Savings rate</div><div class="hero-stat-val" style="color:var(--green)" id="pnlRate">—</div></div>
     </div>
   </div>
-  <div class="sec"><span class="sec-title">Ingresos vs Gastos</span></div>
+  <div class="sec"><span class="sec-title">Income vs Expenses</span></div>
   <div class="card"><div class="card-inner"><canvas id="pnlChart" height="200"></canvas></div></div>
-  <div class="sec"><span class="sec-title">Mes a mes</span></div>
+  <div class="sec"><span class="sec-title">Month to month</span></div>
   <div class="card" style="overflow:hidden"><div class="pnl-scroll"><table class="pnl-table" id="pnlTable"></table></div></div>
 </div>
 
 <!-- ═══ PATRIMONIO ═══ -->
 <div id="patrimonio" class="page">
-  <div class="large-title"><div class="large-title-main">Patrimonio</div></div>
+  <div class="large-title"><div class="large-title-main">Portfolio</div></div>
   <div class="hero">
-    <div class="hero-label">Total Activos Brutos</div>
+    <div class="hero-label">Total Gross Assets</div>
     <div class="hero-num"><span class="sign">$</span><span id="portTotal">—</span></div>
     <div class="hero-row">
-      <div class="hero-stat"><div class="hero-stat-label">Financiero</div><div class="hero-stat-val" id="portInvest">—</div></div>
-      <div class="hero-stat"><div class="hero-stat-label">Privadas</div><div class="hero-stat-val" id="portEquity">—</div></div>
-      <div class="hero-stat"><div class="hero-stat-label">Rendimientos</div><div class="hero-stat-val" style="color:var(--green)" id="portRend">—</div></div>
+      <div class="hero-stat"><div class="hero-stat-label">Financial</div><div class="hero-stat-val" id="portInvest">—</div></div>
+      <div class="hero-stat"><div class="hero-stat-label">Private</div><div class="hero-stat-val" id="portEquity">—</div></div>
+      <div class="hero-stat"><div class="hero-stat-label">Returns</div><div class="hero-stat-val" style="color:var(--green)" id="portRend">—</div></div>
     </div>
   </div>
-  <div class="sec"><span class="sec-title">Distribución</span></div>
+  <div class="sec"><span class="sec-title">Allocation</span></div>
   <div class="card"><div class="card-inner" id="allocView"></div></div>
   <div class="sec"><span class="sec-title">Por cuenta</span><span style="font-size:13px;color:var(--label);font-weight:400">Activos brutos</span></div>
   <div class="card"><div class="card-inner" style="padding-bottom:12px"><canvas id="chartByAccount" style="max-height:240px"></canvas></div></div>
