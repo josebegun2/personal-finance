@@ -697,16 +697,24 @@ function transformData(json){
     allTx.push({id:r.id,date:r.date,desc:r.description||'—',rawDesc:r.description||'',amount:Math.abs(r.net),cat,catKey,by:r.account,month:r.month});
   });
 
-  // Income by month: BBVA nomina deposits + ThanksBen
+  // Income by month: BBVA nomina deposits + MIFEL portabilidad + ThanksBen
   // Use r.net>0 (not r.sign) because sign may be 0/undefined for Abono entries
   const incomeByMonth={};
   ml.forEach(r=>{
-    if((r.net||0)<=0) return;
-    if(r.account!=='BBVA') return;
+    const desc=(r.description||'').toLowerCase();
     const cat=(r.category||'').toUpperCase().replace(/ /g,'_');
+    // MIFEL "PORTABILIDAD DE NOMINA" is recorded as an outflow but represents salary
+    const isMifelSalary=r.account==='MIFEL'&&desc.includes('portabilidad')&&(desc.includes('nomina')||desc.includes('nómina'));
+    if(!isMifelSalary){
+      if((r.net||0)<=0) return;
+      if(r.account!=='BBVA') return;
+    }
     if(cat==='MOVIMIENTOS_CUENTA') return;
     if(!incomeByMonth[r.month]) incomeByMonth[r.month]={salary:0,thanksben:0};
-    const desc=(r.description||'').toLowerCase();
+    if(isMifelSalary){
+      incomeByMonth[r.month].salary+=Math.abs(r.net);
+      return;
+    }
     if(desc.includes('thanksbien')||desc.includes('thanksben')||cat.includes('THANKSBEN')) {
       incomeByMonth[r.month].thanksben+=Math.abs(r.net);
     } else if(desc.includes('nomina')||desc.includes('nómina')||cat.includes('NOMINA')||cat.includes('SALARIO')) {
