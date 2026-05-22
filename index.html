@@ -222,14 +222,16 @@ body{font-family:var(--font);background:var(--bg);color:#fff;min-height:100vh;ov
 .alloc-tile-val{font-size:14px;font-weight:700;letter-spacing:-.3px;}
 .alloc-tile-pct{font-size:11px;color:var(--label);margin-top:2px;}
 
-/* TAB BAR — Liquid Glass (iOS 26 spec)
-   Key: light tint on dark bg (not dark tint), strong specular on top rim = "glass edge" */
-.tab-bar{position:fixed;bottom:max(16px,calc(env(safe-area-inset-bottom) + 8px));left:50%;transform:translateX(-50%);width:calc(100% - 32px);max-width:480px;z-index:200;display:flex;align-items:center;justify-content:space-around;padding:5px 6px;background:rgba(255,255,255,.07);backdrop-filter:blur(60px) saturate(180%);-webkit-backdrop-filter:blur(60px) saturate(180%);border-radius:30px;border:none;box-shadow:inset 0 1.5px 0 rgba(255,255,255,.32),inset 0 -1px 0 rgba(0,0,0,.18),0 0 0 .5px rgba(255,255,255,.1),0 8px 28px rgba(0,0,0,.32);}
-.tab-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:7px 1px;border:none;background:transparent;cursor:pointer;color:rgba(235,235,245,.38);font-family:var(--font);font-size:10px;font-weight:500;letter-spacing:-.1px;border-radius:22px;transition:color .2s,background .2s;-webkit-tap-highlight-color:transparent;}
-.tab-btn svg{width:21px;height:21px;transition:transform .2s;}
-.tab-btn.active{color:#fff;background:rgba(255,255,255,.14);box-shadow:inset 0 1px 0 rgba(255,255,255,.22),inset 0 -0.5px 0 rgba(0,0,0,.12);}
-.tab-btn.active svg{transform:scale(1.05);}
-.tab-btn:active svg{transform:scale(.86);}
+/* TAB BAR — Liquid Glass lens (iOS 26 style) */
+.tab-bar{position:fixed;bottom:max(16px,calc(env(safe-area-inset-bottom) + 8px));left:50%;transform:translateX(-50%);width:calc(100% - 32px);max-width:480px;z-index:200;display:flex;align-items:center;justify-content:space-around;padding:5px 6px;background:rgba(255,255,255,.07);backdrop-filter:blur(60px) saturate(180%);-webkit-backdrop-filter:blur(60px) saturate(180%);border-radius:30px;border:none;box-shadow:inset 0 1.5px 0 rgba(255,255,255,.32),inset 0 -1px 0 rgba(0,0,0,.18),0 0 0 .5px rgba(255,255,255,.1),0 8px 28px rgba(0,0,0,.32);overflow:visible;}
+.tab-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:7px 1px;border:none;background:transparent;cursor:pointer;color:rgba(235,235,245,.38);font-family:var(--font);font-size:10px;font-weight:500;letter-spacing:-.1px;border-radius:22px;transition:color .28s cubic-bezier(.2,.8,.2,1);-webkit-tap-highlight-color:transparent;position:relative;z-index:1;}
+.tab-btn svg{width:21px;height:21px;transition:transform .28s cubic-bezier(.2,.8,.2,1);}
+.tab-btn.active{color:#fff;background:transparent;box-shadow:none;}
+.tab-btn.active svg{transform:scale(1.08);}
+.tab-btn:active svg{transform:scale(.84);}
+/* Floating glass lens */
+.tab-lens{position:absolute;width:68px;height:68px;border-radius:50%;top:50%;left:0;transform:translateY(-50%) translateX(0px);background:rgba(38,38,44,.78);backdrop-filter:blur(24px) saturate(200%);-webkit-backdrop-filter:blur(24px) saturate(200%);pointer-events:none;z-index:0;will-change:transform;transition:transform .45s cubic-bezier(.34,1.56,.64,1);box-shadow:inset 0 1.5px 0 rgba(255,255,255,.5),inset 0 -1px 0 rgba(0,0,0,.3),0 2px 20px rgba(0,0,0,.45);}
+.tab-lens::before{content:'';position:absolute;inset:0;border-radius:50%;background:conic-gradient(from 150deg,rgba(210,90,255,.85) 0%,rgba(70,140,255,.85) 20%,rgba(30,210,255,.75) 38%,rgba(30,255,170,.3) 52%,rgba(255,210,50,.2) 65%,rgba(255,70,110,.55) 80%,rgba(210,90,255,.85) 100%);-webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 2.5px),#000 calc(100% - 2.5px));mask:radial-gradient(farthest-side,transparent calc(100% - 2.5px),#000 calc(100% - 2.5px));}
 
 canvas{max-width:100%!important;}
 /* MENU BUTTON */
@@ -529,6 +531,7 @@ canvas{max-width:100%!important;}
 
 <!-- TAB BAR -->
 <nav class="tab-bar">
+  <div class="tab-lens" id="tabLens"></div>
   <!-- Inicio -->
   <button class="tab-btn active" onclick="go('inicio',this)">
     <svg viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
@@ -852,12 +855,23 @@ function setStickyTitle(){
   window.scrollTo({top:0,behavior:'instant'});
 }
 
+function updateLens(btn){
+  const lens=document.getElementById('tabLens');
+  if(!lens||!btn) return;
+  const bar=document.querySelector('.tab-bar');
+  const br=bar.getBoundingClientRect();
+  const btnR=btn.getBoundingClientRect();
+  const cx=btnR.left-br.left+btnR.width/2;
+  lens.style.transform=`translateY(-50%) translateX(${cx-34}px)`;
+}
+
 function go(id,btn){
   if(navigator.vibrate)navigator.vibrate(6);
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.tab-btn').forEach(t=>t.classList.remove('active'));
   document.getElementById(id).classList.add('active');
   btn.classList.add('active');
+  updateLens(btn);
   if(id==='gastos'      &&!window._g) initGastos();
   if(id==='movimientos' &&!window._m) initMovimientos();
   if(id==='tendencias'  &&!window._t) initTendencias();
@@ -1397,6 +1411,11 @@ async function loadData(){
   if(ok) fetchData();
 }
 loadData();
+// Position lens on first active tab after layout
+requestAnimationFrame(()=>requestAnimationFrame(()=>{
+  const ab=document.querySelector('.tab-btn.active');
+  if(ab) updateLens(ab);
+}));
 
 // Generate apple-touch-icon dynamically (iOS home screen) — Apple Wallet style
 (function(){
