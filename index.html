@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#000000">
 <title>Finances</title>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><defs><linearGradient id='g' x1='0' y1='0' x2='0' y2='1'><stop offset='0' stop-color='%231B7A38'/><stop offset='1' stop-color='%230B4E22'/></linearGradient></defs><rect width='32' height='32' rx='7.2' fill='url(%23g)'/><rect x='5.5' y='6.5' width='21' height='13' rx='2.5' fill='%23F0B429' transform='rotate(-9,16,13)'/><rect x='5' y='10' width='22' height='13' rx='2.5' fill='%234A90D9' transform='rotate(5,16,16)'/><rect x='4.5' y='15' width='23' height='12' rx='2.5' fill='white'/><rect x='7' y='18.5' width='5.5' height='4' rx='1' fill='%23E8C040'/></svg>">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><defs><linearGradient id='bg' x1='0' y1='0' x2='0' y2='1'><stop offset='0' stop-color='%231a1a2a'/><stop offset='1' stop-color='%23080810'/></linearGradient><linearGradient id='c1' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%23ff8a80'/><stop offset='1' stop-color='%23c0392b'/></linearGradient><linearGradient id='c2' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%23ffd166'/><stop offset='1' stop-color='%23f0a500'/></linearGradient><linearGradient id='c3' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%2374c7fc'/><stop offset='1' stop-color='%230a7dc7'/></linearGradient></defs><rect width='32' height='32' rx='7.2' fill='url(%23bg)'/><g transform='rotate(-9 16 17)'><rect x='7' y='6' width='18' height='12' rx='2.5' fill='url(%23c1)'/><rect x='7' y='6' width='18' height='2' rx='1' fill='white' fill-opacity='.28'/></g><g transform='rotate(-3 16 17)'><rect x='7' y='9' width='18' height='12' rx='2.5' fill='url(%23c2)'/><rect x='7' y='9' width='18' height='2' rx='1' fill='white' fill-opacity='.22'/></g><g transform='rotate(4 16 17)'><rect x='7' y='12' width='18' height='12' rx='2.5' fill='url(%23c3)'/><rect x='7' y='12' width='18' height='2' rx='1' fill='white' fill-opacity='.22'/></g><circle cx='16' cy='14.5' r='2.3' fill='white' fill-opacity='.92'/><path d='M10.5 22 Q16 18 21.5 22 L21.5 26 L10.5 26Z' fill='white' fill-opacity='.85'/><rect x='3.5' y='20.5' width='25' height='9' rx='3' fill='white' fill-opacity='.1' stroke='white' stroke-opacity='.2' stroke-width='.5'/><rect x='4.5' y='21' width='14' height='.8' rx='.4' fill='white' fill-opacity='.5'/></svg>">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
 :root {
@@ -1417,27 +1417,39 @@ requestAnimationFrame(()=>requestAnimationFrame(()=>{
   if(ab) updateLens(ab);
 }));
 
-// Generate apple-touch-icon dynamically (iOS home screen) — Apple Wallet style
+// Generate apple-touch-icon — Apple Wallet + Liquid Glass style
 (function(){
   try{
     const c=document.createElement('canvas');c.width=c.height=180;
     const ctx=c.getContext('2d');
-    // Rounded rect clip (iOS icon shape)
-    const r=38,s=180;
-    ctx.beginPath();ctx.moveTo(r,0);ctx.lineTo(s-r,0);ctx.arcTo(s,0,s,r,r);ctx.lineTo(s,s-r);ctx.arcTo(s,s,s-r,s,r);ctx.lineTo(r,s);ctx.arcTo(0,s,0,s-r,r);ctx.lineTo(0,r);ctx.arcTo(0,0,r,0,r);ctx.closePath();ctx.clip();
-    // Green gradient bg
-    const g=ctx.createLinearGradient(0,0,0,180);g.addColorStop(0,'#1B7A38');g.addColorStop(1,'#0B4E22');
-    ctx.fillStyle=g;ctx.fillRect(0,0,180,180);
-    function rr(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.arcTo(x+w,y,x+w,y+r,r);ctx.lineTo(x+w,y+h-r);ctx.arcTo(x+w,y+h,x+w-r,y+h,r);ctx.lineTo(x+r,y+h);ctx.arcTo(x,y+h,x,y+h-r,r);ctx.lineTo(x,y+r);ctx.arcTo(x,y,x+r,y,r);ctx.closePath();}
-    // Card 1 — gold/yellow, rotated back
-    ctx.save();ctx.translate(90,75);ctx.rotate(-0.16);ctx.fillStyle='#F0B429';rr(ctx,-72,-40,144,80,12);ctx.fill();ctx.restore();
-    // Card 2 — blue, slight counter-rotation
-    ctx.save();ctx.translate(90,80);ctx.rotate(0.09);ctx.fillStyle='#4A90D9';rr(ctx,-72,-40,144,80,12);ctx.fill();ctx.restore();
-    // Card 3 — white, front
-    ctx.fillStyle='white';rr(ctx,16,92,148,72,12);ctx.fill();
-    // Chip on front card
-    ctx.fillStyle='#E8C040';rr(ctx,26,106,34,24,5);ctx.fill();
-    ctx.fillStyle='rgba(0,0,0,.08)';ctx.fillRect(26,115,34,3);
+    // iOS rounded-rect clip
+    const R=40,S=180;
+    ctx.beginPath();ctx.moveTo(R,0);ctx.lineTo(S-R,0);ctx.arcTo(S,0,S,R,R);ctx.lineTo(S,S-R);ctx.arcTo(S,S,S-R,S,R);ctx.lineTo(R,S);ctx.arcTo(0,S,0,S-R,R);ctx.lineTo(0,R);ctx.arcTo(0,0,R,0,R);ctx.closePath();ctx.clip();
+    function rr(x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.arcTo(x+w,y,x+w,y+r,r);ctx.lineTo(x+w,y+h-r);ctx.arcTo(x+w,y+h,x+w-r,y+h,r);ctx.lineTo(x+r,y+h);ctx.arcTo(x,y+h,x,y+h-r,r);ctx.lineTo(x,y+r);ctx.arcTo(x,y,x+r,y,r);ctx.closePath();}
+    // Dark gradient bg
+    const gbg=ctx.createLinearGradient(0,0,0,180);gbg.addColorStop(0,'#1a1a2a');gbg.addColorStop(1,'#080810');
+    ctx.fillStyle=gbg;ctx.fillRect(0,0,180,180);
+    // Card helper — draws gradient card rotated around pivot (90,96)
+    function drawCard(y,deg,c0,c1){
+      ctx.save();
+      ctx.translate(90,96);ctx.rotate(deg*Math.PI/180);ctx.translate(-90,-96);
+      const g=ctx.createLinearGradient(39,y,140,y+67);g.addColorStop(0,c0);g.addColorStop(1,c1);
+      ctx.fillStyle=g;rr(39,y,101,67,14);ctx.fill();
+      ctx.fillStyle='rgba(255,255,255,0.22)';rr(39,y,101,11,7);ctx.fill();
+      ctx.restore();
+    }
+    drawCard(34,-9,'#ff8a80','#c0392b');
+    drawCard(51,-3,'#ffd166','#f0a500');
+    drawCard(68, 4,'#74c7fc','#0a7dc7');
+    // Person silhouette — head + shoulders
+    ctx.fillStyle='rgba(255,255,255,0.92)';
+    ctx.beginPath();ctx.arc(90,82,12,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.moveTo(58,114);ctx.quadraticCurveTo(90,95,122,114);ctx.lineTo(122,124);ctx.quadraticCurveTo(90,105,58,124);ctx.closePath();ctx.fill();
+    // Glass wallet body overlay
+    ctx.fillStyle='rgba(255,255,255,0.10)';rr(20,114,140,53,17);ctx.fill();
+    ctx.strokeStyle='rgba(255,255,255,0.22)';ctx.lineWidth=2;rr(20,114,140,53,17);ctx.stroke();
+    // Specular rim at wallet top
+    ctx.fillStyle='rgba(255,255,255,0.48)';rr(25,117,79,4.5,2);ctx.fill();
     const lnk=document.createElement('link');lnk.rel='apple-touch-icon';lnk.href=c.toDataURL();document.head.appendChild(lnk);
   }catch(e){}
 })();
