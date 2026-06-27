@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#000000">
 <title>Finances</title>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><defs><linearGradient id='g' x1='0' y1='0' x2='0' y2='1'><stop offset='0' stop-color='%231B7A38'/><stop offset='1' stop-color='%230B4E22'/></linearGradient></defs><rect width='32' height='32' rx='7.2' fill='url(%23g)'/><rect x='5.5' y='6.5' width='21' height='13' rx='2.5' fill='%23F0B429' transform='rotate(-9,16,13)'/><rect x='5' y='10' width='22' height='13' rx='2.5' fill='%234A90D9' transform='rotate(5,16,16)'/><rect x='4.5' y='15' width='23' height='12' rx='2.5' fill='white'/><rect x='7' y='18.5' width='5.5' height='4' rx='1' fill='%23E8C040'/></svg>">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><defs><linearGradient id='bg' x1='0' y1='0' x2='0' y2='1'><stop offset='0' stop-color='%231a1a2a'/><stop offset='1' stop-color='%23080810'/></linearGradient><linearGradient id='c1' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%23ff8a80'/><stop offset='1' stop-color='%23c0392b'/></linearGradient><linearGradient id='c2' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%23ffd166'/><stop offset='1' stop-color='%23f0a500'/></linearGradient><linearGradient id='c3' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%2374c7fc'/><stop offset='1' stop-color='%230a7dc7'/></linearGradient></defs><rect width='32' height='32' rx='7.2' fill='url(%23bg)'/><g transform='rotate(-9 16 17)'><rect x='7' y='6' width='18' height='12' rx='2.5' fill='url(%23c1)'/><rect x='7' y='6' width='18' height='2' rx='1' fill='white' fill-opacity='.28'/></g><g transform='rotate(-3 16 17)'><rect x='7' y='9' width='18' height='12' rx='2.5' fill='url(%23c2)'/><rect x='7' y='9' width='18' height='2' rx='1' fill='white' fill-opacity='.22'/></g><g transform='rotate(4 16 17)'><rect x='7' y='12' width='18' height='12' rx='2.5' fill='url(%23c3)'/><rect x='7' y='12' width='18' height='2' rx='1' fill='white' fill-opacity='.22'/></g><circle cx='16' cy='14.5' r='2.3' fill='white' fill-opacity='.92'/><path d='M10.5 22 Q16 18 21.5 22 L21.5 26 L10.5 26Z' fill='white' fill-opacity='.85'/><rect x='3.5' y='20.5' width='25' height='9' rx='3' fill='white' fill-opacity='.1' stroke='white' stroke-opacity='.2' stroke-width='.5'/><rect x='4.5' y='21' width='14' height='.8' rx='.4' fill='white' fill-opacity='.5'/></svg>">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
 :root {
@@ -222,14 +222,16 @@ body{font-family:var(--font);background:var(--bg);color:#fff;min-height:100vh;ov
 .alloc-tile-val{font-size:14px;font-weight:700;letter-spacing:-.3px;}
 .alloc-tile-pct{font-size:11px;color:var(--label);margin-top:2px;}
 
-/* TAB BAR — Liquid Glass (iOS 26 spec)
-   Key: light tint on dark bg (not dark tint), strong specular on top rim = "glass edge" */
-.tab-bar{position:fixed;bottom:max(16px,calc(env(safe-area-inset-bottom) + 8px));left:50%;transform:translateX(-50%);width:calc(100% - 32px);max-width:480px;z-index:200;display:flex;align-items:center;justify-content:space-around;padding:5px 6px;background:rgba(255,255,255,.07);backdrop-filter:blur(60px) saturate(180%);-webkit-backdrop-filter:blur(60px) saturate(180%);border-radius:30px;border:none;box-shadow:inset 0 1.5px 0 rgba(255,255,255,.32),inset 0 -1px 0 rgba(0,0,0,.18),0 0 0 .5px rgba(255,255,255,.1),0 8px 28px rgba(0,0,0,.32);}
-.tab-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:7px 1px;border:none;background:transparent;cursor:pointer;color:rgba(235,235,245,.38);font-family:var(--font);font-size:10px;font-weight:500;letter-spacing:-.1px;border-radius:22px;transition:color .2s,background .2s;-webkit-tap-highlight-color:transparent;}
-.tab-btn svg{width:21px;height:21px;transition:transform .2s;}
-.tab-btn.active{color:#fff;background:rgba(255,255,255,.14);box-shadow:inset 0 1px 0 rgba(255,255,255,.22),inset 0 -0.5px 0 rgba(0,0,0,.12);}
-.tab-btn.active svg{transform:scale(1.05);}
-.tab-btn:active svg{transform:scale(.86);}
+/* TAB BAR — Liquid Glass lens (iOS 26 style) */
+.tab-bar{position:fixed;bottom:max(16px,calc(env(safe-area-inset-bottom) + 8px));left:50%;transform:translateX(-50%);width:calc(100% - 32px);max-width:480px;z-index:200;display:flex;align-items:center;justify-content:space-around;padding:5px 6px;background:rgba(255,255,255,.07);backdrop-filter:blur(60px) saturate(180%);-webkit-backdrop-filter:blur(60px) saturate(180%);border-radius:30px;border:none;box-shadow:inset 0 1.5px 0 rgba(255,255,255,.32),inset 0 -1px 0 rgba(0,0,0,.18),0 0 0 .5px rgba(255,255,255,.1),0 8px 28px rgba(0,0,0,.32);overflow:visible;}
+.tab-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:7px 1px;border:none;background:transparent;cursor:pointer;color:rgba(235,235,245,.38);font-family:var(--font);font-size:10px;font-weight:500;letter-spacing:-.1px;border-radius:22px;transition:color .28s cubic-bezier(.2,.8,.2,1);-webkit-tap-highlight-color:transparent;position:relative;z-index:1;}
+.tab-btn svg{width:21px;height:21px;transition:transform .28s cubic-bezier(.2,.8,.2,1);}
+.tab-btn.active{color:#fff;background:transparent;box-shadow:none;}
+.tab-btn.active svg{transform:scale(1.08);}
+.tab-btn:active svg{transform:scale(.84);}
+/* Floating glass lens */
+.tab-lens{position:absolute;width:68px;height:68px;border-radius:50%;top:50%;left:0;transform:translateY(-50%) translateX(0px);background:rgba(38,38,44,.78);backdrop-filter:blur(24px) saturate(200%);-webkit-backdrop-filter:blur(24px) saturate(200%);pointer-events:none;z-index:0;will-change:transform;transition:transform .45s cubic-bezier(.34,1.56,.64,1);box-shadow:inset 0 1.5px 0 rgba(255,255,255,.5),inset 0 -1px 0 rgba(0,0,0,.3),0 2px 20px rgba(0,0,0,.45);}
+.tab-lens::before{content:'';position:absolute;inset:0;border-radius:50%;background:conic-gradient(from 150deg,rgba(210,90,255,.85) 0%,rgba(70,140,255,.85) 20%,rgba(30,210,255,.75) 38%,rgba(30,255,170,.3) 52%,rgba(255,210,50,.2) 65%,rgba(255,70,110,.55) 80%,rgba(210,90,255,.85) 100%);-webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 2.5px),#000 calc(100% - 2.5px));mask:radial-gradient(farthest-side,transparent calc(100% - 2.5px),#000 calc(100% - 2.5px));}
 
 canvas{max-width:100%!important;}
 /* MENU BUTTON */
@@ -529,6 +531,7 @@ canvas{max-width:100%!important;}
 
 <!-- TAB BAR -->
 <nav class="tab-bar">
+  <div class="tab-lens" id="tabLens"></div>
   <!-- Inicio -->
   <button class="tab-btn active" onclick="go('inicio',this)">
     <svg viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
@@ -852,12 +855,23 @@ function setStickyTitle(){
   window.scrollTo({top:0,behavior:'instant'});
 }
 
+function updateLens(btn){
+  const lens=document.getElementById('tabLens');
+  if(!lens||!btn) return;
+  const bar=document.querySelector('.tab-bar');
+  const br=bar.getBoundingClientRect();
+  const btnR=btn.getBoundingClientRect();
+  const cx=btnR.left-br.left+btnR.width/2;
+  lens.style.transform=`translateY(-50%) translateX(${cx-34}px)`;
+}
+
 function go(id,btn){
   if(navigator.vibrate)navigator.vibrate(6);
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.tab-btn').forEach(t=>t.classList.remove('active'));
   document.getElementById(id).classList.add('active');
   btn.classList.add('active');
+  updateLens(btn);
   if(id==='gastos'      &&!window._g) initGastos();
   if(id==='movimientos' &&!window._m) initMovimientos();
   if(id==='tendencias'  &&!window._t) initTendencias();
@@ -1397,28 +1411,45 @@ async function loadData(){
   if(ok) fetchData();
 }
 loadData();
+// Position lens on first active tab after layout
+requestAnimationFrame(()=>requestAnimationFrame(()=>{
+  const ab=document.querySelector('.tab-btn.active');
+  if(ab) updateLens(ab);
+}));
 
-// Generate apple-touch-icon dynamically (iOS home screen) — Apple Wallet style
+// Generate apple-touch-icon — Apple Wallet + Liquid Glass style
 (function(){
   try{
     const c=document.createElement('canvas');c.width=c.height=180;
     const ctx=c.getContext('2d');
-    // Rounded rect clip (iOS icon shape)
-    const r=38,s=180;
-    ctx.beginPath();ctx.moveTo(r,0);ctx.lineTo(s-r,0);ctx.arcTo(s,0,s,r,r);ctx.lineTo(s,s-r);ctx.arcTo(s,s,s-r,s,r);ctx.lineTo(r,s);ctx.arcTo(0,s,0,s-r,r);ctx.lineTo(0,r);ctx.arcTo(0,0,r,0,r);ctx.closePath();ctx.clip();
-    // Green gradient bg
-    const g=ctx.createLinearGradient(0,0,0,180);g.addColorStop(0,'#1B7A38');g.addColorStop(1,'#0B4E22');
-    ctx.fillStyle=g;ctx.fillRect(0,0,180,180);
-    function rr(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.arcTo(x+w,y,x+w,y+r,r);ctx.lineTo(x+w,y+h-r);ctx.arcTo(x+w,y+h,x+w-r,y+h,r);ctx.lineTo(x+r,y+h);ctx.arcTo(x,y+h,x,y+h-r,r);ctx.lineTo(x,y+r);ctx.arcTo(x,y,x+r,y,r);ctx.closePath();}
-    // Card 1 — gold/yellow, rotated back
-    ctx.save();ctx.translate(90,75);ctx.rotate(-0.16);ctx.fillStyle='#F0B429';rr(ctx,-72,-40,144,80,12);ctx.fill();ctx.restore();
-    // Card 2 — blue, slight counter-rotation
-    ctx.save();ctx.translate(90,80);ctx.rotate(0.09);ctx.fillStyle='#4A90D9';rr(ctx,-72,-40,144,80,12);ctx.fill();ctx.restore();
-    // Card 3 — white, front
-    ctx.fillStyle='white';rr(ctx,16,92,148,72,12);ctx.fill();
-    // Chip on front card
-    ctx.fillStyle='#E8C040';rr(ctx,26,106,34,24,5);ctx.fill();
-    ctx.fillStyle='rgba(0,0,0,.08)';ctx.fillRect(26,115,34,3);
+    // iOS rounded-rect clip
+    const R=40,S=180;
+    ctx.beginPath();ctx.moveTo(R,0);ctx.lineTo(S-R,0);ctx.arcTo(S,0,S,R,R);ctx.lineTo(S,S-R);ctx.arcTo(S,S,S-R,S,R);ctx.lineTo(R,S);ctx.arcTo(0,S,0,S-R,R);ctx.lineTo(0,R);ctx.arcTo(0,0,R,0,R);ctx.closePath();ctx.clip();
+    function rr(x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.arcTo(x+w,y,x+w,y+r,r);ctx.lineTo(x+w,y+h-r);ctx.arcTo(x+w,y+h,x+w-r,y+h,r);ctx.lineTo(x+r,y+h);ctx.arcTo(x,y+h,x,y+h-r,r);ctx.lineTo(x,y+r);ctx.arcTo(x,y,x+r,y,r);ctx.closePath();}
+    // Dark gradient bg
+    const gbg=ctx.createLinearGradient(0,0,0,180);gbg.addColorStop(0,'#1a1a2a');gbg.addColorStop(1,'#080810');
+    ctx.fillStyle=gbg;ctx.fillRect(0,0,180,180);
+    // Card helper — draws gradient card rotated around pivot (90,96)
+    function drawCard(y,deg,c0,c1){
+      ctx.save();
+      ctx.translate(90,96);ctx.rotate(deg*Math.PI/180);ctx.translate(-90,-96);
+      const g=ctx.createLinearGradient(39,y,140,y+67);g.addColorStop(0,c0);g.addColorStop(1,c1);
+      ctx.fillStyle=g;rr(39,y,101,67,14);ctx.fill();
+      ctx.fillStyle='rgba(255,255,255,0.22)';rr(39,y,101,11,7);ctx.fill();
+      ctx.restore();
+    }
+    drawCard(34,-9,'#ff8a80','#c0392b');
+    drawCard(51,-3,'#ffd166','#f0a500');
+    drawCard(68, 4,'#74c7fc','#0a7dc7');
+    // Person silhouette — head + shoulders
+    ctx.fillStyle='rgba(255,255,255,0.92)';
+    ctx.beginPath();ctx.arc(90,82,12,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.moveTo(58,114);ctx.quadraticCurveTo(90,95,122,114);ctx.lineTo(122,124);ctx.quadraticCurveTo(90,105,58,124);ctx.closePath();ctx.fill();
+    // Glass wallet body overlay
+    ctx.fillStyle='rgba(255,255,255,0.10)';rr(20,114,140,53,17);ctx.fill();
+    ctx.strokeStyle='rgba(255,255,255,0.22)';ctx.lineWidth=2;rr(20,114,140,53,17);ctx.stroke();
+    // Specular rim at wallet top
+    ctx.fillStyle='rgba(255,255,255,0.48)';rr(25,117,79,4.5,2);ctx.fill();
     const lnk=document.createElement('link');lnk.rel='apple-touch-icon';lnk.href=c.toDataURL();document.head.appendChild(lnk);
   }catch(e){}
 })();
